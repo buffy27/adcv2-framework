@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>{% block title %}Welcome!{% endblock %}</title>
+        {# Run `composer require symfony/webpack-encore-bundle`
+               and uncomment the following Encore helpers to start using Symfony UX #}
+        {% block stylesheets %}
+            {#{{ encore_entry_link_tags('app') }}#}
+            <link rel="stylesheet" href="../css/adc.css">
+            <link rel="stylesheet" href="../css/bootstrap-grid.min.css">
+            <link rel="shortcut icon" type="image/jpg" href="../images/favicon.ico"/>
+        {% endblock %}
+    </head>
+    <body>
+        <div id="loading-overlay" class="fade-overlay d-none">
+            <div>
+                <div class="lds-ellipsis">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+            </div>
+        </div>
+        <div class="logo">
+            <div class="logo-text">
+
+                <img src="../images/trans.gif" class="main-arrowup valign-bottom" />
+                <span> 0 </span>
+                <img src="../images/trans.gif" class="main-arrowdown valign-bottom" />
+                <span> 0 </span>
+                &nbsp;<span>Ratio: </span>
+                <span></span>
+                &nbsp;<a class="no-decoration" href="/messages/inbox">
+                    <img src="../images/trans.gif" class="valign-bottom main-inbox" />
+                </a>
+                <span>0 (0 New)</span>
+                &nbsp;<span> </span>
+                &nbsp;<span>Connectivity</span>
+            </div>
+        </div>
+        <div class="outer mx-0 mx-lg-2 bx-d-lg-0">
+            <div class="navigation d-flex justify-content-center flex-wrap">
+                <a href="/index">Home</a>
+                <a href="/torrents">Browse</a>
+                <a href="/requests">Requests</a>
+                <a href="/upload">Upload</a>
+                <a href="/bookmarks">Bookmarks</a>
+                <a href="/forums">Forums</a>
+                <a href="/faq">FAQ</a>
+                <a href="/rules">Rules</a>
+                <a href="/donation">Donation</a>
+
+                <div class="menu-right d-none d-lg-block">
+                    <a href="/profile"><img title="Your Profile" height="20" width="20" src="../images/nav_bar/profile1.svg" /></a>
+                    <a href="/friends"><img title="Friends" height="20" width="20" src="../images/nav_bar/friends.svg"/></a>
+                    <a href="/staffpm"><img title="PM Staff" height="20" width="20" src="../images/nav_bar/staff.svg"/></a>
+                    <a href="/make_rss"><img title="RSS" height="20" width="20" src="../images/nav_bar/rss.svg"/></a>
+                    <a href="irc://irc.rizon.net/asiandvdclub"><img title="IRC" height="20" width="20" src="../images/nav_bar/irc.svg" /></a>
+                    <a href="/logout"><img title="Logout" height="20" width="20" src="../images/nav_bar/logout.svg"/s></a>
+                </div>
+
+            </div>
+
+            <div class="container px-d-sm-0">
+                {% block body %}
+                {% endblock %}
+            </div>
+        </div>
+        <div class="footer">
+            <p>Asian DVD Club | 2005-<script>document.write(new Date().getFullYear())</script></p>
+        </div>
+    </body>
+    <div class="footer">
+        <p><script type="text/javascript">
+                function display_c(){
+                    var refresh=1000;
+                    mytime=setTimeout('display_ct()',refresh)
+                }
+                function display_ct() {
+                    var x = new Date()
+                    var x1=x.toUTCString();
+                    document.getElementById('ct').innerHTML = x1;
+                    tt=display_c();
+                }
+            </script></p>
+        <body onload=display_ct();>
+        <span id='ct' ></span></body>
+        {% block javascripts %}
+
+            {#{{ encore_entry_script_tags('app') }}#}
+        {% endblock %}
+    </div>
+    </body>
+</html>

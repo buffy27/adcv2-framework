@@ -1,0 +1,82 @@
+{% extends 'layout/tracker.html.twig' %}
+
+{% block title %}Create News{% endblock %}
+
+{% block body %}
+    <div class="row small-device">
+        <div class="col-12 col-xl-8 col-lg-10 mx-auto mt-4 mb-5">
+            <?php echo isset($data['request_msg']) ? $data['request_msg'] : ""; ?>
+
+            <h1 class="text-center">Create news</h1>
+
+            <form enctype="multipart/form-data" method="POST" action="/create_news" role="form">
+                <div class="fancy-container bx-d-sm-0">
+                    <!-- title -->
+                    <div class="fancy-row">
+                        <div class="row small-device">
+                            <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">News title</div>
+                            <div class="col-12 col-sm-10">
+                                <input class="w-100" type="text" name="title" value="" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- message -->
+                    <div class="fancy-row">
+                        <div class="row small-device">
+                            <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 pt-1">Message</div>
+                            <div class="col-12 col-sm-10">
+                                <textarea autocomplete="off" name="text_area" id="news-markdown-editor"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- create news button -->
+                    <div class="fancy-row">
+                        <div class="row small-device">
+                            <div class="col-12 col-sm-2"></div>
+                            <div class="col-12 col-sm-10">
+                                <input id="qr" type="submit" class="btn" value="Create news">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    {#
+        TODO Move this to it's own template
+    #}
+    <link rel="stylesheet" href="css/easymde.min.css" />
+    <link rel="stylesheet" href="css/adc.easymde.css" />
+    <script src="js/easymde.min.js"></script>
+    <script>
+        function loadEasyMde(element, height) {
+            if (typeof(element) == 'string') {
+                element = document.querySelector(element);
+            }
+            var easyMDE = new EasyMDE({
+                element: element,
+                promptURLs: true,
+                tabSize: 4,
+                spellChecker: false,
+                nativeSpellcheck: false,
+                sideBySideFullscreen: false,
+                minHeight: height + 'px',
+                toolbar: [
+                    "bold", "italic", "strikethrough", "|",
+                    "code", "quote", "|",
+                    "ordered-list", "unordered-list", "|",
+                    "link", "image", "|",
+                    "horizontal-rule", "clean-block", "|",
+                    "side-by-side"
+                ]
+            });
+            easyMDE.toggleSideBySide();
+            return easyMDE;
+        }
+    </script>
+    <script type="text/javascript">
+        loadEasyMde('#news-markdown-editor', 500);
+    </script>
+{% endblock %}

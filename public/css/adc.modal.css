@@ -1,0 +1,125 @@
+.jquery-modal {
+	z-index: 99999 !important;
+}
+.modal {
+	background: #ECE9D8;
+	border: 2px #840001 solid;
+	border-radius: 3px;
+	box-shadow: none;
+	padding: 0;
+	width: 100% !important;
+}
+.modal .modal-wrapper {
+	display: flex;
+	flex-direction: column;
+}
+.modal header {
+	background: #840001;
+	color: white;
+	display: flex;
+}
+.modal header * {
+	color: white;
+	text-decoration: none;
+}
+.modal header h4 {
+	margin: 0 0 0 6px;
+	line-height: 24px;
+}
+.modal header a {
+	margin: 0 6px 0 auto;
+	line-height: 24px;
+}
+.modal a.close-modal {
+    display: none;
+}
+.modal ul {
+	padding-left: 0;
+	margin-left: 0;
+}
+.modal ul ul {
+	padding-left: 32px;
+	margin-left: 0;
+}
+.modal ul, .modal ul ul {
+	list-style: none;
+}
+.modal .modal-body {
+	padding: 15px;
+}
+.modal .modal-body .list-of-files {
+	display: none;
+}
+.modal ul li {
+	padding: 0;
+	line-height: 18px;
+	margin: 0;
+}
+ul.fancytree-container {
+	border: 1px #ccc solid !important;
+}
+ul.fancytree-container:focus {
+	outline: none;
+}
+
+.modal-sm {
+	max-width: 575px !important;
+}
+.modal-md {
+	max-width: 767px !important;
+}
+.modal-lg {
+	max-width: 991px !important;
+}
+.blocker {
+	padding: 0 !important;
+}
+
+@media (min-width: 576px) {
+}
+@media (max-width: 575px) {
+	.modal-sm {
+		border-left: 0 !important;
+		border-right: 0 !important;
+	}
+	.modal-sm .modal-body {
+		padding-left: 5px !important;
+		padding-right: 5px !important;
+	}
+	.modal-md .modal-body {
+		padding-left: 5px !important;
+		padding-right: 5px !important;
+	}
+	.modal-lg .modal-body {
+		padding-left: 5px !important;
+		padding-right: 5px !important;
+	}
+}
+@media (min-width: 768px) {
+}
+@media (max-width: 767px) {
+	.modal-md {
+		border-left: 0 !important;
+		border-right: 0 !important;
+	}
+	.modal-md .modal-body {
+		padding-left: 10px !important;
+		padding-right: 10px !important;
+	}
+	.modal-lg .modal-body {
+		padding-left: 10px !important;
+		padding-right: 10px !important;
+	}
+}
+@media (min-width: 992px) {
+}
+@media (max-width: 991px) {
+	.modal-lg {
+		border-left: 0 !important;
+		border-right: 0 !important;
+	}
+}
+@media (min-width: 1200px) {
+}
+@media (max-width: 1199px) {
+}

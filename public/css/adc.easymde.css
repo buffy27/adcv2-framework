@@ -1,0 +1,59 @@
+.editor-toolbar {
+    border-radius: 0;
+    border: 1px #999 solid;
+    padding: 0 .25rem .25rem 0;
+}
+
+.editor-toolbar button {
+    font-size: 11px;
+    color: black;
+    border-color: #999;
+    margin-left: .25rem;
+    margin-top: .25rem;
+    height: 24px;
+    width: 24px;
+}
+
+.editor-toolbar button:hover {
+    background: #D4CCA5;
+    border-color: #777;
+}
+
+.editor-toolbar:before,
+.editor-toolbar:after {
+    display: none;
+}
+
+.CodeMirror,
+.CodeMirror-sided {
+    border-color: #999;
+    border-top: none;
+    border-radius: 0;
+}
+
+.editor-preview-active-side {
+    border-color: #999;
+    border-top: none;
+    border-radius: 0;
+}
+.editor-preview img {
+    width: 100%;
+    max-width: 700px !important;
+}
+
+.editor-statusbar {
+    display: none;
+}
+
+.editor-toolbar i.separator {
+    border-left: 1px solid #999;
+    border-right: 0;
+    margin: 0 .15rem 0 .4rem;
+}
+
+.editor-toolbar i.no-mobile {
+    display: inline-block !important;
+}
+.CodeMirror-scroll {
+    height: initial !important;
+}

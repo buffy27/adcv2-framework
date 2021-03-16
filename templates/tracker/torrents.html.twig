@@ -1,0 +1,168 @@
+{% extends 'layout/tracker.html.twig' %}
+
+{% block title %}Torrents{% endblock %}
+
+{% block body %}
+    <form enctype="multipart/form-data" method="GET" action="/torrents/" role="form">
+        <div class="row no-gutter small-device mt-4">
+            <div class="mx-auto col-xl-10 col-12 mb-4">
+                <div class="row small-device">
+                    <!-- searchbox -->
+                    <div class="col-lg-4 col-md-6 d-flex order-3 order-md-2 order-lg-1">
+                        <div class="searchtable-container bt-0 br-md-0 bx-d-sm-0 w-100">
+                            <h4></h4>
+                            <div class="p-2">
+                                <input class="mb-2 w-100" type="text" name="searchbox" value="" />
+                                <p class="m-0 p-0 text-right">
+                                    <label class="valign-middle" for="check_desc">
+                                        <span></span>
+                                        <input type="checkbox" id="check_desc" name="search_desc" value="1" >
+                                    </label>
+                                </p>
+                                <p class="m-0 p-0 mt-2 text-right">
+                                    <input class="btn" type="submit" name="search" value="Search">
+                                    <input class="btn" type="submit" name="reset" value="Reset">
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- show filter -->
+                    <div class="col-lg-4 col-md-6 d-flex order-2 order-md-3 order-lg-2">
+                        <div class="searchtable-container bt-0 bb-d-md-0 br-lg-0 bx-d-sm-0 w-100">
+                            <h4></h4>
+                            <div class="p-2">
+                                <div class="row small-device">
+                                    <div class="col-6 pl-3 pl-lg-2">
+                                        <label class="nobr valign-middle"><input type="checkbox" name="bookmarked" value="1"  /><span>Bookmarked</span></label><br />
+                                        <label class="nobr valign-middle"><input type="checkbox" name="completed" value="1"  /><span>Completed</span></label><br />
+                                        <label class="nobr valign-middle"><input type="checkbox" name="my_uploads" value="1"  /><span>My Uploads</span></label><br />
+                                        <label class="nobr valign-middle"><input type="checkbox" name="seeds_needed" value="1"  /><span>Seeds Needed</span></label><br />
+                                    </div>
+                                    <div class="col-6 pr-3 pr-lg-2">
+                                        <label class="nobr valign-middle"><input type="checkbox" name="bdmw" value="1"  /><span>Blu-ray Torrents</span></label><br />
+                                        <label class="nobr valign-middle"><input type="checkbox" name="uhd" value="1"  /><span>Ultra HD Torrents</span></label><br />
+                                        <label class="nobr valign-middle"><input type="checkbox" name="golden" value="1"  /><span>Golden Torrents</span></label><br />
+                                        <label class="nobr valign-middle"><input type="checkbox" name="silver" value="1"  /><span>Silver Torrents</span></label><br />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- category filter -->
+                    <div class="col-lg-4 col-md-12 d-flex order-1 order-md-1 order-lg-3">
+                        <div class="searchtable-container bt-0 bb-d-lg-0 bx-d-sm-0 w-100">
+                            <h4></h4>
+                            <div class="p-2">
+                                <div class="row small-device">
+                                    <div class="col-sm-3 col-6 pl-3 pl-lg-2">
+                                        <label class="nobr valign-middle"><input type="checkbox" name="countries[]" value="1"  /><span>Anime</span></label><br />
+                                        <label class="nobr valign-middle"><input type="checkbox" name="countries[]" value="2"  /><span>Hong Kong</span></label><br />
+                                        <label class="nobr valign-middle"><input type="checkbox" name="countries[]" value="3"  /><span>Japan</span></label><br />
+                                        <label class="nobr valign-middle"><input type="checkbox" name="countries[]" value="4"  /><span>South Korea</span></label><br />
+                                    </div>
+                                    <div class="col-sm-3 col-6 pr-3 mr-sm-0">
+                                        <label class="nobr valign-middle"><input type="checkbox" name="countries[]" value="5"  /><span>China</span></label><br />
+                                        <label class="nobr valign-middle"><input type="checkbox" name="countries[]" value="6"  /><span>Philippines</span></label><br />
+                                        <label class="nobr valign-middle"><input type="checkbox" name="countries[]" value="7"  /><span>Taiwan</span></label><br />
+                                        <label class="nobr valign-middle"><input type="checkbox" name="countries[]" value="8"  /><span>Thailand</span></label><br />
+                                    </div>
+                                    <div class="col-sm-3 col-6 pr-3 pr-lg-2">
+                                        <label class="nobr valign-middle"><input type="checkbox" name="countries[]" value="9"  /><span>Vietnam</span></label><br />
+                                        <label class="nobr valign-middle"><input type="checkbox" name="countries[]" value="10"  /><span>Malaysia</span></label><br />
+                                        <label class="nobr valign-middle"><input type="checkbox" name="countries[]" value="11"  /><span>Other Asian</span></label><br />
+                                        <label class="nobr valign-middle"><input type="checkbox" name="countries[]" value="12"  /><span>Miscellaneous</span></label><br />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <div class="torrenttable table-responsive mt-0 mb-4">
+        <table class="torrenttable_helper bx-d-sm-0 w-100">
+            <thead>
+            <tr>
+                <th width="1%" class="text-center">Type</th>
+                <th class="text-left">Name</th>
+                <th class="text-right"></th>
+                <th class="text-left d-none d-sm-table-cell">Uploader</th>
+                <th width="1%" class="text-center d-none d-sm-table-cell">Size</th>
+                <th width="1%" class="text-center d-none d-md-table-cell">Dn</th>
+                <th width="1%" class="text-center d-none d-md-table-cell">Ul</th>
+                <th width="1%" class="text-right d-none d-lg-table-cell">Age</th>
+                <th width="1%" class="text-center d-none d-lg-table-cell">DLs</th>
+                <th width="1%" class="text-center d-none d-lg-table-cell"><img src="../images/trans.gif" class="main-comments" /></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% if not torrents %}
+            <tr>
+                <td colspan="9" class="text-center">No torrents found.</td>
+            </tr>
+            {% else %}
+                {% for torrent in torrents %}
+                    <tr>
+                        <td class="text-center p-0">
+                            <img title="" src="../images/trans.gif" class="" /> {{ torrent.getTCategory.getName }}
+                        </td>
+                        <td>
+                            <a class="no-decoration valign-middle" href="/torrent/{{ torrent.id }}"> {{ torrent.name }}
+                                {% if torrent.added | date("H:i:s") < "-15 i" %}
+                                    <span class="red"><b>(NEW)</b></span>
+                                {% endif %}
+                                <b></b>
+
+                                {% if torrent.specs['format'] == "bdmv" %}
+                                    <img title="Bluray" class="valign-middle" src="../images/bd.svg" width="25" height="25" />
+                                {% elseif  torrent.specs['format'] == "uhd" %}
+                                    <img title="UHD" class="valign-middle" src="../images/uhd.svg" width="100" height="25" />
+                                {% endif %}
+
+                                {% if torrent.bonus == "freeleech" %}
+                                     <img title="golden" class="valign-middle" src="../images/golden.gif" />
+                                {% elseif torrent.bonus == "silver" %}
+                                     <img title="silver" class="valign-middle" src="../images/silver.gif" />
+                                {% endif %}
+                                </b>
+                            </a>
+                        </td>
+                        {#
+                        <td class="text-center d-none d-sm-table-cell">
+                            <img title="" class="valign-middle" height="15" width="15" src="../images/" />
+
+                        </td>
+                        #}
+                        <td class="text-left d-none d-sm-table-cell valign-middle">
+                            <a href="/profile/"></a></td>
+
+                        <td class="text-center d-none d-sm-table-cell"></td>
+                        <td class="text-center d-none d-md-table-cell">{{ torrent.seeders }}</td>
+                        <td class="text-center d-none d-md-table-cell">{{ torrent.leechers }}</td>
+                        <td class="text-right d-none d-lg-table-cell dark-gray">{{ torrent.added | date("m/d/Y") }}</td>
+                        <td class="text-center d-none d-lg-table-cell"></td>
+                        <td class="text-center d-none d-lg-table-cell"></td>
+                    </tr>
+                {% endfor %}
+            {% endif %}
+            
+            </tbody>
+        </table>
+    </div>
+
+    <div class="text-center mt-2 mb-4">
+        
+        
+        <a  href="/torrents/"><b></b></a>
+        
+        <b></b>
+        
+        
+    </div>
+    
+    </div>
+{% endblock %}

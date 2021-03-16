@@ -1,0 +1,61 @@
+{% extends 'layout/access.html.twig' %}
+
+{% block title %}Log in!{% endblock %}
+
+{% block body %}
+    {#
+        Uncomment this section and add a remember_me option below your firewall to activate remember me functionality.
+        See https://symfony.com/doc/current/security/remember_me.html
+
+        <div class="checkbox mb-3">
+            <label>
+                <input type="checkbox" name="_remember_me"> Remember me
+            </label>
+        </div>
+    #}
+    <form method="post" class="mt-5 mb-4" action="/login">
+
+
+        {% if app.user %}
+            <div class="mb-3">
+                You are logged in as {{ app.user.username }}, <a href="{{ path('app_logout') }}">Logout</a>
+            </div>
+        {% endif %}
+        <p class="text-center"><b>Note:</b> You need cookies enabled to log in.</p>
+        <div class="row small-device">
+            <div class="col col-xl-4 col-lg-5 col-md-7 col-sm-9 mx-auto">
+                <input type="hidden" name="apple" value="evil" />
+                <div class="fancy-container bx-d-sm-0">
+                    <div class="fancy-row">
+                        <div class="row small-device">
+                            <div class="rowhead col-12 col-sm-3 pr-sm-0 text-left-d-sm pb-d-sm-1">Username</div>
+                            <div class="col-12 col-sm-9">
+                                <input type="text" id="username" name="username" value="{{ last_username }}" autofocus="autofocus" class="w-100" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="fancy-row">
+                        <div class="row small-device">
+                            <div class="rowhead col-12 col-sm-3 pr-sm-0 text-left-d-sm pb-d-sm-1">Password</div>
+                            <div class="col-12 col-sm-9">
+                                <input type="password" id="password" name="password" class="w-100" />
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+                    <div class="fancy-row">
+                        <div class="row small-device">
+                            <div class="rowhead col-12 col-sm-3 pr-sm-0 text-left-d-sm"></div>
+                            <div class="col-12 col-sm-9">
+                                <input type="submit" value="Log me in!" class="btn" />
+                                {% if error %}
+                                    <span class="red text-bold">{{ error.messageKey|trans(error.messageData, 'security') }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+{% endblock %}

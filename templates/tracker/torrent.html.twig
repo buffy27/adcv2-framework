@@ -1,0 +1,401 @@
+{% extends 'layout/tracker.html.twig' %}
+
+{% block title %}Torrent{% endblock %}
+
+{% block body %}
+    <div class="row small-device mt-4 mb-5">
+        <div class="col-xl-8 offset-xl-2 col-lg-10 offset-lg-1 col-12">
+            <h1 class="text-center">
+                {{ torrent.name }}
+                {% if torrent.bonus == "freeleech" %}
+                    <img title="golden" class="valign-middle" src="../images/golden.gif">
+                {% elseif torrent.bonus == "silver" %}
+                    <img title="silver" class="valign-middle" src="../images/silver.gif">
+                {% endif %}
+            </h1>
+
+            <div class="fancy-container bx-d-sm-0">
+                <!-- actions -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Actions</div>
+                        <div class="col-12 col-sm-10">
+                            <div class="d-flex">
+                                <a class="mr-2" href="/download/<?php echo $data['tID']; ?>"><b>Download</b></a>
+                                <?php if (!$data['isBookmarked']) { ?>
+                                <!-- add to bookmarks -->
+                                <a title="Add bookmark" href="/add_bookmark/<?php echo $data['tID']; ?>">
+                                    <b>Bookmark</b>
+                                </a>
+                                <?php } else { ?>
+                                <!-- remove from bookmarks -->
+                                <a title="Remove bookmark" href="/remove_bookmark/<?php echo $data['tID']; ?>">
+                                    <b>Unbookmark</b>
+                                </a>
+                                <?php } ?>
+                                <div class="ml-auto">
+                                    <!-- <a class="no-decoration" href="/report/<?php echo $data['tID']; ?>">
+                                        <b>Report</b>
+                                    </a> -->
+
+                                    <?php if ($data['canEditTorrent']) { ?>
+                                    <!-- edit action -->
+                                    <a class="no-decoration ml-2" href="/edit_torrent/<?php echo $data['tID']; ?>"><b>Edit</b></a>
+                                    <?php } ?>
+                                    <?php if ($data['canRemoveTorrent']) { ?>
+                                    <!-- remove action -->
+                                    <a class="no-decoration red ml-2" href="/remove_torrent/<?php echo $data['tID']; ?>"><b>Remove</b></a>
+                                    <?php } ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- uploaded by -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 nobr">Uploaded by</div>
+                        <div class="col-12 col-sm-10">
+                            <a class="r04" href="/profile/{{ torrent.getOwner.getId }}"><b>{{ torrent.getOwner.getUsername }}</b></a>
+                            {# title icon
+                            <img title="title" class="valign-middle" height="15" width="15" src="../images/<?php echo $data['torrentData']['uploader_title_icon']; ?>">
+                            #}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- size -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Size</div>
+                        <div class="col-12 col-sm-10">
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- anidb / imdb info -->
+                {% if torrent.contentInfo and user.trackerSettings['show_content'] == "on" %}
+                    <div class="fancy-row">
+                        <div class="row small-device">
+                            {% if torrent.specs['type'] == 'movie' %}
+                                <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 nobr">Content Info</div>
+                                <div class="col-12 col-sm-10">
+
+                                    <a target="_blank" href="https://www.imdb.title/tt{{ torrent.contentId }}">
+                                        https://www.imdb.title/tt{{ torrent.contentId }}
+                                    </a>
+
+
+                                    {% apply markdown_to_html %}
+                                        {{ torrent.contentInfo }}
+                                    {% endapply %}
+                                </div>
+                                <script type="text/javascript">
+                                    parseMarkdown("#content-movie-markdown-message", "#content-movie-parsed-message");
+                                </script>
+                            {% elseif torrent.specs['type'] == 'anime' %}
+                                <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 nobr">Content Info</div>
+                                <div class="col-12 col-sm-10">
+
+                                    <a target="_blank" href="https://myanimelist.net/anime/{{ torrent.contentId }}">
+                                        https://myanimelist.net/anime/{{ torrent.contentId }}
+                                    </a>
+
+                                    {% apply markdown_to_html %}
+                                        {{ torrent.contentInfo }}
+                                    {% endapply %}
+                                </div>
+                                <script type="text/javascript">
+                                    parseMarkdown("#content-anime-markdown-message", "#content-anime-parsed-message");
+                                </script>
+                           {% endif %}
+                        </div>
+                    </div>
+                {% endif %}
+                <!-- description & image -->
+                {% if user.trackerSettings['show_desc'] == "on" %}
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Release Details</div>
+                        <div class="col-12 col-sm-10">
+                            <div class="row small-device">
+                                <div class="col-xl-5 mb-2 mb-xl-0 col-12">
+                                    <img src="" class="valign-top torrent-cover">
+                                </div>
+                                <div class="col-xl-7 col-12">
+                                    {% apply markdown_to_html %}
+                                        {{ torrent.description }}
+                                    {% endapply %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if user.trackerSettings['show_mediainfo'] == "on" %}
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">MediaInfo</div>
+                        <div class="col-12 col-sm-10">
+                            <?php if (!empty(trim($data['torrentData']['media_info']))) : ?>
+                            <a href="#" onclick="showMediaInfo(event, 'md')">Click to view</a>
+                            <div id="adc-torrent-mediainfo" class="d-none"><?php echo $data['torrentData']['media_info']; ?></div>
+                            <?php else : ?>
+                            None
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- files -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1"><a class="d-block" href="#" onclick="showTorrentFiles(event, '/torrent_files/<?php echo $data['torrentData']['torrent_id']; ?>', 'sm')">Torrent Files</a></div>
+
+                        <div class="col-12 col-sm-10 ">{# number of files here #}
+
+                            <div class="d-none" id="adc-files-list"></div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- info hash -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Infohash</div>
+                        <div class="col-12 col-sm-10">{{ torrent.infohash }}</div>
+                    </div>
+                </div>
+
+                <!-- peers -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1"><a class="d-block" href="#" onclick="showPeers(event, 'lg')">Peers</a></div>
+                        <div class="col-12 col-sm-10">
+                            <img src="../images/trans.gif" class="main-arrowup valign-bottom" /> <b class="green">{{ torrent.seeders }}</b> seeders
+                            &nbsp;
+                            <img src="../images/trans.gif" class="main-arrowdown valign-bottom" /> <b class="red">{{ torrent.leechers }}</b> leechers
+
+                            <div class="d-none" id="adc-peers-list">
+                                <table class="peers-table w-100">
+                                    <thead>
+                                    <tr>
+                                        <th class="text-left">Username</th>
+                                        <th width="1%" class="text-center nobr">Uploaded</th>
+                                        <th width="1%" class="text-center nobr">Up Speed</th>
+                                        <th width="1%" class="text-center nobr">Downloaded</th>
+                                        <th width="1%" class="text-center nobr">Down Speed</th>
+                                        <th width="1%" class="text-center nobr">Connected</th>
+                                        <th class="text-right nobr">Client</th>
+                                    </tr>
+                                    </thead>
+                                    {% if not torrent.seeders and not torrent.leechers %}
+                                        <tr>
+                                            <td colspan="5">Sorry, there are no peers...</td>
+                                        </tr>
+                                    {% else %}
+                                        {#
+                                            <tr>
+                                                <td class="text-left nobr">
+                                                    <a class="<?php echo empty($peer['remaining']) ? "green" : "r06" ;?> no-decoration" href="/profile/<?php echo $peer['uid']; ?>"><b><?php echo $peer['username']; ?></b></a>
+                                                </td>
+                                                <td class="text-center green nobr"><?php echo formatBytes($peer['uploaded']); ?></td>
+                                                <td class="text-center green nobr"><?php echo formatBytes($peer['upspeed']) . "/s"; ?></td>
+                                                <td class="text-center r03 nobr"><?php echo formatBytes($peer['downloaded']); ?></td>
+                                                <td class="text-center green nobr"><?php echo formatBytes($peer['downspeed']) . "/s"; ?></td>
+                                                <td class="text-center nobr"><?php  echo $peer['timespent']; ?></td>
+                                                <td class="text-right nobr"><?php echo $peer['useragent']; ?></td>
+                                            </tr>
+                                        #}
+                                    {% endif %}
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {#
+            <?php if (!empty($data['comments'])) : ?>
+            <div class="mt-5">
+                <?php foreach ($data['comments'] as $comment) : ?>
+
+                <div id="torrentComment-<?php echo $comment['id']; ?>" class="fancy-container bx-d-sm-0 p-2 mb-2">
+                    <div class="row small-device">
+                        <div class="col-2 pr-0">
+                            <div class="w-100 avatar-container">
+                                <?php if (!empty($comment['title_icon'])) : ?>
+                                <img title="<?php echo $comment['title']; ?>" class="title-icon-avatar" src="../images/<?php echo $comment['title_icon']; ?>">
+                                <?php endif; ?>
+                                <img src="/avatar/<?php echo $comment['uid']; ?>" class="w-100" />
+                            </div>
+                        </div>
+                        <div class="col-10">
+                            <div class="pl-d-sm-2">
+                                <div class="d-flex">
+                                    <a class="mr-2 comment-author" href="/profile/<?php echo $comment['uid']; ?>"><b><?php echo $comment['username']; ?></b></a>
+                                    <?php if (!empty($comment['title']) && empty($comment['title_icon'])) : ?>
+                                    <span class="mr-2 d-none d-sm-block">(<?php echo $comment['title']; ?>)</span>
+                                    <?php endif; ?>
+
+                                    <span>(<?php echo convTime($comment['added']); ?> ago)</span>
+                                    <span class="d-none comment-created-at"><?php echo $comment['added']; ?></span>
+
+                                    <div class="ml-auto">
+                                        <a class="no-decoration" href="#" onclick="quotePost(<?php echo $comment['id']; ?>);return false;"><b>Quote</b></a>
+                                        <?php if ($comment['canEdit']) : ?>
+                                        <a class="no-decoration ml-2" href="/edit_comment/<?php echo $comment['id']; ?>"><b>Edit</b></a>
+                                        <?php endif; ?>
+                                        <?php if ($comment['canRemove']) : ?>
+                                        <a class="no-decoration ml-2 red" href="#" onclick="deleteComment(<?php echo $comment['id']; ?>)"><b>Remove</b></a>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                                <hr class="mt-2 mb-1" />
+                                <div data-id="<?php echo $comment['id']; ?>" class="d-none single-markdown-comment"><?php echo $comment['comment']; ?></div>
+                                <div class="parsed-comment-content" id="single-parsed-comment-<?php echo $comment['id']; ?>"></div>
+                                <?php echo $comment['edited_at'] ? '<p class="mt-1 mb-0 smaller">(Last edited at ' . $comment['edited_at'] .  ')</p>' : ''; ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <?php endforeach; ?>
+            </div>
+            <?php endif; ?>
+
+            <?php if ($data['comments_total'] > 1) : ?>
+            <div class="text-center mt-2 mb-4">
+                <?php for ($page = 1; $page <= $data['comments_total']; ++$page) : ?>
+                <?php if($page == $data['current_page']): ?>
+                <b><?php echo $page; ?></b>
+                <?php else: ?>
+                <a  href="/torrent/<?php echo $data['tID'] . "/" . $page; ?>"><b><?php echo $page; ?></b></a>
+                <?php endif; ?>
+                <?php endfor; ?>
+            </div>
+            <?php endif; ?>
+            #}
+            <form class="mt-5" enctype="multipart/form-data" method="POST" action="/torrent/{{ torrent.id }}" role="form">
+                <div class="fancy-container bx-d-sm-0 px-2 pt-2">
+                    <h2>Comment this torrent</h2>
+                    <textarea name="comment_desc" id="comment-markdown-editor"></textarea>
+
+                    <div class="mb-2 mt-2">
+                        <button class="btn" name="add" type="submit">Add comment</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <link rel="stylesheet" href="../css/easymde.min.css" />
+    <link rel="stylesheet" href="../css/adc.easymde.css" />
+    <script src="../js/jquery-3.5.1.min.js"></script>
+    <script src="../js/functions.js" type="text/javascript"></script>
+    <script src="../js/easymde.min.js"></script>
+    <script>
+        function loadEasyMde(element, height) {
+            if (typeof(element) == 'string') {
+                element = document.querySelector(element);
+            }
+            var easyMDE = new EasyMDE({
+                element: element,
+                promptURLs: true,
+                tabSize: 4,
+                spellChecker: false,
+                nativeSpellcheck: false,
+                sideBySideFullscreen: false,
+                minHeight: height + 'px',
+                toolbar: [
+                    "bold", "italic", "strikethrough", "|",
+                    "code", "quote", "|",
+                    "ordered-list", "unordered-list", "|",
+                    "link", "image", "|",
+                    "horizontal-rule", "clean-block", "|",
+                    "side-by-side"
+                ]
+            });
+            easyMDE.toggleSideBySide();
+            return easyMDE;
+        }
+    </script>
+
+    <link rel="stylesheet" href="../css/jquery.modal.min.css" />
+    <link rel="stylesheet" href="../css/adc.modal.css" />
+    <script src="../js/jquery.modal.min.js" type="text/javascript"></script>
+    <script>
+        function setModalSize(size) {
+            if (size != 'sm' && size != 'md' && size != 'lg') {
+                size = 'md';
+            }
+            var modal = $('.modal');
+            modal.removeClass('modal-sm');
+            modal.removeClass('modal-md');
+            modal.removeClass('modal-lg');
+
+            modal.addClass('modal-' + size);
+        }
+    </script>
+
+    <div id="simple-adc-modal" class="modal">
+        <div class="modal-wrapper">
+            <header>
+                <h4 id="simple-adc-modal-header"></h4>
+                <a href="#" rel="modal:close">[close]</a>
+            </header>
+            <div class="modal-body">
+                <div class="inner-modal-body"></div>
+            </div>
+        </div>
+    </div>
+
+    <link rel="stylesheet" href="../css/skin-win8/ui.fancytree.min.css" />
+    <script src="../js/jquery.fancytree.ui-deps.js" type="text/javascript"></script>
+    <script src="../js/jquery.fancytree.min.js" type="text/javascript"></script>
+
+    <script src="../js/marked.min.js"></script>
+    <script>
+        function parseMarkdown(sourceElement, targetElement) {
+            if (typeof(sourceElement) == 'string') {
+                sourceElement = document.querySelector(sourceElement);
+            }
+            var markedMessage = marked(sourceElement.innerText.trim(), {
+                breaks: true,
+                smartLists: true
+            });
+            if (typeof(targetElement) == 'string') {
+                targetElement = document.querySelector(targetElement);
+            }
+            targetElement.innerHTML = markedMessage;
+        }
+    </script>
+
+    <script type="text/javascript">
+        $('.single-markdown-comment').each((index, elem) => {
+            var id = elem.dataset.id;
+            parseMarkdown(elem, "#single-parsed-comment-" + id);
+        });
+        const mde = loadEasyMde("#comment-markdown-editor", 180);
+
+        function quotePost(id) {
+            const commentElement = document.querySelector(`#torrentComment-${id}`);
+            let content = commentElement.querySelector('.single-markdown-comment').innerText;
+            let author = commentElement.querySelector('.comment-author').innerText;
+            let time = commentElement.querySelector('.comment-created-at').innerText;
+            mde.value(`>${author} wrote at ${time}\n${content.split('\n').map(e => `>${e}`).join('\n')}\n\n`);
+        }
+
+        function deleteComment(id) {
+            if (window.confirm('do you really want to delete this comment?')) {
+                fetch(`/remove_comment/${id}`, {
+                    method: 'POST'
+                }).then(() => window.location.reload());
+            }
+        }
+    </script>
+{% endblock %}

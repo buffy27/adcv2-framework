@@ -1,0 +1,126 @@
+{% extends 'layout/access.html.twig' %}
+
+{% block title %}Signup{% endblock %}
+
+
+{% block body %}
+
+    {% for flashError in app.flashes('verify_email_error') %}
+        <div class="alert alert-danger" role="alert">{{ flashError }}</div>
+    {% endfor %}
+
+    {{ form_start(registrationForm) }}
+        <div class="row small-device mb-3 mt-3">
+            <div class="col-xl-5 col-lg-7 col-md-10 col-12 mx-auto">
+                <div class="fancy-container bx-d-sm-0">
+                    <div class="fancy-row">
+                        <div class="row small-device">
+                            <div class="col-12">
+                                <p class="text-center mx-sm-2 mx-1 my-1">
+                                    <b>All fields required</b>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="fancy-row">
+                        <div class="row small-device">
+                            <div class="rowhead col-12 col-sm-4 pr-sm-0 text-left-d-sm pb-d-sm-1">{{ form_label(registrationForm.username) }}</div>
+                            <div class="col-12 col-sm-8 d-flex flex-column">
+                                {{ form_widget(registrationForm.username) }}
+                                <span class="small mt-1">{{ form_errors(registrationForm.username) }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="fancy-row">
+                        <div class="row small-device">
+                            <div class="rowhead col-12 col-sm-4 pr-sm-0 text-left-d-sm pb-d-sm-1">{{ form_label(registrationForm.password.first) }}</div>
+                            <div class="col-12 col-sm-8 d-flex flex-column">
+                                {{ form_widget(registrationForm.password.first) }}
+                                <span class="small mt-1">{{ form_errors(registrationForm.password.first) }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="fancy-row">
+                        <div class="row small-device">
+                            <div class="rowhead col-12 col-sm-4 pr-sm-0 text-left-d-sm pb-d-sm-1">{{ form_label(registrationForm.password.second) }}</div>
+                            <div class="col-12 col-sm-8 d-flex flex-column">
+                                {{ form_widget(registrationForm.password.second) }}
+                                <span class="small mt-1">{{ form_errors(registrationForm.password.second) }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="fancy-row">
+                        <div class="row small-device">
+                            <div class="rowhead col-12 col-sm-4 pr-sm-0 text-left-d-sm pb-d-sm-1">{{ form_label(registrationForm.email) }}</div>
+                            <div class="col-12 col-sm-8 d-flex flex-column">
+                                {{ form_widget(registrationForm.email) }}
+                                <span class="error mt-1">{{ form_errors(registrationForm.email) }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="fancy-row">
+                        <div class="row small-device">
+                            <div class="rowhead col-12 col-sm-4 pr-sm-0 text-left-d-sm pb-d-sm-1">{{ form_label(registrationForm.gender) }}</div>
+                            <div class="col-12 col-sm-8 d-flex flex-column">
+                                {{ form_widget(registrationForm.gender) }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="fancy-row">
+                        <div class="row small-device">
+                            <div class="rowhead col-12 col-sm-4 pr-sm-0 text-left-d-sm pb-d-sm-1">{{ form_label(registrationForm.id_country) }}</div>
+                            <div class="col-12 col-sm-8 d-flex flex-column">
+                                {{ form_widget(registrationForm.id_country) }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="fancy-row">
+                        <div class="row small-device">
+                            <div class="rowhead col-12 col-sm-4 pr-sm-0 text-left-d-sm pb-d-sm-1">Date of birth</div>
+                            <div class="col-12 col-sm-8 d-flex flex-column">
+                                {{ form_widget(registrationForm.birthday) }}
+                                <span class="small mt-1"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="fancy-row">
+                        <div class="row small-device">
+                            <div class="rowhead col-12 col-sm-4 pr-sm-0 text-left-d-sm pb-d-sm-1">Captcha</div>
+                            <div class="col-12 col-sm-8">
+                                {{ form_widget(registrationForm.captcha) }}
+                                <span class="small mt-1">{{ form_errors(registrationForm.captcha) }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="fancy-row">
+                        <div class="row small-device">
+                            <div class="rowhead col-12 col-sm-4 pr-sm-0 text-left-d-sm pb-d-sm-1">Accept rules</div>
+                            <div class="col-12 col-sm-8 d-flex flex-column">
+                                <label class="valign-middle">
+                                    {{ form_row(registrationForm.faq) }}
+
+                                </label>
+                                <label class="valign-middle">
+                                    {{ form_row(registrationForm.rules) }}
+                                </label>
+                                <label class="valign-middle">
+                                    {{ form_row(registrationForm.tos) }}
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="fancy-row">
+                        <div class="row small-device">
+                            <div class="rowhead col-12 col-sm-4 pr-sm-0 text-left-d-sm"></div>
+                            <div class="col-12 col-sm-8">
+                                {{ form_widget(registrationForm.submit) }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {{ form_end(registrationForm) }}
+
+
+{% endblock %}

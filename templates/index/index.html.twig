@@ -1,0 +1,105 @@
+{% extends 'layout/tracker.html.twig' %}
+
+{% block title %}Home{% endblock %}
+
+{% block body %}
+    <div class="row small-device mt-4 mb-5">
+        <div class="col-xl-9 col-lg-8 col-12">
+            <h2 class="text-center-d-sm"></h2>
+            <div class="news bx-d-sm-0">
+                {% if not news %}
+                <p>It appears that we've been to busy watching Asian movies to post any news recently :(</p>
+                {% else %}
+
+                <div class="news-container">
+                    {% for value in news %}
+                    <p class="mt-0 mb-1">
+                        Posted {{ value.added | date("m/d/Y")}} ago
+                        -- by {{ value.addedBy }}
+                        <b><a href="/profile/<?php echo $news['addedBy']; ?>"><?php echo $news['username']; ?></a></b>
+                    </p>
+                    <div class="card card-block">
+                        <div class="news-body">
+                            <div class="d-flex align-items-start justify-content-between">
+                                <h1 class="mt-0">{{ value.title }}</h1>
+                                {#
+                                <?php if ($data['canDeleteNews']) : ?>
+                                <a class="btn no-decoration text-center" href="/delete_news/<?php echo $news['idNews']; ?>">Delete</a>
+                                <?php endif; ?> #}
+                            </div>
+                            <div class="news-text d-none" data-id="<?php echo $news['idNews']; ?>">
+                                {{ value.text }}
+                            </div>
+                            <div id="single-parsed-news-<?php echo $news['idNews']; ?>"></div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                <a class="btn no-decoration mt-3" href="/create_news">New</a>
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-4 col-12 d-lg-block d-none">
+            <h2 class="text-center-d-sm"></h2>
+            <div class="news">
+                <table class="statstable b-0 w-100">
+                    <tbody>
+                    <tr>
+                        <td class="descriptor"></td>
+                        <td class="figure"></td>
+                    </tr>
+                    <tr>
+                        <td class="descriptor"></td>
+                        <td class="figure"></td>
+                    </tr>
+                    <tr>
+                        <td class="descriptor"></td>
+                        <td class="figure"></td>
+                    </tr>
+                    <!--  <tr>
+                         <td class="descriptor"><?php echo $data['lang_index']['row_warned_users']; ?></td>
+                         <td class="figure"></td>
+                     </tr> -->
+                    <tr>
+                        <td class="descriptor"></td>
+                        <td class="figure"></td>
+                    </tr>
+                    <tr>
+                        <td class="descriptor"></td>
+                        <td class="figure"></td>
+                    </tr>
+                    <tr>
+                        <td class="descriptor"></td>
+                        <td class="figure"></td>
+                    </tr>
+                    <tr>
+                        <td class="descriptor"></td>
+                        <td class="figure"></td>
+                    </tr>
+                    <tr>
+                        <td class="descriptor"></td>
+                        <td class="figure"></td>
+                    </tr>
+                    <tr>
+                        <td class="descriptor"></td>
+                        <td class="figure"></td>
+                    </tr>
+                    <tr>
+                        <td class="descriptor"></td>
+                        <td class="figure"></td>
+                    </tr>
+                    <tr>
+                        <td class="descriptor"></td>
+                        <td class="figure"></td>
+                    </tr>
+                    <tr>
+                        <td class="descriptor"></td>
+                        <td class="figure"></td>
+                    </tr>
+                    </tbody>
+                </table>
+                <p class="mb-0 small center"></p>
+            </div>
+        </div>
+    </div>
+{% endblock %}

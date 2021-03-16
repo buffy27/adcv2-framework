@@ -1,0 +1,164 @@
+
+:root {
+	--red: #840000;
+}
+@media (min-width: 1920px) {
+	.container{
+		min-width: 95%;
+	}
+}
+@media (min-width: 720px) {
+	.container{
+		min-width: 95%;
+	}
+}
+html {
+	background: var(--red);
+}
+body {
+	overflow-x: hidden;
+	background: radial-gradient(circle at 50% 15%, rgba(207,136,22,1) 0%, rgba(233,186,64,0.879989) 0%, rgba(132,0,0,1) 35%) no-repeat;
+}
+.header {
+	padding: 30px 0;
+	text-align: center;
+}
+.logo {
+	color: white; 
+	font-size: 50px;
+	text-align: center;
+	text-transform: uppercase;
+}
+.logo:hover {
+	color: white; 
+	text-decoration: none;
+}
+.container{
+	background: #f5f4ea;
+}
+h2 {
+	font-size: 1.5rem;
+	margin-bottom: 1rem;
+	border-bottom: 1px solid rgba(0,0,0,.3);
+	padding: 1rem;
+}
+.bloc {
+	border: 1px solid rgba(0,0,0,.1);
+    border-radius: .3rem;
+    padding: .5rem;
+	background: rgba(0,0,0,.05);
+	margin-bottom: 2rem;
+}
+.user-panel {
+	color: white;
+	padding: 0 5%;
+	text-align: center;
+}
+.user-panel .badge-primary {
+	color: var(--red);
+	background: rgba(255,255,255,.9);
+}
+.user-panel .badge-primary:hover {
+	background: white;
+}
+.nav-item{
+	padding-top: 5px;
+	padding-bottom: 5px;
+	margin-right: 5px;
+
+}
+.nav-pills{
+	margin: auto;
+}
+#navbar .nav-link { 
+	background: transparent;
+    color: #212529;
+    border: 1px solid rgba(0,0,0,.1);
+    font-weight: 600;
+    line-height: 1;
+}
+#navbar .nav-link:hover {
+	background: rgba(0,0,0,.1);
+}
+
+#controller .nav-item .nav-link{
+	font-size: 14px;
+}
+#controller .navbar{
+	margin-bottom: 1px;
+}
+#controller .table{
+	margin-bottom: 5px;
+}
+.table a {
+	color: var(--red);
+}
+
+#small{
+	padding-bottom: 10px;
+}
+#small td{
+	padding: inherit;
+	margin-left: 10px;
+	height: 20px;
+	font-size: 15px;
+	align-content: center;
+}
+#small_tab td{
+	padding-top: 0px;
+	padding-left: 20px;
+	margin-left: 10px;
+	height: 25px;
+	font-size: 15px;
+	align-content: center;
+}
+#small_tab.badge-info{
+	padding-top: 1px;
+	height: 25px;
+}
+
+#small_tab2 td{
+	padding-top: 0px;
+	padding-left: 20px;
+	margin-left: 10px;
+	height: 25px;
+	font-size: 15px;
+	align-content: center;
+}
+#small_tab2.badge-info{
+	padding-top: 1px;
+	height: 25px;
+}
+#std_in .container{
+	height: auto;
+	margin-bottom: 10px;
+}
+
+.btn .text_news_button{
+	align-content: center;
+	font-size: 9pt;
+}
+.mg{
+	margin-bottom: 10px;
+}
+#news #texarea1{
+	resize: none;
+	height: 300px;
+}
+#news #res{
+	width: 50px;
+}
+
+.font-big{
+	font-size: 20px;
+}
+#table_form{
+	border-collapse: collapse;
+}
+.badge{
+	margin-bottom: 10px;
+}
+.container #log{
+	height: 1000px;
+}
+
