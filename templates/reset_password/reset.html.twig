@@ -1,0 +1,48 @@
+{% extends 'layout/access.html.twig' %}
+
+{% block title %}Reset your password{% endblock %}
+
+{% block body %}
+
+
+    {{ form_start(resetForm) }}
+    <div class="row small-device my-5">
+        <div class="col-xl-6 col-lg-8 col-md-10 col-12 mx-auto">
+            <div class="d-flex px-2 px-sm-0 justify-content-center">
+                {% for flashError in app.flashes('reset_password_error') %}
+                    <div class="red bold mb-2" role="alert">{{ flashError }}</div>
+                {% endfor %}
+                <h1>Reset your password</h1>
+            </div>
+            <div class="fancy-container bx-d-sm-0">
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-3 pr-sm-0 text-left-d-sm pb-d-sm-1">{{ form_label(resetForm.password.first) }}:</div>
+                        <div class="col-12 col-sm-9">
+                            {{ form_widget(resetForm.password.first) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-3 pr-sm-0 text-left-d-sm pb-d-sm-1">{{ form_label(resetForm.password.second) }}:</div>
+                        <div class="col-12 col-sm-9">
+                            {{ form_widget(resetForm.password.second) }}
+                            <span class="red mt-1">{{ form_errors(resetForm.password.first) }}</span>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-3 pr-sm-0 text-left-d-sm"></div>
+                        <div class="col-12 col-sm-9">
+                            <input type="submit" value="Send" class="btn" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{ form_end(resetForm) }}
+{% endblock %}

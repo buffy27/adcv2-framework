@@ -19,22 +19,21 @@ class TorrentsCategoryRepository extends ServiceEntityRepository
         parent::__construct($registry, TorrentsCategory::class);
     }
 
-    // /**
-    //  * @return TorrentsCategory[] Returns an array of TorrentsCategory objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    /**
+     * @return TorrentsCategory[] Returns an array of Countries name
+     */
+
+    public function findAllNames()
     {
-        return $this->createQueryBuilder('t')
-            ->andWhere('t.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('t.id', 'ASC')
-            ->setMaxResults(10)
+        $categories = $this->createQueryBuilder('c')
             ->getQuery()
-            ->getResult()
-        ;
+            ->getArrayResult();
+        $data = [];
+        foreach ($categories as $category){
+            $data[$category['name']] = $category['id'];
+        }
+        return  $data;
     }
-    */
 
     /*
     public function findOneBySomeField($value): ?TorrentsCategory

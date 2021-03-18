@@ -35,15 +35,16 @@
         });
     });
 
-    function togglePreviewTorrent(mediaInfoMDE) {
+    function togglePreviewTorrent() {
         var uploadContent = document.getElementById("upload-content");
         var previewContent = document.getElementById("preview-content");
         var imageFromScrapper = document.getElementById("image-from-scrapper");
+        var uploadReleaseInfo = document.getElementById("test_sm")
 
-        var uploadTorrentName = document.querySelector("input[name=torrent_name]");
+        var uploadTorrentName = document.querySelector("input[name='upload_form[torrent_name]']");
         var previewTorrentName = document.getElementById("preview-torrent-name");
         var previewContentInfo = document.getElementById("content-movie-markdown-message");
-        var previewReleaseInfo = document.getElementById("desc-markdown-message");
+        var previewReleaseInfo = document.querySelector("input[name='upload_form[release_details]']");
         var previewImage = document.getElementById("preview-image");
         var previewShowMediaInfoBlock = document.getElementById("show-media-info-block");
         var previewNoMediaInfoBlock = document.getElementById("no-media-info-block");
@@ -70,6 +71,7 @@
                     document.getElementById("preview-torrent-size").innerHTML = result['formated_size'];
                     document.getElementById("preview-torrent-files").innerHTML = result['numfiles'];
                     previewTorrentName.innerHTML = uploadTorrentName.value || result['name'] || "No Name";
+                    previewReleaseInfo.innerHTML = uploadReleaseInfo.value;
                 }
             });
 
@@ -80,7 +82,7 @@
             previewContentInfo.innerHTML = lastUploadEasyMDE.value() || document.getElementById("content-info-markdown-editor").value;
             previewReleaseInfo.innerHTML = lastUploadTemplateEasyMDE.value() || '---';
             previewImage.src = imageFromScrapper.src;
-
+            /*
             if ((mediaInfoMDE.value() || "").trim() == "") {
                 previewShowMediaInfoBlock.classList.add("d-none");
                 previewNoMediaInfoBlock.classList.remove("d-none");
@@ -89,7 +91,7 @@
                 previewNoMediaInfoBlock.classList.add("d-none");
 
                 document.getElementById("adc-torrent-mediainfo").innerHTML = mediaInfoMDE.value();
-            }
+            }*/
 
             parseMarkdown("#content-movie-markdown-message", "#content-movie-parsed-message");
             parseMarkdown("#desc-markdown-message", "#pm-parsed-message");

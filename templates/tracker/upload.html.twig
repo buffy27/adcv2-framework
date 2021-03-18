@@ -1,0 +1,184 @@
+{% extends 'layout/tracker.html.twig' %}
+
+{% block title %}Upload{% endblock %}
+
+{% block body %}
+    <div class="row small-device mt-4 mb-5" id="upload-content">
+        <div class="col-12 col-xl-8 col-lg-10 mx-auto">
+            <?php echo isset($data['request_msg']) ? $data['request_msg'] : ""; ?>
+
+            <h1 class="text-center"><?php echo $data['lang_torrent']['text_upload_header']; ?></h1>
+
+            {{ form_start(uploadForm) }}
+                <div class="fancy-container bx-d-sm-0">
+                    <!-- annouce -->
+                    <div class="fancy-row">
+                        <div class="row small-device">
+                            <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Announce URL</div>
+                            <div class="col-12 col-sm-10">
+                                <b class="black">/announce</b>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- file -->
+                    <div class="fancy-row">
+                        <div class="row small-device">
+                            <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">{{ form_label(uploadForm.torrent_file) }}</div>
+                            <div class="col-12 col-sm-10">
+                                {{ form_widget(uploadForm.torrent_file) }}
+                                <p class="mt-1 mb-0 smaller red">{{ form_errors(uploadForm.torrent_file) }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- category -->
+                    <div class="fancy-row">
+                        <div class="row small-device">
+                            <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">{{ form_label(uploadForm.tCategory) }}</div>
+                            <div class="col-12 col-sm-10">{{ form_widget(uploadForm.tCategory)}} &nbsp;&nbsp;Japanese animation for 'Anime' category. Other countries are for live TV, non-Japanese animation and Drama CD/OST.
+                            </div>
+                        </div>
+                    </div>
+                    <!-- format -->
+                    <div class="fancy-row" id="upload-format">
+                        <div class="row small-device">
+                            <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 pt-sm-1"><?php echo $data['lang_torrent']['row_format']; ?></div>
+                            <div class="col-12 col-sm-10 d-flex flex-column">
+                                <label>
+                                    <input id="upload-format-dvd" type="radio" name="optradio" value="dvd" onchange="getDescriptionTemplate(this)" class="valign-middle" checked />
+                                    <span class="valign-middle">DVD</span>
+                                </label>
+                                <label>
+                                    <input id="upload-format-bdmv" type="radio" name="optradio" value="bdmv" onchange="getDescriptionTemplate(this)" class="valign-middle" />
+                                    <span class="valign-middle">Blu-ray disc</span>
+                                </label>
+                                <label>
+                                    <input id="upload-format-music" type="radio" name="optradio" value="uhd" onchange="getDescriptionTemplate(this)" class="valign-middle" />
+                                    <span class="valign-middle">Ultra HD</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- torrent name -->
+                    <div class="fancy-row">
+                        <div class="row small-device">
+                            <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 pt-sm-1">{{ form_label(uploadForm.torrent_name) }}</div>
+                            <div class="col-12 col-sm-10">
+                                {{ form_widget(uploadForm.torrent_name) }}
+                                <p class="mt-1 mb-0 smaller red">{{ form_errors(uploadForm.torrent_name) }}</p>
+                                <p class="mt-1 mb-0 smaller"><?php echo $data['lang_torrent']['row_torrent_name_info']; ?></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- release details template  -->
+                    <div id="description" class="fancy-row">
+                        <div class="row small-device">
+                            <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 pt-1">{{ form_label(uploadForm.release_details) }}</div>
+                            <div class="col-12 col-sm-10">
+                                <div id="upload-description-template-dvd">
+                                    {{ form_widget(uploadForm.release_details) }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="fancy-row">
+                        <div class="row small-device">
+                            <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Scrapper Service</div>
+                            <div class="col-12 col-sm-10">
+                                <select id="upload-format-type" name="format_type">
+                                    <option value="anime">MAL</option>
+                                    <option value="movie">IMDb</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- content url -->
+                    <div class="fancy-row " id="content-url">
+                        <div class="row small-device">
+                            <div id="content_name" class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 pt-sm-1">Scrapper Url</div>
+                            <div class="col-12 col-sm-10">
+                                <div class="d-flex">
+                                    <input id="input-content-url" type="text" name="content_id" value="" class="mr-2 flex-fill" />
+                                    <button class="btn" type="button" id="content-url-button">Import Content Info</button>
+                                </div>
+                                <?php if (!empty($data['error']['imdb'])) : ?>
+                                <p class="mt-1 mb-0 smaller red"><?php echo $data['error']['imdb']; ?></p>
+                                <?php endif; ?>
+                                <p id="content_small_text" class="mt-1 mb-0 smaller"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- poster file -->
+                    <div class="fancy-row">
+                        <div class="row small-device">
+                            <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Poster</div>
+                            <div class="col-12 col-sm-10">
+                                <span>Poster is downloaded from scrapper, when you get info from scrapper, the poster should be visible here.</span>
+                                <!-- <input type="file" class="file" id="torrent" name="poster_file" /> -->
+
+                                <?php if (!empty($data['error']['poster_file'])) : ?>
+                                <p class="mt-1 mb-0 smaller red"><?php echo $data['error']['poster_file']; ?></p>
+                                <?php endif; ?>
+
+                                <div id="image-from-scrapper-content" class="d-none">
+                                    <img class="mt-2 torrent-cover" src="" id="image-from-scrapper" /><br>
+                                    <input style="width: 300px" class="" type="text" id="image_url" name="image_url" value="">
+                                    <br />
+                                    <p class="mt-1 mb-0 smaller">This image will be placed in torrent file.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- content info -->
+                    <div class="fancy-row" id="upload-content-info">
+                        <div class="row small-device">
+                            <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">{{ form_label(uploadForm.content_info) }}</div>
+                            <div class="col-12 col-sm-10" id="upload-format-type-box">
+                                {{ form_widget(uploadForm.content_info) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- media info -->
+                    <div class="fancy-row">
+                        <div class="row small-device">
+                            <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 pt-1"> {{ form_label(uploadForm.media_info) }}</div>
+                            <div class="col-12 col-sm-10">
+                                {{ form_widget(uploadForm.media_info) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- file -->
+                    <div class="fancy-row">
+                        <div class="row small-device">
+                            <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">NFO file</div>
+                            <div class="col-12 col-sm-10">
+                                <input type="file" class="file" name="nfo_file" />
+                                <p class="mt-1 mb-0 small">(use <b>.nfo</b> file only)</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- make request button -->
+                    <div class="fancy-row">
+                        <div class="row small-device">
+                            <div class="col-12 text-center">
+                                <input id="qr" type="submit" name="upload" class="btn" value="Upload" />
+                                <input id="qr" type="submit" name="preview" class="btn" value="Preview" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {{ form_end(uploadForm) }}
+        </div>
+    </div>
+
+{% endblock %}

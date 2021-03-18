@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\TorrentsRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -82,6 +84,16 @@ class Torrents
      * @ORM\Column(type="integer")
      */
     private $contentId;
+
+    /**
+     * @ORM\OneToMany(targetEntity=TorrentComments::class, mappedBy="torrents")
+     */
+    private $idComment;
+
+    public function __construct()
+    {
+        $this->idComment = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -244,6 +256,36 @@ class Torrents
     public function setContentId(int $contentId): self
     {
         $this->contentId = $contentId;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|TorrentComments[]
+     */
+    public function getIdComment(): Collection
+    {
+        return $this->idComment;
+    }
+
+    public function addIdComment(TorrentComments $idComment): self
+    {
+        if (!$this->idComment->contains($idComment)) {
+            $this->idComment[] = $idComment;
+            $idComment->setTorrents($this);
+        }
+
+        return $this;
+    }
+
+    public function removeIdComment(TorrentComments $idComment): self
+    {
+        if ($this->idComment->removeElement($idComment)) {
+            // set the owning side to null (unless already changed)
+            if ($idComment->getTorrents() === $this) {
+                $idComment->setTorrents(null);
+            }
+        }
 
         return $this;
     }

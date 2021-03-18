@@ -219,55 +219,42 @@
                     </div>
                 </div>
             </div>
-            {#
-            <?php if (!empty($data['comments'])) : ?>
+
+           {% if comments %}
             <div class="mt-5">
-                <?php foreach ($data['comments'] as $comment) : ?>
+                {% for comment in comments %}
+                    <div id="torrentComment-<?php echo $comment['id']; ?>" class="fancy-container bx-d-sm-0 p-2 mb-2">
+                        <div class="row small-device">
+                            <div class="col-2 pr-0">
+                                <div class="w-100 avatar-container">
 
-                <div id="torrentComment-<?php echo $comment['id']; ?>" class="fancy-container bx-d-sm-0 p-2 mb-2">
-                    <div class="row small-device">
-                        <div class="col-2 pr-0">
-                            <div class="w-100 avatar-container">
-                                <?php if (!empty($comment['title_icon'])) : ?>
-                                <img title="<?php echo $comment['title']; ?>" class="title-icon-avatar" src="../images/<?php echo $comment['title_icon']; ?>">
-                                <?php endif; ?>
-                                <img src="/avatar/<?php echo $comment['uid']; ?>" class="w-100" />
-                            </div>
-                        </div>
-                        <div class="col-10">
-                            <div class="pl-d-sm-2">
-                                <div class="d-flex">
-                                    <a class="mr-2 comment-author" href="/profile/<?php echo $comment['uid']; ?>"><b><?php echo $comment['username']; ?></b></a>
-                                    <?php if (!empty($comment['title']) && empty($comment['title_icon'])) : ?>
-                                    <span class="mr-2 d-none d-sm-block">(<?php echo $comment['title']; ?>)</span>
-                                    <?php endif; ?>
+                                    <img title="" class="title-icon-avatar" src="../images/">
 
-                                    <span>(<?php echo convTime($comment['added']); ?> ago)</span>
-                                    <span class="d-none comment-created-at"><?php echo $comment['added']; ?></span>
-
-                                    <div class="ml-auto">
-                                        <a class="no-decoration" href="#" onclick="quotePost(<?php echo $comment['id']; ?>);return false;"><b>Quote</b></a>
-                                        <?php if ($comment['canEdit']) : ?>
-                                        <a class="no-decoration ml-2" href="/edit_comment/<?php echo $comment['id']; ?>"><b>Edit</b></a>
-                                        <?php endif; ?>
-                                        <?php if ($comment['canRemove']) : ?>
-                                        <a class="no-decoration ml-2 red" href="#" onclick="deleteComment(<?php echo $comment['id']; ?>)"><b>Remove</b></a>
-                                        <?php endif; ?>
-                                    </div>
+                                    <img src="/avatar/" class="w-100" />
                                 </div>
-                                <hr class="mt-2 mb-1" />
-                                <div data-id="<?php echo $comment['id']; ?>" class="d-none single-markdown-comment"><?php echo $comment['comment']; ?></div>
-                                <div class="parsed-comment-content" id="single-parsed-comment-<?php echo $comment['id']; ?>"></div>
-                                <?php echo $comment['edited_at'] ? '<p class="mt-1 mb-0 smaller">(Last edited at ' . $comment['edited_at'] .  ')</p>' : ''; ?>
+                            </div>
+                            <div class="col-10">
+                                <div class="pl-d-sm-2">
+                                    <div class="d-flex">
+                                        <a class="mr-2 comment-author" href="/profile/{{ comment.user.id }}"><b>{{  comment.user.username }}</b></a>
+                                        <span>({{ comment.added | date("H:i:s") }} ago)</span>
+                                        <span class="d-none comment-created-at"></span>
+                                    </div>
+                                    <hr class="mt-2 mb-1" />
+                                    {% apply markdown_to_html %}
+                                        {{ comment.comment }}
+                                    {% endapply %}
+                                    {%  if comment.editedAt %}
+                                    <p class="mt-1 mb-0 smaller">(Last edited at {{ comment.editedAt | date("H:i:s") }})</p>
+                                    {% endif %}
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <?php endforeach; ?>
+                {% endfor %}
             </div>
-            <?php endif; ?>
-
+            {% endif %}
+            {#
             <?php if ($data['comments_total'] > 1) : ?>
             <div class="text-center mt-2 mb-4">
                 <?php for ($page = 1; $page <= $data['comments_total']; ++$page) : ?>
@@ -280,6 +267,7 @@
             </div>
             <?php endif; ?>
             #}
+
             <form class="mt-5" enctype="multipart/form-data" method="POST" action="/torrent/{{ torrent.id }}" role="form">
                 <div class="fancy-container bx-d-sm-0 px-2 pt-2">
                     <h2>Comment this torrent</h2>

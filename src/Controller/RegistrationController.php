@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Countries;
+use App\Entity\Language;
 use App\Entity\User;
 use App\Form\RegistrationFormType;
 use App\Repository\UserRepository;
@@ -47,8 +48,7 @@ class RegistrationController extends AbstractController
             ]);
 
         $form->handleRequest($request);
-        dump($form->getData());
-        dump($form->get('password')->getData());
+
         if ($form->isSubmitted() && $form->isValid()) {
             // encode the plain password
             $secret = $this->mksecret();
@@ -59,10 +59,43 @@ class RegistrationController extends AbstractController
                 hash("sha3-256",  $secret . $form->get('password')->getData() .  $secret . $form->get('username')->getData() . $secret)
             );
             $country = $this->entityManager->getRepository(Countries::class)->find($data['id_country']);
+            $language = $this->entityManager->getRepository(Language::class)->find(6);
             $user->setIdCountry($country);
             $user->setGender($data['gender']);
             $user->setEmail($data['email']);
             $user->setBirthday($data['birthday']);
+            $user->setIp($request->getClientIp());
+            $user->setTrackerSettings([
+                "show_desc" => "on",
+                "show_content" => "on",
+                "show_mediainfo" => "on",
+                "show_nfo" => "on",
+                "torrents_page" => 50,
+                "comments_torrent_page" => 15
+            ]);
+            $user->setForumSettings([
+                "topics_per_page" => 3,
+                "posts_per_page" => 10,
+                "signature" => "",
+            ]);
+            $user->setPersonalSettings([
+                "precheck" => "on",
+                "delete_after" => "on",
+                "save_sendbox" => "on",
+                "notify_torrents_comment" => "on",
+                "notify_forum_comment" => "on",
+                "account_parked" => "on",
+                "accept_pms" => "all",
+                "profile_info" => "",
+            ]);
+            $user->setAvatar($this->getParameter('kernel.project_dir') . '/data/avatar/default.png');
+            $user->setPasskey(hash("sha3-256", $this->mksecret(25) . $form->get('password')->getData() . $this->mksecret(28)));
+            $user->setIdLanguage($language);
+            $user->setDownloaded(0);
+            $user->setUploaded(0);
+            $user->setInvitedBy(1);
+            $user->setBanned(false);
+            $user->setAdded();
 
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($user);
@@ -86,6 +119,9 @@ class RegistrationController extends AbstractController
 
     /**
      * @Route("/verify/email", name="app_verify_email")
+     * @param Request $request
+     * @param UserRepository $userRepository
+     * @return Response
      */
     public function verifyUserEmail(Request $request, UserRepository $userRepository): Response
     {
@@ -105,7 +141,7 @@ class RegistrationController extends AbstractController
        }
         // validate email confirmation link, sets User::isVerified=true and persists
         try {
-            $this->emailVerifier->handleEmailConfirmation($request, $this->getUser());
+            $this->emailVerifier->handleEmailConfirmation($request, $user);
         } catch (VerifyEmailExceptionInterface $exception) {
             $this->addFlash('verify_email_error', $exception->getReason());
 

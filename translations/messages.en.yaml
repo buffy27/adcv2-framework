@@ -5,6 +5,8 @@
 #                                       #
 #########################################
 
+Name: Name
+
 #Login/Signup
 Username: Username
 Password: Password
@@ -14,3 +16,9 @@ Email: Email
 Gender: Gender
 Pirates: Pirates
 Agree terms: Agree terms
+Male: Male
+Female: Female
+
+#Recover password
+
+Current email: Current email

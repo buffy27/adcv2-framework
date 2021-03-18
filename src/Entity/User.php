@@ -48,9 +48,9 @@ class User implements UserInterface
     private $torrents;
 
     /**
-     * @ORM\Column(type="json", name="tracker_settings")
+     * @ORM\Column(type="array", name="tracker_settings")
      */
-    private $trackerSettings = [];
+    private array $trackerSettings = [];
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -78,9 +78,70 @@ class User implements UserInterface
      */
     private $birthday;
 
+    /**
+     * @ORM\Column(type="array")
+     */
+    private $forumSettings = [];
+
+    /**
+     * @ORM\Column(type="array")
+     */
+    private $personalSettings = [];
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $avatar;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $banned;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $invitedBy;
+
+    /**
+     * @ORM\Column(type="bigint")
+     */
+    private $downloaded;
+
+    /**
+     * @ORM\Column(type="bigint")
+     */
+    private $uploaded;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $ip;
+
+    /**
+     * @ORM\Column(type="string", length=64)
+     */
+    private $passkey;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Language::class, inversedBy="users")
+     */
+    private $idLanguage;
+
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    private $added;
+
+    /**
+     * @ORM\OneToMany(targetEntity=TorrentComments::class, mappedBy="user")
+     */
+    private $idComment;
+
     public function __construct()
     {
         $this->torrents = new ArrayCollection();
+        $this->idComment = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -269,6 +330,171 @@ class User implements UserInterface
     public function setBirthday(\DateTimeInterface $birthday): self
     {
         $this->birthday = $birthday;
+
+        return $this;
+    }
+
+    public function getForumSettings(): ?array
+    {
+        return $this->forumSettings;
+    }
+
+    public function setForumSettings(array $forumSettings): self
+    {
+        $this->forumSettings = $forumSettings;
+
+        return $this;
+    }
+
+    public function getPersonalSettings(): ?array
+    {
+        return $this->personalSettings;
+    }
+
+    public function setPersonalSettings(array $personalSettings): self
+    {
+        $this->personalSettings = $personalSettings;
+
+        return $this;
+    }
+
+    public function getAvatar(): ?string
+    {
+        return $this->avatar;
+    }
+
+    public function setAvatar(string $avatar): self
+    {
+        $this->avatar = $avatar;
+
+        return $this;
+    }
+
+    public function getBanned(): ?bool
+    {
+        return $this->banned;
+    }
+
+    public function setBanned(bool $banned): self
+    {
+        $this->banned = $banned;
+
+        return $this;
+    }
+
+    public function getInvitedBy(): ?int
+    {
+        return $this->invitedBy;
+    }
+
+    public function setInvitedBy(?int $invitedBy): self
+    {
+        $this->invitedBy = $invitedBy;
+
+        return $this;
+    }
+
+    public function getDownloaded(): ?string
+    {
+        return $this->downloaded;
+    }
+
+    public function setDownloaded(string $downloaded): self
+    {
+        $this->downloaded = $downloaded;
+
+        return $this;
+    }
+
+    public function getUploaded(): ?string
+    {
+        return $this->uploaded;
+    }
+
+    public function setUploaded(string $uploaded): self
+    {
+        $this->uploaded = $uploaded;
+
+        return $this;
+    }
+
+    public function getIp(): ?string
+    {
+        return $this->ip;
+    }
+
+    public function setIp(string $ip): self
+    {
+        $this->ip = $ip;
+
+        return $this;
+    }
+
+    public function getPasskey(): ?string
+    {
+        return $this->passkey;
+    }
+
+    public function setPasskey(string $passkey): self
+    {
+        $this->passkey = $passkey;
+
+        return $this;
+    }
+
+    public function getIdLanguage(): ?Language
+    {
+        return $this->idLanguage;
+    }
+
+    public function setIdLanguage(?Language $idLanguage): self
+    {
+        $this->idLanguage = $idLanguage;
+
+        return $this;
+    }
+
+    public function getAdded(): ?\DateTimeInterface
+    {
+        return $this->added;
+    }
+
+    public function setAdded(\DateTimeInterface $added = null): self
+    {
+        if(!$added)
+            $this->added = new \DateTime('now');
+        else
+            $this->added = $added;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|TorrentComments[]
+     */
+    public function getIdComment(): Collection
+    {
+        return $this->idComment;
+    }
+
+    public function addIdComment(TorrentComments $idComment): self
+    {
+        if (!$this->idComment->contains($idComment)) {
+            $this->idComment[] = $idComment;
+            $idComment->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeIdComment(TorrentComments $idComment): self
+    {
+        if ($this->idComment->removeElement($idComment)) {
+            // set the owning side to null (unless already changed)
+            if ($idComment->getUser() === $this) {
+                $idComment->setUser(null);
+            }
+        }
 
         return $this;
     }

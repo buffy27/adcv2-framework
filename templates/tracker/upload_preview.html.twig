@@ -1,0 +1,133 @@
+{% import "macros/filesystem.html.twig" as fs %}
+
+{% extends 'layout/tracker.html.twig' %}
+
+{% block title %}Preview Upload{% endblock %}
+
+{% block body %}
+    <div class="row small-device mt-4 mb-5" id="preview-content">
+        <div class="col-xl-8 offset-xl-2 col-lg-10 offset-lg-1 col-12">
+            <h1 class="text-center" id="preview-torrent-name">{{ upload.torrent_name }}</h1>
+
+            <div class="fancy-container bx-d-sm-0">
+                <!-- actions -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Actions</div>
+                        <div class="col-12 col-sm-10">
+                            <div class="d-flex">
+                                <a class="mr-2" href="#"><b>Download</b></a>
+                                <a title="Add bookmark" href="#">
+                                    <b>Bookmark</b>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- uploaded by -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 nobr">Uploaded by</div>
+                        <div class="col-12 col-sm-10">
+                            <a class="r04" href="/profile/{{ user.id  }}"><b>{{ user.username }}</b></a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- size -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Size</div>
+                        <div class="col-12 col-sm-10" id="preview-torrent-size">---</div>
+                    </div>
+                </div>
+
+                <!-- anidb / imdb info -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 nobr">Content Info</div>
+                        <div class="col-12 col-sm-10" name="test_sm">
+                            {{ upload.content_info }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- description & image -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Release Details</div>
+                        <div class="col-12 col-sm-10">
+                            <div class="row small-device">
+                                <div class="col-xl-5 mb-2 mb-xl-0 col-12">
+                                    <img src="" id="preview-image" class="valign-top torrent-cover" />
+                                </div>
+                                <div class="col-xl-7 col-12">
+                                    {{ form_widget(previewForm.release_details) }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- media info -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Mediainfo</div>
+                        <div class="col-12 col-sm-10">
+                            <div class="d-none" id="show-media-info-block">
+                                <a href="#" onclick="showMediaInfo(event, 'md')">Show mediainfo</a>
+                                <div id="adc-torrent-mediainfo" class="d-none"></div>
+                            </div>
+                            <div class="d-none" id="no-media-info-block">
+                                There is no mediainfo available.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- files -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1"><span class="d-block">Torrent Files</span></div>
+                        <div class="col-12 col-sm-10" id="preview-torrent-files">{{ fs.bytesToSize(torrent_file.size) }}</div>
+                    </div>
+                </div>
+
+                <!-- info hash -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Info hash</div>
+                        <div class="col-12 col-sm-10" id="preview-info-hash">---</div>
+                    </div>
+                </div>
+
+                <!-- peers -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1"><span class="d-block">Peers</span></div>
+                        <div class="col-12 col-sm-10">
+                            <img src="../images/trans.gif" class="main-arrowup valign-bottom" /> <b class="green">1</b> seeders
+                            &nbsp;
+                            <img src="../images/trans.gif" class="main-arrowdown valign-bottom" /> <b class="red">0</b> leechers
+                        </div>
+                    </div>
+                </div>
+
+                <!-- make request button -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="col-12 text-center">
+                            <input type="button" class="btn" value="Return" onclick="goBack()"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        function goBack() {
+            window.history.back();
+        }
+    </script>
+{% endblock %}

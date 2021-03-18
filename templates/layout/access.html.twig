@@ -7,12 +7,10 @@
            and uncomment the following Encore helpers to start using Symfony UX #}
         {% block stylesheets %}
             {#{{ encore_entry_link_tags('app') }}#}
-            <link rel="stylesheet" href="css/adc.css">
-            <link rel="stylesheet" href="css/bootstrap-grid.min.css">
+            <link rel="stylesheet" href="../css/adc.css">
+            <link rel="stylesheet" href="../css/bootstrap-grid.min.css">
             <link rel="shortcut icon" type="image/jpg" href="../images/favicon.ico"/>
         {% endblock %}
-
-
     </head>
     <body>
         <div class="logo"></div>
@@ -20,7 +18,7 @@
             <div class="navigation d-flex justify-content-center flex-wrap">
                 <a href="/login">Login</a>
                 <a href="/signup">Signup</a>
-                <a href="/recover">Recover</a>
+                <a href="/reset-password">Recover</a>
                 <a href="/confirm_resend">Resend confirmation</a>
             </div>
             <div class="container px-d-sm-0">
@@ -53,4 +51,5 @@
         </body>
     </div>
     </body>
+
 </html>

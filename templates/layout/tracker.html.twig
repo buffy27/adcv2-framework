@@ -72,25 +72,26 @@
             <p>Asian DVD Club | 2005-<script>document.write(new Date().getFullYear())</script></p>
         </div>
     </body>
+
     <div class="footer">
-        <p><script type="text/javascript">
-                function display_c(){
-                    var refresh=1000;
-                    mytime=setTimeout('display_ct()',refresh)
-                }
-                function display_ct() {
-                    var x = new Date()
-                    var x1=x.toUTCString();
-                    document.getElementById('ct').innerHTML = x1;
-                    tt=display_c();
-                }
-            </script></p>
+        <p></p>
         <body onload=display_ct();>
         <span id='ct' ></span></body>
-        {% block javascripts %}
-
-            {#{{ encore_entry_script_tags('app') }}#}
-        {% endblock %}
     </div>
     </body>
+    {% block javascripts %}
+    <script type="text/javascript" src="../js/jquery-3.5.1.min.js"></script>
+    <script type="text/javascript">
+        function display_c(){
+            var refresh=1000;
+            mytime=setTimeout('display_ct()',refresh)
+        }
+        function display_ct() {
+            var x = new Date()
+            var x1=x.toUTCString();
+            document.getElementById('ct').innerHTML = x1;
+            tt=display_c();
+        }
+    </script>
+{% endblock %}
 </html>

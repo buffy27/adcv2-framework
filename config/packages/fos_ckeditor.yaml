@@ -1,0 +1,19 @@
+# Read the documentation: https://symfony.com/doc/current/bundles/FOSCKEditorBundle/index.html
+
+twig:
+    form_themes:
+        - '@FOSCKEditor/Form/ckeditor_widget.html.twig'
+fos_ck_editor:
+    input_sync: true
+
+    configs:
+        main_config:
+            toolbar: "simple_toolbar"
+        readonly_config:
+            readOnly: true
+            resize_enabled: false
+            toolbar: []
+    toolbars:
+        configs:
+            simple_toolbar: [ [ "Source", "Preview", "" ], "|", [ "Bold", "Italic", 'Underline', 'Strike' ], "|", ["Format", "Font", "FontSize"] ,"|", [ "Blockquote", "Link","Unlink", "Image", "Smiley" ] ]
+

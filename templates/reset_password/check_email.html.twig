@@ -1,0 +1,23 @@
+{% extends 'layout/access.html.twig' %}
+
+{% block title %}Password Reset Email Sent{% endblock %}
+
+{% block body %}
+    <div class="row small-device my-5">
+        <div class="col-xl-6 col-lg-8 col-md-10 col-12 mx-auto">
+            <div class="fancy-container bx-d-sm-0">
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="col-12">
+                            <p>
+                                An email has been sent that contains a link that you can click to reset your password.
+                                This link will expire in {{ resetToken.expirationMessageKey|trans(resetToken.expirationMessageData, 'ResetPasswordBundle') }}.
+                            </p>
+                            <p>If you don't receive an email please check your spam folder or <a href="{{ path('app_forgot_password_request') }}">try again</a>.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
