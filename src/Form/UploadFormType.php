@@ -20,11 +20,7 @@ class UploadFormType extends AbstractType
         $builder
             ->add('torrent_name', TextType::class, [
                 'label' => "Torrent Name",
-                'constraints' => [
-                        new NotBlank([
-                            'message' => 'Enter a torrent title',
-                        ]),
-                    ],
+                'required' => false,
                 'attr' => [
                     'class' => 'w-100',
                     'name' => "torrent_name",
@@ -33,33 +29,23 @@ class UploadFormType extends AbstractType
             ->add('torrent_file', FileType::class, [
                 'label' => 'Torrent file',
                 'mapped' => false,
-                'required' => true,
+                'required' => false,
                 'constraints' => [
                     new File([
                         'mimeTypes' => [
                             'application/x-bittorrent'
                         ],
                         'mimeTypesMessage' => 'Please upload a valid torrent file',
-                    ])
-                ]
+                    ]),
+                    new NotBlank([
+                        'message' => 'Enter a torrent file',
+                    ]),
+                ],
             ])
             ->add('tCategory', ChoiceType::class, [
                 'label' => "Category",
                 'choices' => $options['data']['categories']
-            ])
-            ->add('release_details', CKEditorType::class, [
-                'config_name' => 'main_config',
-                'label' => "Release Details"
-            ])
-            ->add('content_info', CKEditorType::class, [
-                'config_name' => 'main_config',
-                'label' => "Content Info"
-            ])
-            ->add('media_info', CKEditorType::class, [
-                'config_name' => 'main_config',
-                'label' => "MediaInfo"
-            ])
-        ;
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver)

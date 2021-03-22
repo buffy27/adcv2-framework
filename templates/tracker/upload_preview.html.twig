@@ -7,9 +7,9 @@
 {% block body %}
     <div class="row small-device mt-4 mb-5" id="preview-content">
         <div class="col-xl-8 offset-xl-2 col-lg-10 offset-lg-1 col-12">
-            <h1 class="text-center" id="preview-torrent-name">{{ upload.torrent_name }}</h1>
-
+            <h1 class="text-center" id="preview-torrent-name">{{ upload.torrent_name ? upload.torrent_name ? torrent_data.name : "---" }}</h1>
             <div class="fancy-container bx-d-sm-0">
+
                 <!-- actions -->
                 <div class="fancy-row">
                     <div class="row small-device">
@@ -39,19 +39,15 @@
                 <div class="fancy-row">
                     <div class="row small-device">
                         <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Size</div>
-                        <div class="col-12 col-sm-10" id="preview-torrent-size">---</div>
+                        {% if torrent_data %}
+                            <div class="col-12 col-sm-10" id="preview-torrent-size">{{ fs.bytesToSize(torrent_data.size) }}</div>
+                        {% else %}
+                            <div class="col-12 col-sm-10" id="preview-torrent-size">---</div>
+                        {% endif %}
                     </div>
                 </div>
 
-                <!-- anidb / imdb info -->
-                <div class="fancy-row">
-                    <div class="row small-device">
-                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 nobr">Content Info</div>
-                        <div class="col-12 col-sm-10" name="test_sm">
-                            {{ upload.content_info }}
-                        </div>
-                    </div>
-                </div>
+
 
                 <!-- description & image -->
                 <div class="fancy-row">
@@ -60,16 +56,25 @@
                         <div class="col-12 col-sm-10">
                             <div class="row small-device">
                                 <div class="col-xl-5 mb-2 mb-xl-0 col-12">
-                                    <img src="" id="preview-image" class="valign-top torrent-cover" />
+                                    <img src="{{ image_url }}" id="preview-image" class="valign-top torrent-cover" />
                                 </div>
                                 <div class="col-xl-7 col-12">
-                                    {{ form_widget(previewForm.release_details) }}
+                                    <div id="pm-parsed-message" class="markdown-body"></div>
+
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+                <!-- anidb / imdb info -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 nobr">Content Info</div>
+                        <div class="col-12 col-sm-10" name="test_sm">
 
+                        </div>
+                    </div>
+                </div>
                 <!-- media info -->
                 <div class="fancy-row">
                     <div class="row small-device">
@@ -89,8 +94,13 @@
                 <!-- files -->
                 <div class="fancy-row">
                     <div class="row small-device">
-                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1"><span class="d-block">Torrent Files</span></div>
-                        <div class="col-12 col-sm-10" id="preview-torrent-files">{{ fs.bytesToSize(torrent_file.size) }}</div>
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1"><a class="d-block" href="#" onclick="showTorrentFiles()">Torrent Files</a></div>
+                        {% if torrent_data %}
+                            <div class="col-12 col-sm-10" id="preview-torrent-size">Files: {{ torrent_data.files.total }} Info Hash: {{ torrent_data.files.infohash }}</div>
+                        {% else %}
+                            <div class="col-12 col-sm-10" id="preview-torrent-size">---</div>
+                        {% endif %}
+                        <div class="d-none" id="adc-files-list"></div>
                     </div>
                 </div>
 

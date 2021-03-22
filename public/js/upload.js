@@ -1,220 +1,137 @@
-(function (document, window) {
-    let lastUploadEasyMDE = null;
-    let lastUploadTemplateEasyMDE = null;
-    let formdata = new FormData();
-    formdata.append("preview", true);
+HTMLElement.prototype.showElement = function () {
+    this.classList.remove("d-none");
+}
 
-    $(document).ready(function () {
+$(document).ready(function(){
+    /*
+    CKEDITOR.addCss(".cke_editable{cursor:text; font-size: 10px; font-family: Arial, sans-serif;}");
+    CKEDITOR.addCss(".cke_wysiwyg_frame, .cke_wysiwyg_div background-color: #FFFFFF;");
+    CKEDITOR.replace( 'content', {
+        fullPage: true,
+        extraPlugins: 'font,panelbutton,colorbutton,colordialog,justify,indentblock,aparat,buyLink',
+        // You may want to disable content filtering because if you use full page mode, you probably
+        // want to  freely enter any HTML content in source mode without any limitations.
+        allowedContent: true,
+        autoGrow_onStartup: true,
+        enterMode: CKEDITOR.ENTER_BR
+    } );
+    CKEDITOR.editorConfig = function( config ) {
+        // Define changes to default configuration here.
+        // For complete reference see:
+        // http://docs.ckeditor.com/#!/api/CKEDITOR.config
 
-        const source = document.getElementById("image_url");
-        const result = document.getElementById("image-from-scrapper");
+        // The toolbar groups arrangement, optimized for two toolbar rows.
+        config.toolbarGroups = [
+            // { name: 'clipboard',   groups: [ 'clipboard', 'undo' ] },
+            // { name: 'editing',     groups: [ 'find', 'selection', 'spellchecker' ] },
+            // { name: 'links' },
+            // { name: 'insert' },
+            // { name: 'forms' },
+            { name: 'tools' },
+            // { name: 'document',	   groups: [ 'mode', 'document', 'doctools' ] },
 
-        const inputHandler = function(e) {
-            result.src = e.target.value;
-        };
+            // '/',
+            { name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ] },
+            // { name: 'paragraph',   groups: [ 'list', 'indent', 'blocks', 'align', 'bidi' ] },
+            { name: 'styles' },
+            { name: 'others' }
+            // { name: 'colors' },
+            // { name: 'about' }
+        ];
 
-        source.addEventListener("input", inputHandler);
+        // Remove some buttons provided by the standard plugins, which are
+        // not needed in the Standard(s) toolbar.
+        config.removeButtons = 'Underline,Subscript,Superscript';
+        config.extraPlugins = 'markdown';  // this is the point!
+        // Set the most common block elements.
+        config.format_tags = 'p;h1;h2;h3;pre';
 
-        const uploadFormatTypeElem = document.getElementById("upload-format-type");
-        const contentUrlButtonElem = document.getElementById("content-url-button");
+        // Simplify the dialog windows.
+        config.removeDialogTabs = 'image:advanced;link:advanced';
+    };
+*/
+    const contentUrlButtonElem = document.getElementById("content-url-button");
+    contentUrlButtonElem.addEventListener("click", () => getContentInfo());
 
-        uploadFormatTypeElem.addEventListener("change", () => getContentTemplate(uploadFormatTypeElem));
-        contentUrlButtonElem.addEventListener("click", () => getContentInfo());
+    var test = document.getElementById("upload_form_release_details");
+    $.getJSON('/api/template', function (data){
+        test.value = data['dvd_template'].replace(/(?:\r\n|\r|\n)/g, '<br>');
+    })
+});
+    function showTorrentFiles(event, url, size) {
+        event.preventDefault();
 
-        getContentTemplate(uploadFormatTypeElem);
-        getDescriptionTemplate($("input[name=optradio]:checked").val());
+        setModalSize(size);
 
-        $('#torrent').change(function () {
-            if (formdata.has("torrent_file")) {
-                formdata.delete("torrent_file");
-            }
-            if ($(this).prop('files').length > 0) {
-                file = $(this).prop('files')[0];
-                formdata.append("torrent_file", file);
-            }
-        });
-    });
-
-    function togglePreviewTorrent() {
-        var uploadContent = document.getElementById("upload-content");
-        var previewContent = document.getElementById("preview-content");
-        var imageFromScrapper = document.getElementById("image-from-scrapper");
-        var uploadReleaseInfo = document.getElementById("test_sm")
-
-        var uploadTorrentName = document.querySelector("input[name='upload_form[torrent_name]']");
-        var previewTorrentName = document.getElementById("preview-torrent-name");
-        var previewContentInfo = document.getElementById("content-movie-markdown-message");
-        var previewReleaseInfo = document.querySelector("input[name='upload_form[release_details]']");
-        var previewImage = document.getElementById("preview-image");
-        var previewShowMediaInfoBlock = document.getElementById("show-media-info-block");
-        var previewNoMediaInfoBlock = document.getElementById("no-media-info-block");
-
-        if (uploadContent.classList.contains("d-none")) {
-            uploadContent.classList.remove("d-none");
-            previewContent.classList.add("d-none");
-        } else {
-            formdata.set("preview", true);
+        var adcFileList = document.querySelector('#adc-files-list');
+        if (adcFileList != null) {
             $.ajax({
-                url: '/upload',
-                type: "POST",
-                data: formdata,
-                processData: false,
-                contentType: false,
+                url: url,
                 success: function (result) {
-                    try {
-                        result = JSON.parse(result);
-                    } catch {}
-
-                    console.log(result);
-
-                    document.getElementById("preview-info-hash").innerHTML = result['info_hash'];
-                    document.getElementById("preview-torrent-size").innerHTML = result['formated_size'];
-                    document.getElementById("preview-torrent-files").innerHTML = result['numfiles'];
-                    previewTorrentName.innerHTML = uploadTorrentName.value || result['name'] || "No Name";
-                    previewReleaseInfo.innerHTML = uploadReleaseInfo.value;
+                    $("#adc-files-list").html(result);
+                    showTorrentFilesPopup(adcFileList);
                 }
             });
-
-            uploadContent.classList.add("d-none");
-            previewContent.classList.remove("d-none");
-
-            previewTorrentName.innerHTML = uploadTorrentName.value || "No Name";
-            previewContentInfo.innerHTML = lastUploadEasyMDE.value() || document.getElementById("content-info-markdown-editor").value;
-            previewReleaseInfo.innerHTML = lastUploadTemplateEasyMDE.value() || '---';
-            previewImage.src = imageFromScrapper.src;
-            /*
-            if ((mediaInfoMDE.value() || "").trim() == "") {
-                previewShowMediaInfoBlock.classList.add("d-none");
-                previewNoMediaInfoBlock.classList.remove("d-none");
-            } else {
-                previewShowMediaInfoBlock.classList.remove("d-none");
-                previewNoMediaInfoBlock.classList.add("d-none");
-
-                document.getElementById("adc-torrent-mediainfo").innerHTML = mediaInfoMDE.value();
-            }*/
-
-            parseMarkdown("#content-movie-markdown-message", "#content-movie-parsed-message");
-            parseMarkdown("#desc-markdown-message", "#pm-parsed-message");
+        } else {
+            showTorrentFilesPopup(adcFileList);
         }
     }
 
-    function getContentTemplate(element) {
-        const contentInfoElem = document.getElementById("upload-content-info");
-        const contentUrlElem = document.getElementById("content-url");
-        const uploadFormatElem = document.getElementById("upload-format");
+    function showTorrentFilesPopup(adcFileList) {
+        var innerDiv = $('<div class="inner-div"></div>').html(adcFileList.innerHTML);
 
-        contentInfoElem.showElement();
-        contentUrlElem.showElement();
-        uploadFormatElem.showElement();
+        $('#simple-adc-modal-header').html('Torrent Files');
 
-        const text = element.options[element.selectedIndex].text;
-        const contentUrlInputElem = document.getElementById("input-content-url").value;
+        $('#simple-adc-modal .modal-body').html(innerDiv[0].outerHTML);
+        $('#simple-adc-modal .modal-body .inner-div').fancytree();
 
-        if (contentUrlInputElem != null) {
-            contentUrlInputElem.value = "";
+        $("#simple-adc-modal").modal();
+    }
+    function setModalSize(size) {
+        if (size != 'sm' && size != 'md' && size != 'lg') {
+            size = 'md';
         }
+        var modal = $('.modal');
+        modal.removeClass('modal-sm');
+        modal.removeClass('modal-md');
+        modal.removeClass('modal-lg');
+
+        modal.addClass('modal-' + size);
+    }
+    function getDescriptionTemplate(value){
+    var test = document.getElementById("upload_form_release_details");
+    test.value = "hello what's up";
+    console.log(test);
+    /*
+        $.getJSON("/api/template", function(data, status){
+
+            if(value.id == "upload-format-dvd"){
+                console.log(document.getElementById("upload_form_release_details"));
+                document.getElementById("upload_form_release_details").value = data['dvd_template'];
+            }
+        });
+*/
+    }
+
+    function getContentInfo(){
+        const formatTypeElem = document.getElementById("upload-format-type");
+        const text = formatTypeElem.options[formatTypeElem.selectedIndex].value;
+        const content_textarea = document.getElementById("upload_form_content_info");
+        $url = document.getElementById("input-content-url").value
+        const contentImageFromScrapperElem = document.getElementById("image-from-scrapper-content");
         $.ajax({
-            data: {
-                "type": text
-            },
+            dataType: "json",
+            url: "/api/scrapper/" + text + "?url=" + $url,
             success: (data) => {
-                console.log(data);
-                data = JSON.parse(data);
+                CKEDITOR.instances['upload_form_content_info'].setData(data['content_info']);
 
-                document.getElementById("content_name").innerHTML = data['content_name'];
-                document.getElementById("content_small_text").innerHTML = data['content_small_text'];
+                var image_url = document.getElementById("image-from-scrapper");
+                var image_url_input = document.getElementById("image_url");
+                image_url.src = data['image'];
+                image_url_input.value = data['image'];
 
-                const contentInfoTextArea = document.getElementById("content-info-markdown-editor");
-                if (lastUploadEasyMDE != null) {
-                    lastUploadEasyMDE.toTextArea();
-                }
-                contentInfoTextArea.value = data['content_info'];
-
-                lastUploadEasyMDE = window.loadEasyMde(contentInfoTextArea, 200);
+                contentImageFromScrapperElem.showElement();
             }
         });
     }
-    function getContentInfo() {
-        const formatTypeElem = document.getElementById("upload-format-type");
-        const text = formatTypeElem.options[formatTypeElem.selectedIndex].value;
-        const contentUrl = document.getElementById("input-content-url").value;
 
-        if (text === "movie" || text === "anime") {
-            showLoadingOverlay();
-            try {
-                $.ajax({
-                    data: {
-                        "type": text,
-                        "scrp": "okey",
-                        "content_url": contentUrl
-                    },
-                    success: (data) => {
-                        if (lastUploadEasyMDE != null) {
-                            lastUploadEasyMDE.toTextArea();
-                        }
-                        const contentInfoTextArea = document.getElementById("content-info-markdown-editor");
-                        const parsedJSON = JSON.parse(data);
-                        const imageFromScrapperElem = document.getElementById("image-from-scrapper");
-                        const contentImageFromScrapperElem = document.getElementById("image-from-scrapper-content");
-
-                        if (parsedJSON['image'] != null && parsedJSON['image'].trim() !== '') {
-                            imageFromScrapperElem.src = parsedJSON['image'];
-                            var image_url = document.getElementById("image_url");
-                            image_url.value = parsedJSON['image'];
-                            //image_url.classList.add("d-none");
-                            contentImageFromScrapperElem.showElement();
-                        } else {
-                            contentImageFromScrapperElem.hideElement();
-                        }
-
-                        contentInfoTextArea.value = parsedJSON['content_info'];
-                        lastUploadEasyMDE = window.loadEasyMde(contentInfoTextArea, 200);
-                    },
-                    // called after "error" and "success"
-                    complete: () => {
-                        hideLoadingOverlay();
-                    }
-                });
-            } catch {
-                hideLoadingOverlay();
-            }
-        }
-    }
-
-    function getDescriptionTemplate(select) {
-        var desc_dvd = document.getElementById("desc_dvd");
-        var desc_bdmv = document.getElementById("desc_bdmv");
-        var desc_soundtrack = document.getElementById("desc_uhd");
-
-        if (lastUploadTemplateEasyMDE != null) {
-            lastUploadTemplateEasyMDE.toTextArea();
-        }
-
-        switch (select.value || select) {
-            case "dvd":
-                desc_dvd.classList.remove("d-none");
-                desc_bdmv.classList.add("d-none");
-                desc_soundtrack.classList.add("d-none");
-
-                lastUploadTemplateEasyMDE = window.loadEasyMde('#template_dvd', 300);
-                break;
-            case "bdmv":
-                desc_dvd.classList.add("d-none");
-                desc_bdmv.classList.remove("d-none");
-                desc_soundtrack.classList.add("d-none");
-
-                lastUploadTemplateEasyMDE = window.loadEasyMde('#template_bdmv', 300);
-                break;
-            case "uhd":
-                desc_dvd.classList.add("d-none");
-                desc_bdmv.classList.add("d-none");
-                desc_soundtrack.classList.remove("d-none");
-
-                lastUploadTemplateEasyMDE = window.loadEasyMde('#template_uhd', 300);
-                break;
-        }
-    }
-
-    window.getDescriptionTemplate = getDescriptionTemplate;
-    window.togglePreviewTorrent = togglePreviewTorrent;
-})(document, window);

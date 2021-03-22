@@ -5,7 +5,10 @@ namespace App\Entity;
 use App\Repository\TorrentsRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\Entity;
 use Doctrine\ORM\Mapping as ORM;
+use Exception;
+use Serializable;
 
 /**
  * @ORM\Entity(repositoryClass=TorrentsRepository::class)
@@ -25,7 +28,7 @@ class Torrents
     private $name;
 
     /**
-     * @ORM\Column(type="text", name="desc")
+     * @ORM\Column(type="text")
      */
     private $description;
 
@@ -55,9 +58,9 @@ class Torrents
     private $bonus;
 
     /**
-     * @ORM\Column (type="json", name="specs")
+     * @ORM\Column (type="array", name="specs")
      */
-    private $specs;
+    private $specs = [];
 
     /**
      * @ORM\ManyToOne(targetEntity=TorrentsCategory::class, inversedBy="torrents")
@@ -101,17 +104,17 @@ class Torrents
     }
 
     /**
-     * @return mixed
+     * @return array
      */
-    public function getSpecs()
+    public function getSpecs(): array
     {
         return $this->specs;
     }
 
     /**
-     * @param mixed $specs
+     * @param array $specs
      */
-    public function setSpecs($specs): void
+    public function setSpecs(array $specs): void
     {
         $this->specs = $specs;
     }
@@ -133,9 +136,12 @@ class Torrents
         return $this->description;
     }
 
-    public function setDescription(string $description): self
+    public function setDescription(string $description = null): self
     {
-        $this->description = $description;
+        if(!$description)
+            $this->description = "";
+        else
+            $this->description = $description;
 
         return $this;
     }
@@ -145,7 +151,7 @@ class Torrents
         return $this->size;
     }
 
-    public function setSize(string $size): self
+    public function setSize(int $size): self
     {
         $this->size = $size;
 
@@ -157,9 +163,12 @@ class Torrents
         return $this->added;
     }
 
-    public function setAdded(\DateTimeInterface $added): self
+    public function setAdded(\DateTimeInterface $added = null): self
     {
-        $this->added = $added;
+        if(!$added)
+            $this->added = new \DateTime('now');
+        else
+            $this->added = $added;
 
         return $this;
     }
@@ -169,9 +178,12 @@ class Torrents
         return $this->seeders;
     }
 
-    public function setSeeders(int $seeders): self
+    public function setSeeders(int $seeders = null): self
     {
-        $this->seeders = $seeders;
+        if(!$seeders)
+            $this->seeders = 0;
+        else
+            $this->seeders = $seeders;
 
         return $this;
     }
@@ -181,9 +193,12 @@ class Torrents
         return $this->leechers;
     }
 
-    public function setLeechers(int $leechers): self
+    public function setLeechers(int $leechers = null): self
     {
-        $this->leechers = $leechers;
+        if(!$leechers)
+            $this->leechers = 0;
+        else
+            $this->leechers = $leechers;
 
         return $this;
     }
@@ -193,7 +208,7 @@ class Torrents
         return $this->bonus;
     }
 
-    public function setBonus(array $bonus): self
+    public function setBonus(string $bonus): self
     {
         $this->bonus = $bonus;
 
@@ -229,9 +244,12 @@ class Torrents
         return $this->contentInfo;
     }
 
-    public function setContentInfo(string $contentInfo): self
+    public function setContentInfo(string $contentInfo = null): self
     {
-        $this->contentInfo = $contentInfo;
+        if(!$contentInfo)
+            $this->contentInfo = "";
+        else
+            $this->contentInfo = $contentInfo;
 
         return $this;
     }
@@ -253,9 +271,12 @@ class Torrents
         return $this->contentId;
     }
 
-    public function setContentId(int $contentId): self
+    public function setContentId(int $contentId = null): self
     {
-        $this->contentId = $contentId;
+        if(!$contentId)
+            $this->contentId = 0;
+        else
+            $this->contentId = $contentId;
 
         return $this;
     }
@@ -289,4 +310,5 @@ class Torrents
 
         return $this;
     }
+
 }

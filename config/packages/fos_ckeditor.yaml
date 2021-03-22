@@ -4,15 +4,24 @@ twig:
     form_themes:
         - '@FOSCKEditor/Form/ckeditor_widget.html.twig'
 fos_ck_editor:
+    base_path: "@ckeditor/ckeditor5-build-classic/build/"
+    js_path:   "@ckeditor/ckeditor5-build-classic/build/ckeditor.js"
     input_sync: true
-
     configs:
         main_config:
+            #extraPlugins: 'markdown'
+            fontSize_defaultLabel: '30px'
+            enterMode: CKEDITOR.ENTER_BR
+            entities: false
             toolbar: "simple_toolbar"
         readonly_config:
+            extraPlugins: 'markdown'
+            uiColor: "#f0ecdc"
+            removePlugins: 'resize, elementspath'
             readOnly: true
             resize_enabled: false
             toolbar: []
+            fontSize_defaultLabel: '30px'
     toolbars:
         configs:
             simple_toolbar: [ [ "Source", "Preview", "" ], "|", [ "Bold", "Italic", 'Underline', 'Strike' ], "|", ["Format", "Font", "FontSize"] ,"|", [ "Blockquote", "Link","Unlink", "Image", "Smiley" ] ]
