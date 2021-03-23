@@ -26,7 +26,7 @@
                         <div class="row small-device">
                             <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 pt-1">Message</div>
                             <div class="col-12 col-sm-10">
-                                <textarea autocomplete="off" name="text_area" id="news-markdown-editor"></textarea>
+                                <textarea autocomplete="off" name="text_area" id="markdown-editor"></textarea>
                             </div>
                         </div>
                     </div>
@@ -44,39 +44,4 @@
             </form>
         </div>
     </div>
-    {#
-        TODO Move this to it's own template
-    #}
-    <link rel="stylesheet" href="css/easymde.min.css" />
-    <link rel="stylesheet" href="css/adc.easymde.css" />
-    <script src="js/easymde.min.js"></script>
-    <script>
-        function loadEasyMde(element, height) {
-            if (typeof(element) == 'string') {
-                element = document.querySelector(element);
-            }
-            var easyMDE = new EasyMDE({
-                element: element,
-                promptURLs: true,
-                tabSize: 4,
-                spellChecker: false,
-                nativeSpellcheck: false,
-                sideBySideFullscreen: false,
-                minHeight: height + 'px',
-                toolbar: [
-                    "bold", "italic", "strikethrough", "|",
-                    "code", "quote", "|",
-                    "ordered-list", "unordered-list", "|",
-                    "link", "image", "|",
-                    "horizontal-rule", "clean-block", "|",
-                    "side-by-side"
-                ]
-            });
-            easyMDE.toggleSideBySide();
-            return easyMDE;
-        }
-    </script>
-    <script type="text/javascript">
-        loadEasyMde('#news-markdown-editor', 500);
-    </script>
 {% endblock %}

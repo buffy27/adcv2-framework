@@ -16,7 +16,8 @@ class ApiController extends AbstractController
      */
     public function template(): JsonResponse
     {
-        $template = ["dvd_template" => "```Distributor............:  
+        $template = ["dvd_template" => "```
+Distributor............:  
 Country................: 
 Director...............: 
 DVD Format.............: 
@@ -110,6 +111,7 @@ Uploader's Comments....:
      * @Route ("/scrapper/{type}", name="api.scrapper", methods={"GET"}, requirements={"type"="^[a-z]+$"})
      */
     public function scrapper($type, Request $request){
+        $type = htmlspecialchars($type);
         $command = "python3 " . $this->getParameter('kernel.project_dir') . "/data/scrappers/";
         if($type == "mal"){
              $command .= "mal_to_json.py " . $this->getMAL_id($request->query->get("url"));
@@ -118,22 +120,22 @@ Uploader's Comments....:
              dump($data);
              $data = array(
                 'content_info' =>
-                    $data['title'] . "<br>" .
-                    $data['title_jp'] . "<br>" .
-                    $data['type'] . "<br>" .
-                    $data['episodes'] . "<br>" .
-                    $data['year'] . "<br>" .
-                    $data['duration'] . "<br>" .
-                    $data['studios'] . "<br>" .
-                    $data['genres'] . "<br>" .
-                    $data['directors'] . "<br><br>".
+                    "\n\n" . $data['title'] . "\n" .
+                    $data['title_jp'] . "\n" .
+                    $data['type'] . "\n".
+                    $data['episodes'] . "\n" .
+                    $data['year'] . "\n" .
+                    $data['duration'] . "\n" .
+                    $data['studios'] . "\n" .
+                    $data['genres'] . "\n" .
+                    $data['directors'] . "\n\n".
                     $data['synopsis'],
-
                 'image' => $data['url']
              );
 
-              //  $data = json_decode($data, true);
-             return new JsonResponse($data);
+            $response = new JsonResponse($data);
+            $response->setEncodingOptions($response->getEncodingOptions() | JSON_PRETTY_PRINT);
+            return $response;
         }
         return new JsonResponse("Not found 404");
     }
@@ -152,6 +154,7 @@ Uploader's Comments....:
         return $imdb_url;
     }
     private function getMAL_id($maldb_url){
+        $maldb_url = htmlspecialchars($maldb_url);
         $pos = strpos($maldb_url, "e/");
         $maldb_url = substr($maldb_url, $pos + 2,  strlen($maldb_url));
         $pos = strpos($maldb_url, "/");

@@ -7,7 +7,11 @@
 {% block body %}
     <div class="row small-device mt-4 mb-5" id="preview-content">
         <div class="col-xl-8 offset-xl-2 col-lg-10 offset-lg-1 col-12">
-            <h1 class="text-center" id="preview-torrent-name">{{ upload.torrent_name ? upload.torrent_name ? torrent_data.name : "---" }}</h1>
+            {% if  torrent_data.name is defined%}
+                <h1 class="text-center" id="preview-torrent-name"> {{ torrent_data.name }} </h1>
+            {% else %}
+                <h1 class="text-center" id="preview-torrent-name"> --- </h1>
+            {% endif %}
             <div class="fancy-container bx-d-sm-0">
 
                 <!-- actions -->
@@ -39,15 +43,13 @@
                 <div class="fancy-row">
                     <div class="row small-device">
                         <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Size</div>
-                        {% if torrent_data %}
+                        {% if torrent_data.size is defined %}
                             <div class="col-12 col-sm-10" id="preview-torrent-size">{{ fs.bytesToSize(torrent_data.size) }}</div>
                         {% else %}
                             <div class="col-12 col-sm-10" id="preview-torrent-size">---</div>
                         {% endif %}
                     </div>
                 </div>
-
-
 
                 <!-- description & image -->
                 <div class="fancy-row">
@@ -59,29 +61,32 @@
                                     <img src="{{ image_url }}" id="preview-image" class="valign-top torrent-cover" />
                                 </div>
                                 <div class="col-xl-7 col-12">
-                                    <div id="pm-parsed-message" class="markdown-body"></div>
-
+                                    <div id="pm-parsed-message" class="markdown-body">{{ upload.release_details }}</div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
                 <!-- anidb / imdb info -->
                 <div class="fancy-row">
                     <div class="row small-device">
-                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 nobr">Content Info</div>
-                        <div class="col-12 col-sm-10" name="test_sm">
-
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Content Info</div>
+                        <div class="col-12 col-sm-10">
+                            <div class="markdown-body" id="content-movie-parsed-message">
+                                {{ request.get("content_info") }}
+                            </div>
                         </div>
                     </div>
                 </div>
+
                 <!-- media info -->
                 <div class="fancy-row">
                     <div class="row small-device">
                         <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Mediainfo</div>
                         <div class="col-12 col-sm-10">
                             <div class="d-none" id="show-media-info-block">
-                                <a href="#" onclick="showMediaInfo(event, 'md')">Show mediainfo</a>
+                                <a href="#" onclick="">Show mediainfo</a>
                                 <div id="adc-torrent-mediainfo" class="d-none"></div>
                             </div>
                             <div class="d-none" id="no-media-info-block">
@@ -95,8 +100,8 @@
                 <div class="fancy-row">
                     <div class="row small-device">
                         <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1"><a class="d-block" href="#" onclick="showTorrentFiles()">Torrent Files</a></div>
-                        {% if torrent_data %}
-                            <div class="col-12 col-sm-10" id="preview-torrent-size">Files: {{ torrent_data.files.total }} Info Hash: {{ torrent_data.files.infohash }}</div>
+                        {% if torrent_data.files is defined %}
+                            <div class="col-12 col-sm-10" id="preview-torrent-size">Files: {{ torrent_data.files.total }}</div>
                         {% else %}
                             <div class="col-12 col-sm-10" id="preview-torrent-size">---</div>
                         {% endif %}
@@ -108,7 +113,11 @@
                 <div class="fancy-row">
                     <div class="row small-device">
                         <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Info hash</div>
-                        <div class="col-12 col-sm-10" id="preview-info-hash">---</div>
+                        {% if torrent_data.files.info_hash is defined %}
+                            <div class="col-12 col-sm-10" id="preview-info-hash">{{ torrent_data.files.info_hash }}</div>
+                        {% else %}
+                            <div class="col-12 col-sm-10" id="preview-torrent-size">---</div>
+                        {% endif %}
                     </div>
                 </div>
 
@@ -117,7 +126,7 @@
                     <div class="row small-device">
                         <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1"><span class="d-block">Peers</span></div>
                         <div class="col-12 col-sm-10">
-                            <img src="../images/trans.gif" class="main-arrowup valign-bottom" /> <b class="green">1</b> seeders
+                            <img src="../images/trans.gif" class="main-arrowup valign-bottom" /> <b class="green">0</b> seeders
                             &nbsp;
                             <img src="../images/trans.gif" class="main-arrowdown valign-bottom" /> <b class="red">0</b> leechers
                         </div>
@@ -137,6 +146,8 @@
     </div>
     <script>
         function goBack() {
+            //window.history.replaceState('', "", "/upload?prv=1");
+            //history.replaceState({}, "upload", "/upload?prv=1");
             window.history.back();
         }
     </script>

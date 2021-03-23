@@ -62,6 +62,12 @@
 }
 .markdown-body {
     color: #000 !important;
+    word-wrap    : break-word;
+    overflow-wrap: break-word;
+}
+
+pre {
+    white-space: pre-wrap;
 }
 
 .editormd-menu > li > a.active,

@@ -2,10 +2,15 @@
 
 namespace App\Controller;
 
+use App\Entity\Countries;
 use App\Entity\News;
+use App\Entity\UserClass;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
+use phpDocumentor\Reflection\Types\This;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -27,25 +32,40 @@ class IndexController extends AbstractController
     public function index(): Response
     {
         $news = $this->entityMangaer->getRepository(News::class)->findAll();
+
         return $this->render('index/index.html.twig', [
             'news' => $news
         ]);
     }
+
     /**
      * @Route("/create_news", name="news.create")
      */
     public function createNews(Request $request): Response
     {
-        dump($request->request->all());
+        if($request->getMethod() == "POST") {
+            $new = new News();
+            $new->setAdded();
+            $new->setAddedBy($this->getUser());
+            $new->setText($request->get('text_area'));
+            $new->setTitle($request->get('title'));
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($new);
+            $em->flush();
+            return new RedirectResponse($this->generateUrl('index'));
+        }
         return $this->render('index/create_news.html.twig', [
-
         ]);
     }
     /**
-     * @Route("/delete_news", name="news.delete")
+     * @IsGranted("ROLE_ADMIN")
+     * @Route("/delete_news/{id}", name="news.delete")
      */
-    public function deleteNews(){
-
+    public function deleteNews($id, Request $request){
+        $news = $this->entityMangaer->getRepository(News::class)->find($id);
+        $this->entityMangaer->remove($news);
+        $this->entityMangaer->flush();
+        return new RedirectResponse($this->generateUrl('index'));
     }
 
     /**

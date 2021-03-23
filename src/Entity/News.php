@@ -33,9 +33,10 @@ class News
     private $added;
 
     /**
-     * @ORM\Column(type="integer", name="addedBy")
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="news")
      */
     private $addedBy;
+
 
     public function getId(): ?int
     {
@@ -71,22 +72,26 @@ class News
         return $this->added;
     }
 
-    public function setAdded(\DateTimeInterface $added): self
+    public function setAdded(\DateTimeInterface $added = null): self
     {
-        $this->added = $added;
+        if(!$added)
+            $this->added = new \DateTime('now');
+        else
+            $this->added = $added;
 
         return $this;
     }
 
-    public function getAddedBy(): ?int
+    public function getAddedBy(): ?User
     {
         return $this->addedBy;
     }
 
-    public function setAddedBy(int $addedBy): self
+    public function setAddedBy(?User $addedBy): self
     {
         $this->addedBy = $addedBy;
 
         return $this;
     }
+
 }

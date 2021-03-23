@@ -8,6 +8,8 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\UserInterface;
+use App\Entity\UserClass;
+use function Symfony\Component\Translation\t;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
@@ -27,8 +29,6 @@ class User implements UserInterface
      * @ORM\Column(type="string", length=180, unique=true)
      */
     private $username;
-
-    private $roles = [];
 
     /**
      * @var string The hashed password
@@ -138,10 +138,28 @@ class User implements UserInterface
      */
     private $idComment;
 
+    /**
+     * @ORM\OneToMany(targetEntity=News::class, mappedBy="addedBy")
+     */
+    private $news;
+
+    /**
+     * @var Collection|UserClass[]
+     * @ORM\ManyToMany(targetEntity="App\Entity\UserClass")
+     * @ORM\JoinTable(
+     *      name="user_roles",
+     *      joinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="role_id", referencedColumnName="id")}
+     * )
+     */
+    private $roles = [];
+
     public function __construct()
     {
         $this->torrents = new ArrayCollection();
         $this->idComment = new ArrayCollection();
+        $this->news = new ArrayCollection();
+        $this->roles = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -187,10 +205,13 @@ class User implements UserInterface
      */
     public function getRoles(): array
     {
-        return ['ROLE_USER'];
+        $roles = $this->roles->toArray();
+        $roles = $roles[0];
+
+        return $roles->getRoles();
     }
 
-    public function setRoles(array $roles): self
+    public function setRoles(Collection $roles): self
     {
         $this->roles = $roles;
 
@@ -493,6 +514,36 @@ class User implements UserInterface
             // set the owning side to null (unless already changed)
             if ($idComment->getUser() === $this) {
                 $idComment->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|News[]
+     */
+    public function getNews(): Collection
+    {
+        return $this->news;
+    }
+
+    public function addNews(News $news): self
+    {
+        if (!$this->news->contains($news)) {
+            $this->news[] = $news;
+            $news->setAddedBy($this);
+        }
+
+        return $this;
+    }
+
+    public function removeNews(News $news): self
+    {
+        if ($this->news->removeElement($news)) {
+            // set the owning side to null (unless already changed)
+            if ($news->getAddedBy() === $this) {
+                $news->setAddedBy(null);
             }
         }
 

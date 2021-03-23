@@ -13,47 +13,48 @@
 
                 <div class="news-container">
                     {% for value in news %}
-                    <p class="mt-0 mb-1">
+                    <p class="mt-0 mb-1 mt-2">
                         Posted {{ value.added | date("m/d/Y")}} ago
-                        -- by {{ value.addedBy }}
-                        <b><a href="/profile/<?php echo $news['addedBy']; ?>"><?php echo $news['username']; ?></a></b>
+                        -- by
+                        <b><a href="/profile/{{ value.addedBy.id }}">{{ value.addedBy.username }}</a></b>
                     </p>
                     <div class="card card-block">
                         <div class="news-body">
                             <div class="d-flex align-items-start justify-content-between">
                                 <h1 class="mt-0">{{ value.title }}</h1>
-                                {#
-                                <?php if ($data['canDeleteNews']) : ?>
-                                <a class="btn no-decoration text-center" href="/delete_news/<?php echo $news['idNews']; ?>">Delete</a>
-                                <?php endif; ?> #}
+                                {% if is_granted('ROLE_ADMIN') %}
+                                    <a class="btn no-decoration text-center" href="/delete_news/{{ value.id }}">Delete</a>
+                                {% endif %}
                             </div>
-                            <div class="news-text d-none" data-id="<?php echo $news['idNews']; ?>">
+                            <div class="news-text" data-id="{{ value.id | raw }}">
                                 {{ value.text }}
                             </div>
-                            <div id="single-parsed-news-<?php echo $news['idNews']; ?>"></div>
+                            <div id="single-parsed-news-{{ value.id | raw}}"></div>
                         </div>
                     </div>
                     {% endfor %}
                 </div>
                 {% endif %}
-                <a class="btn no-decoration mt-3" href="/create_news">New</a>
+                {% if is_granted('ROLE_ADMIN') %}
+                    <a class="btn no-decoration mt-3" href="/create_news">New</a>
+                {% endif %}
             </div>
         </div>
         <div class="col-xl-3 col-lg-4 col-12 d-lg-block d-none">
-            <h2 class="text-center-d-sm"></h2>
+            <h2 class="text-center-d-sm">Statistics</h2>
             <div class="news">
                 <table class="statstable b-0 w-100">
                     <tbody>
                     <tr>
-                        <td class="descriptor"></td>
+                        <td class="descriptor">Active accounts</td>
                         <td class="figure"></td>
                     </tr>
                     <tr>
-                        <td class="descriptor"></td>
+                        <td class="descriptor">Users Active Today</td>
                         <td class="figure"></td>
                     </tr>
                     <tr>
-                        <td class="descriptor"></td>
+                        <td class="descriptor">Active Browsing Users</td>
                         <td class="figure"></td>
                     </tr>
                     <!--  <tr>
@@ -61,44 +62,44 @@
                          <td class="figure"></td>
                      </tr> -->
                     <tr>
-                        <td class="descriptor"></td>
+                        <td class="descriptor">Warned Users</td>
                         <td class="figure"></td>
                     </tr>
                     <tr>
-                        <td class="descriptor"></td>
+                        <td class="descriptor">Total Torrents</td>
                         <td class="figure"></td>
                     </tr>
                     <tr>
-                        <td class="descriptor"></td>
+                        <td class="descriptor">Blu-ray</td>
                         <td class="figure"></td>
                     </tr>
                     <tr>
-                        <td class="descriptor"></td>
+                        <td class="descriptor">UHD Blu-ray</td>
                         <td class="figure"></td>
                     </tr>
                     <tr>
-                        <td class="descriptor"></td>
+                        <td class="descriptor">DVD</td>
                         <td class="figure"></td>
                     </tr>
                     <tr>
-                        <td class="descriptor"></td>
+                        <td class="descriptor">Total Peers</td>
                         <td class="figure"></td>
                     </tr>
                     <tr>
-                        <td class="descriptor"></td>
+                        <td class="descriptor">Seeders</td>
                         <td class="figure"></td>
                     </tr>
                     <tr>
-                        <td class="descriptor"></td>
+                        <td class="descriptor">Leechers</td>
                         <td class="figure"></td>
                     </tr>
                     <tr>
-                        <td class="descriptor"></td>
+                        <td class="descriptor">Ratio S/L</td>
                         <td class="figure"></td>
                     </tr>
                     </tbody>
                 </table>
-                <p class="mb-0 small center"></p>
+                <p class="mb-0 small center">Stats are updated every 15 minutes</p>
             </div>
         </div>
     </div>

@@ -39,9 +39,12 @@
                             <div class="rowhead col-12 col-sm-3 pr-sm-0 text-left-d-sm pb-d-sm-1">Password</div>
                             <div class="col-12 col-sm-9">
                                 <input type="password" id="password" name="password" class="w-100" />
+                                <input type="checkbox" id="remember_me" name="_remember_me"/>
+                                <label for="remember_me">Keep me logged in</label>
                             </div>
                         </div>
                     </div>
+
                     <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
                     <div class="fancy-row">
                         <div class="row small-device">

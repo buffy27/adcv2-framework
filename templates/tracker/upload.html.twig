@@ -77,17 +77,18 @@
                             <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 pt-1">Release Details</div>
                             <div class="col-12 col-sm-10">
                                 <div id="upload-description-template-dvd">
-                                    <textarea name="content_info" id="release-details-markdown-editor"></textarea>
+                                    {{ form_widget(uploadForm.release_details) }}
                                 </div>
                             </div>
                         </div>
                     </div>
 
+                    <!-- Scrapers -->
                     <div class="fancy-row">
                         <div class="row small-device">
                             <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Scrapper Service</div>
                             <div class="col-12 col-sm-10">
-                                <select id="upload-format-type" name="format_type">
+                                <select id="upload-scrapper" name="scrapper">
                                     <option value="mal">MAL</option>
                                     <option value="movie">IMDb</option>
                                 </select>
@@ -141,7 +142,6 @@
                         <div class="row small-device">
                             <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 pt-1">Mediainfo</div>
                             <div class="col-12 col-sm-10">
-
                             </div>
                         </div>
                     </div>

@@ -35,7 +35,6 @@ class TrackerController extends AbstractController
     public function torrents(): Response
     {
         $torrents = $this->entityMangaer->getRepository(Torrents::class)->findAll();
-        dump($torrents);
         return $this->render('tracker/torrents.html.twig', [
             'torrents' => $torrents
         ]);
@@ -84,7 +83,6 @@ class TrackerController extends AbstractController
         $categories = $this->entityMangaer->getRepository(TorrentsCategory::class)->findAllNames();
         $form = $this->createForm(UploadFormType::class, ['categories' => $categories]);
         $form->handleRequest($request);
-        dump($request);
         if($form->isSubmitted() && $form->isValid()){
             $torrent_file = new TorrentFile($form->get('torrent_file')->getData());
             $formData = $form->getData(); //TODO use this instead of get
@@ -137,25 +135,24 @@ class TrackerController extends AbstractController
     public function preview(Request $request): Response
     {
         $torrentData = [];
-        dump($request);
         $upload_form = $request->request->get('upload_form');
-
-
         $torrentFile = new TorrentFile($request->files->get('upload_form')['torrent_file']);
-        dump($upload_form);
 
         if(!$upload_form['torrent_name'] && $torrentFile->getTorrentFile())
             $torrentData['name'] = $torrentFile->getTorrentFile()['info']['name'];
+        else
+            $torrentData['name'] = $upload_form['torrent_name'];
 
         if($torrentFile->getTorrentFile()) {
             $torrentData['size'] = $torrentFile->getTorrentSize();
             $torrentData['files'] = $torrentFile->getTorrentFiles();
         }
 
-        //dump($request->files->get('upload_form')['torrent_file']);
+        dump($request);
         return $this->render('tracker/upload_preview.html.twig', [
             'user' => $this->getUser(),
             'upload' => $upload_form,
+            'request' => $request,
             'image_url' => $request->get('image_url'),
             'torrent_data' => $torrentData
         ]);
