@@ -79,6 +79,7 @@
                                 <div id="upload-description-template-dvd">
                                     {{ form_widget(uploadForm.release_details) }}
                                 </div>
+                                <div class="d-none saved-template" "></div>
                             </div>
                         </div>
                     </div>
@@ -90,7 +91,7 @@
                             <div class="col-12 col-sm-10">
                                 <select id="upload-scrapper" name="scrapper">
                                     <option value="mal">MAL</option>
-                                    <option value="movie">IMDb</option>
+                                    <option value="imdb">IMDb</option>
                                 </select>
                             </div>
                         </div>
@@ -116,7 +117,6 @@
                             <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Poster</div>
                             <div class="col-12 col-sm-10">
                                 <span>Poster is downloaded from scrapper, when you get info from scrapper, the poster should be visible here.</span>
-                                <!-- <input type="file" class="file" id="torrent" name="poster_file" /> -->
                                 <div id="image-from-scrapper-content" class="d-none">
                                     <img class="mt-2 torrent-cover" src="" id="image-from-scrapper" /><br>
                                     <input style="width: 300px" class="" type="text" id="image_url" name="image_url" value="">
@@ -132,7 +132,7 @@
                         <div class="row small-device">
                             <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Content Info</div>
                             <div class="col-12 col-sm-10" id="upload-format-type-box">
-                                <textarea name="content_info" id="content-info-markdown-editor"></textarea>
+                                {{ form_widget(uploadForm.content_info) }}
                             </div>
                         </div>
                     </div>
@@ -162,12 +162,135 @@
                         <div class="row small-device">
                             <div class="col-12 text-center">
                                 <input id="qr" type="submit" name="upload" class="btn" value="Upload" />
-                                <input id="qr" type="submit" name="preview" class="btn" value="Preview" />
+                                <input id="preview_btn" type="button" name="preview" class="btn" value="Preview" />
                             </div>
                         </div>
                     </div>
                 </div>
             {{ form_end(uploadForm) }}
+        </div>
+    </div>
+
+    <!-- Preview page -->
+    <div class="row small-device mt-4 mb-5 d-none" id="preview-content">
+        <div class="col-xl-8 offset-xl-2 col-lg-10 offset-lg-1 col-12">
+            <h1 class="text-center" id="preview-torrent-name"></h1>
+            <div class="fancy-container bx-d-sm-0">
+
+                <!-- actions -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Actions</div>
+                        <div class="col-12 col-sm-10">
+                            <div class="d-flex">
+                                <a class="mr-2" href="#"><b>Download</b></a>
+                                <a title="Add bookmark" href="#">
+                                    <b>Bookmark</b>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- uploaded by -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 nobr">Uploaded by</div>
+                        <div class="col-12 col-sm-10">
+                            <a class="r04" href="/profile/{{ user.id  }}"><b>{{ user.username }}</b></a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- size -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Size</div>
+                            <div class="col-12 col-sm-10" id="preview-torrent-size"></div>
+                    </div>
+                </div>
+
+                <!-- description & image -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Release Details</div>
+                        <div class="col-12 col-sm-10">
+                            <div class="row small-device">
+                                <div class="col-xl-5 mb-2 mb-xl-0 col-12">
+                                    <img src="" id="preview-image" class="valign-top torrent-cover" />
+                                </div>
+                                <div class="col-xl-7 col-12">
+                                    <div id="release-details" class="markdown-body"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- mal / imdb info -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Content Info</div>
+                        <div class="col-12 col-sm-10">
+                            <div class="markdown-body" id="content-parsed-message"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- media info -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Mediainfo</div>
+                        <div class="col-12 col-sm-10">
+                            <div class="d-none" id="show-media-info-block">
+                                <a href="#" onclick="">Show mediainfo</a>
+                                <div id="adc-torrent-mediainfo" class="d-none"></div>
+                            </div>
+                            <div class="d-none" id="no-media-info-block">
+                                There is no mediainfo available.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- files -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Torrent Files</div>
+                            <div class="col-12 col-sm-10" id="preview-torrent-files"></div>
+                        <div class="d-none" id="adc-files-list"></div>
+                    </div>
+                </div>
+
+                <!-- info hash -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Info hash</div>
+                            <div class="col-12 col-sm-10" id="preview-info-hash"></div>
+                    </div>
+                </div>
+
+                <!-- peers -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1"><span class="d-block">Peers</span></div>
+                        <div class="col-12 col-sm-10">
+                            <img src="../images/trans.gif" class="main-arrowup valign-bottom" /> <b class="green">0</b> seeders
+                            &nbsp;
+                            <img src="../images/trans.gif" class="main-arrowdown valign-bottom" /> <b class="red">0</b> leechers
+                        </div>
+                    </div>
+                </div>
+
+                <!-- make request button -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="col-12 text-center">
+                            <input id="upload_return" type="button" class="btn" value="Return" />
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 {% endblock %}

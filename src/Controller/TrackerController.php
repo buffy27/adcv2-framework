@@ -11,6 +11,7 @@ use App\Libraries\TorrentFile;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -58,7 +59,6 @@ class TrackerController extends AbstractController
             $this->entityMangaer->flush();
         }
 
-
         return $this->render('tracker/torrent.html.twig', [
             'torrent' => $torrent,
             'user' => $this->getUser(),
@@ -74,25 +74,49 @@ class TrackerController extends AbstractController
     public function upload(Request $request, HttpClientInterface $client): Response
     {
         $uploader = $this->getUser();
-        if($request->getMethod() == "POST" && $request->get('preview')) {
-            return $this->redirectToRoute('upload.preview', [
-                'request' => $request
-            ], 307);
-        }
-
         $categories = $this->entityMangaer->getRepository(TorrentsCategory::class)->findAllNames();
         $form = $this->createForm(UploadFormType::class, ['categories' => $categories]);
         $form->handleRequest($request);
+
+        $torrentData = [];
+        $upload_form = $request->request->get('upload_form');
+
+        if(!empty($request->files->get('upload_form')['torrent_file'])) {
+            $torrentFile = new TorrentFile($request->files->get('upload_form')['torrent_file']);
+
+            if (!isset($upload_form['torrent_name']) && $torrentFile->getTorrentFile())
+                $torrentData['name'] = $torrentFile->getTorrentFile()['info']['name'];
+            else
+                $torrentData['name'] = $upload_form['torrent_name'];
+
+            if ($torrentFile->getTorrentFile()) {
+                $torrentData['size'] = $torrentFile->getTorrentSize();
+                $torrentData['files'] = $torrentFile->getTorrentFiles();
+            }
+        }
+        if($request->getMethod() == "POST" && isset($_POST['preview'])){
+            if(isset($torrentData['size']))
+                $torrentData['size'] = $this->getSize($torrentData['size']);
+            else {
+                $torrentData['size'] = "---";
+                $torrentData['files']['total'] = "---";
+                $torrentData['files']['info_hash'] = "---";
+                $torrentData['name'] = "---";
+            }
+            return new JsonResponse($torrentData);
+        }
+
         if($form->isSubmitted() && $form->isValid()){
             $torrent_file = new TorrentFile($form->get('torrent_file')->getData());
-            $formData = $form->getData(); //TODO use this instead of get
+            $formData = $form->getData();
+            dump($formData);
             $checkFile = $this->getParameter('kernel.project_dir') . "/data/torrents" . $torrent_file->getTorrentFiles()['info_hash'] . ".torrent";
             if($torrent_file->getTorrentFile()['announce'] != $request->getSchemeAndHttpHost() . "/announce")
                 $form->get('torrent_file')->addError(new FormError("Invalid announce"));
             else if(file_exists($checkFile)){
                 $form->get('torrent_file')->addError(new FormError("Torrent already exists in database"));
             }else{
-                $category = $this->entityMangaer->getRepository(TorrentsCategory::class)->find($form->get('tCategory')->getData());
+                $category = $this->entityMangaer->getRepository(TorrentsCategory::class)->find($formData['tCategory']);
                 $api = new ApiController();
                 $torrent = new Torrents();
                 $torrent->setOwner($uploader);
@@ -107,56 +131,28 @@ class TrackerController extends AbstractController
                     "type" => $category->getName(),
                     "format" => $request->get('template_radio')
                 ]);
-                $torrent->setDescription($form->get('release_details')->getData());
+                $torrent->setDescription($formData['release_details']);
                 $torrent->setContentInfo($form->get('content_info')->getData());
                 $torrent->setContentId($api->getScrapperId($request->get('format_type'), $request->get('content_id')));
-                if($form->get('torrent_name')->getData())
-                    $torrent->setName($form->get('torrent_name')->getData());
+                if(isset($formData['torrent_name']))
+                    $torrent->setName($formData['torrent_name']);
                 else
                     $torrent->setName($torrent_file->getTorrentFile()['info']['name']);
                 $entityManager = $this->getDoctrine()->getManager();
                 $entityManager->persist($torrent);
                 $entityManager->flush();
-                return new RedirectResponse($this->generateUrl('torrent', ['id'=>$torrent->getId()]));
+                return new RedirectResponse($this->generateUrl('torrent', ['id' => $torrent->getId()]));
             }
         }
-
         return $this->render('tracker/upload.html.twig', [
             'uploadForm' => $form->createView(),
             'user' => $uploader,
-            'announce' => $request->getSchemeAndHttpHost()
+            'announce' => $request->getSchemeAndHttpHost(),
         ]);
     }
-    /**
-     * @Route ("/upload/preview", name="upload.preview")
-     * @param Request $request
-     * @return Response
-     */
-    public function preview(Request $request): Response
-    {
-        $torrentData = [];
-        $upload_form = $request->request->get('upload_form');
-        $torrentFile = new TorrentFile($request->files->get('upload_form')['torrent_file']);
-
-        if(!$upload_form['torrent_name'] && $torrentFile->getTorrentFile())
-            $torrentData['name'] = $torrentFile->getTorrentFile()['info']['name'];
-        else
-            $torrentData['name'] = $upload_form['torrent_name'];
-
-        if($torrentFile->getTorrentFile()) {
-            $torrentData['size'] = $torrentFile->getTorrentSize();
-            $torrentData['files'] = $torrentFile->getTorrentFiles();
-        }
-
-        dump($request);
-        return $this->render('tracker/upload_preview.html.twig', [
-            'user' => $this->getUser(),
-            'upload' => $upload_form,
-            'request' => $request,
-            'image_url' => $request->get('image_url'),
-            'torrent_data' => $torrentData
-        ]);
+    private function getSize($size){
+        $units = array( 'B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB');
+        $power = $size > 0 ? floor(log($size, 1024)) : 0;
+        return number_format($size / pow(1024, $power), 2, '.', ',') . ' ' . $units[$power];
     }
-
-
 }

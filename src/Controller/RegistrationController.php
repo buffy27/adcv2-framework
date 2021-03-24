@@ -123,7 +123,7 @@ class RegistrationController extends AbstractController
      * @Route("/signup/{invite}", name="app_register.invite")
      */
     public function registerInvite($invite, Request $request, UserPasswordEncoderInterface $passwordEncoder, GuardAuthenticatorHandler $guardHandler, AppLoginAuthenticator $authenticator){
-        return new RedirectResponse($this->generateUrl('login'));
+        return new RedirectResponse($this->generateUrl('app_login'));
     }
 
     /**

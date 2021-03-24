@@ -51,6 +51,10 @@ class UploadFormType extends AbstractType
                 'label' => 'Release Details',
                 'required' => false,
             ])
+            ->add("content_info", TextareaType::class, [
+                'label' => 'Content Info',
+                'required' => false,
+            ])
         ;
     }
 

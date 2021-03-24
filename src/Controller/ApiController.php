@@ -117,7 +117,6 @@ Uploader's Comments....:
              $command .= "mal_to_json.py " . $this->getMAL_id($request->query->get("url"));
              $data = exec($command, $out, $status);
              $data = json_decode($data, true);
-             dump($data);
              $data = array(
                 'content_info' =>
                     "\n\n" . $data['title'] . "\n" .
@@ -132,6 +131,26 @@ Uploader's Comments....:
                     $data['synopsis'],
                 'image' => $data['url']
              );
+
+            $response = new JsonResponse($data);
+            $response->setEncodingOptions($response->getEncodingOptions() | JSON_PRETTY_PRINT);
+            return $response;
+        }
+        if($type == "imdb"){
+            $command .= "imdb_to_json.py " . $this->getIMDb_id($request->query->get("url"));
+            $data = exec($command, $out, $status);
+            $data = json_decode($data, true);
+            dump($data);
+            $data = array(
+                'content_info' =>
+                    "English: " . $data['name'] . "\n" .
+                    "Year: " . $data['year'] . "\n" .
+                    "Genres: " . implode(", ", $data['genre']) . "\n" .
+                    "Directors: " . implode(", ", $data['directors']) . "\n\n".
+                    (!empty($data['synopsis'][0]) ? $data['synopsis'][0] : $data['plot']),
+
+                'image' => $data['url']
+            );
 
             $response = new JsonResponse($data);
             $response->setEncodingOptions($response->getEncodingOptions() | JSON_PRETTY_PRINT);
