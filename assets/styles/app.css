@@ -1,2 +1,4 @@
 @import "~easymde/dist/easymde.min.css";
 @import "adc.editormd.css";
+@import "adc.modal.css";
+@import "jquery.modal.min.css";

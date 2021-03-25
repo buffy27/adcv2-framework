@@ -7,7 +7,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 /**
- * @Route("/api", name="api")
+ * @Route("/api", name="api.")
  */
 class ApiController extends AbstractController
 {
@@ -108,7 +108,7 @@ Uploader's Comments....:
     }
 
     /**
-     * @Route ("/scrapper/{type}", name="api.scrapper", methods={"GET"}, requirements={"type"="^[a-z]+$"})
+     * @Route ("/scrapper/{type}", name="scrapper", methods={"GET"}, requirements={"type"="^[a-z]+$"})
      */
     public function scrapper($type, Request $request){
         $type = htmlspecialchars($type);
@@ -140,19 +140,22 @@ Uploader's Comments....:
             $command .= "imdb_to_json.py " . $this->getIMDb_id($request->query->get("url"));
             $data = exec($command, $out, $status);
             $data = json_decode($data, true);
-            dump($data);
-            $data = array(
-                'content_info' =>
-                    "English: " . $data['name'] . "\n" .
-                    "Year: " . $data['year'] . "\n" .
-                    "Genres: " . implode(", ", $data['genre']) . "\n" .
-                    "Directors: " . implode(", ", $data['directors']) . "\n\n".
-                    (!empty($data['synopsis'][0]) ? $data['synopsis'][0] : $data['plot']),
 
+
+            $content = array(
+                'content_info' =>
+                    " English: " . $data['name'] . "\n" .
+                    "Year: " . $data['year'] . "\n" .
+                    "Genres: " . implode(", ", $data['genre']) . "\n",
+                   // (!empty($data['synopsis'][0]) ? $data['synopsis'][0] : $data['plot']),
                 'image' => $data['url']
             );
+            if(isset($data['directors']))
+                $content['content_info'] .= "Directors:" . (is_array($data['directors']) ? implode(",", $data['directors']) : $data['directors']);
+            if(isset($data['plot']))
+                $content['content_info'] .= "\n\n:" . $data['plot'];
 
-            $response = new JsonResponse($data);
+            $response = new JsonResponse($content);
             $response->setEncodingOptions($response->getEncodingOptions() | JSON_PRETTY_PRINT);
             return $response;
         }

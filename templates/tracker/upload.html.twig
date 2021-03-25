@@ -79,7 +79,7 @@
                                 <div id="upload-description-template-dvd">
                                     {{ form_widget(uploadForm.release_details) }}
                                 </div>
-                                <div class="d-none saved-template" "></div>
+                                <div class="d-none saved-template"></div>
                             </div>
                         </div>
                     </div>
@@ -103,7 +103,8 @@
                             <div id="content_name" class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 pt-sm-1">Scrapper Url</div>
                             <div class="col-12 col-sm-10">
                                 <div class="d-flex">
-                                    <input id="input-content-url" type="text" name="content_id" value="" class="mr-2 flex-fill" />
+                                    {{ form_widget(uploadForm.content_url) }}
+                                   {# <input id="input-content-url" type="text" name="content_id" value="" class="mr-2 flex-fill" />#}
                                     <button class="btn" type="button" id="content-url-button">Import Content Info</button>
                                 </div>
                                 <p id="content_small_text" class="mt-1 mb-0 smaller"></p>
@@ -119,7 +120,8 @@
                                 <span>Poster is downloaded from scrapper, when you get info from scrapper, the poster should be visible here.</span>
                                 <div id="image-from-scrapper-content" class="d-none">
                                     <img class="mt-2 torrent-cover" src="" id="image-from-scrapper" /><br>
-                                    <input style="width: 300px" class="" type="text" id="image_url" name="image_url" value="">
+                                    {{ form_widget(uploadForm.content_poster) }}
+                                    {#<input style="width: 300px" class="" type="text" id="image_url" name="image_url" value="">#}
                                     <br />
                                     <p class="mt-1 mb-0 smaller">This image will be placed in torrent file.</p>
                                 </div>
@@ -130,7 +132,7 @@
                     <!-- content info -->
                     <div class="fancy-row" id="upload-content-info">
                         <div class="row small-device">
-                            <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Content Info</div>
+                            <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">{{ form_label(uploadForm.content_info) }}</div>
                             <div class="col-12 col-sm-10" id="upload-format-type-box">
                                 {{ form_widget(uploadForm.content_info) }}
                             </div>
@@ -140,8 +142,9 @@
                     <!-- media info -->
                     <div class="fancy-row">
                         <div class="row small-device">
-                            <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 pt-1">Mediainfo</div>
+                            <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 pt-1">{{ form_label(uploadForm.mediainfo) }}</div>
                             <div class="col-12 col-sm-10">
+                                {{ form_widget(uploadForm.mediainfo) }}
                             </div>
                         </div>
                     </div>
@@ -168,6 +171,19 @@
                     </div>
                 </div>
             {{ form_end(uploadForm) }}
+        </div>
+    </div>
+
+    <!-- Modal window -->
+    <div id="simple-adc-modal" class="modal">
+        <div class="modal-wrapper">
+            <header>
+                <h4 id="simple-adc-modal-header"></h4>
+                <a href="#" rel="modal:close">[close]</a>
+            </header>
+            <div class="modal-body">
+                <div class="inner-modal-body"></div>
+            </div>
         </div>
     </div>
 
@@ -242,12 +258,8 @@
                     <div class="row small-device">
                         <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Mediainfo</div>
                         <div class="col-12 col-sm-10">
-                            <div class="d-none" id="show-media-info-block">
-                                <a href="#" onclick="">Show mediainfo</a>
-                                <div id="adc-torrent-mediainfo" class="d-none"></div>
-                            </div>
-                            <div class="d-none" id="no-media-info-block">
-                                There is no mediainfo available.
+                            <div id="show-media-info-block">
+                                <a href="#" id="adc-torrent-mediainfo">[view]</a>
                             </div>
                         </div>
                     </div>

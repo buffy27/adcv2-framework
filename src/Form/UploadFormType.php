@@ -55,6 +55,21 @@ class UploadFormType extends AbstractType
                 'label' => 'Content Info',
                 'required' => false,
             ])
+            ->add("mediainfo", TextareaType::class, [
+                'label' => "MediaInfo",
+                'required'=> false,
+            ])
+            ->add("content_poster", TextType::class, [
+                "attr" => [
+                    'style' => 'width: 300px'
+                ]
+            ])
+            ->add('content_url', TextType::class, [
+                'label' => "Scrapper Url",
+                'attr' => [
+                    'class' => "mr-2 flex-fill"
+                ]
+            ])
         ;
     }
 

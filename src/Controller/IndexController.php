@@ -39,6 +39,7 @@ class IndexController extends AbstractController
     }
 
     /**
+     * @IsGranted("ROLE_ADMIN")
      * @Route("/create_news", name="news.create")
      */
     public function createNews(Request $request): Response
@@ -74,7 +75,6 @@ class IndexController extends AbstractController
     public function faq(): Response
     {
         return $this->render('index/faq.html.twig', [
-
         ]);
     }
 
@@ -94,7 +94,6 @@ class IndexController extends AbstractController
     public function tos(): Response
     {
         return $this->render('index/tos.html.twig', [
-
         ]);
     }
 
@@ -104,7 +103,6 @@ class IndexController extends AbstractController
     public function donation(): Response
     {
         return $this->render('index/donation.html.twig', [
-
         ]);
     }
 }

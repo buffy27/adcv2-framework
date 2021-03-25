@@ -17,6 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+
 use function Twig\Extra\Markdown\twig_html_to_markdown;
 use function Webmozart\Assert\Tests\StaticAnalysis\fileExists;
 use function Webmozart\Assert\Tests\StaticAnalysis\nullOrIsEmpty;
@@ -48,7 +49,8 @@ class TrackerController extends AbstractController
     {
         $torrent = $this->entityMangaer->getRepository(Torrents::class)->find($id);
         $comments = $this->entityMangaer->getRepository(TorrentComments::class)->findByTorrentId($torrent);
-        dump($comments);
+
+        dump($torrent);
         if($request->getMethod() == "POST"){
             $comment = new TorrentComments();
             $comment->setComment($request->get('comment_desc'));
@@ -57,6 +59,7 @@ class TrackerController extends AbstractController
             $comment->setUser($this->getUser());
             $this->entityMangaer->persist($comment);
             $this->entityMangaer->flush();
+            return new RedirectResponse($this->generateUrl('torrent', ['id' => $id]));
         }
 
         return $this->render('tracker/torrent.html.twig', [
@@ -105,11 +108,10 @@ class TrackerController extends AbstractController
             }
             return new JsonResponse($torrentData);
         }
-
+        dump($form->getData());
         if($form->isSubmitted() && $form->isValid()){
             $torrent_file = new TorrentFile($form->get('torrent_file')->getData());
             $formData = $form->getData();
-            dump($formData);
             $checkFile = $this->getParameter('kernel.project_dir') . "/data/torrents" . $torrent_file->getTorrentFiles()['info_hash'] . ".torrent";
             if($torrent_file->getTorrentFile()['announce'] != $request->getSchemeAndHttpHost() . "/announce")
                 $form->get('torrent_file')->addError(new FormError("Invalid announce"));
@@ -132,12 +134,15 @@ class TrackerController extends AbstractController
                     "format" => $request->get('template_radio')
                 ]);
                 $torrent->setDescription($formData['release_details']);
-                $torrent->setContentInfo($form->get('content_info')->getData());
-                $torrent->setContentId($api->getScrapperId($request->get('format_type'), $request->get('content_id')));
+                $torrent->setContentInfo($formData['content_info']);
                 if(isset($formData['torrent_name']))
                     $torrent->setName($formData['torrent_name']);
                 else
                     $torrent->setName($torrent_file->getTorrentFile()['info']['name']);
+                $torrent->setContentPoster($formData['content_poster']);
+                $torrent->setMediaInfo($formData['mediainfo']);
+                $torrent->setContentUrl($formData['content_url']);
+                unset($formData);
                 $entityManager = $this->getDoctrine()->getManager();
                 $entityManager->persist($torrent);
                 $entityManager->flush();

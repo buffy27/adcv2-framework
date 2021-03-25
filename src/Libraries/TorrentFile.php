@@ -17,7 +17,8 @@ class TorrentFile
             $this->file = Bencode::load($file->getRealPath());
     }
 
-    public function getTorrentSize(){
+    public function getTorrentSize(): int
+    {
         $size = 0;
         if(isset($this->file['info']['files'])) {
             foreach ($this->file['info']['files'] as $value) {
@@ -28,7 +29,8 @@ class TorrentFile
         else
             return $this->file['info']['length'];
     }
-    public function getTorrentFiles(){
+    public function getTorrentFiles(): array
+    {
         $files['total'] = isset($this->file['info']['files']) ? count($this->file['info']['files']) : 1;
         $files['info_hash'] = sha1(Bencode::encode($this->file['info']));
         return $files;

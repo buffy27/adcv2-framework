@@ -11,6 +11,11 @@ import './styles/app.css';
 // start the Stimulus application
 import './bootstrap';
 
+import jquery from 'jquery';
+
+import './jquery.modal.min';
+
+
 import EasyMDE from 'easymde';
 
 import marked from 'marked';
@@ -35,6 +40,18 @@ if(markdown_editor){
         ]
     });
     mk.toggleSideBySide();
+}
+const modal_data = document.getElementById("modal-data");
+const modal_view = document.getElementById("modal-view");
+if(modal_view) {
+    modal_view.addEventListener('click', function () {
+        var innerDiv = $('<pre class="m-0 pre-wrap"></pre>').html(marked(modal_data.innerHTML));
+        var modal = $('.modal');
+        modal.addClass('modal-sm');
+        $('#simple-adc-modal-header').html('Media Info');
+        $('#simple-adc-modal .modal-body').html(innerDiv[0].outerHTML);
+        $("#simple-adc-modal").modal('show');
+    });
 }
 
 if(window.location.pathname === "/upload" ) {
@@ -88,12 +105,28 @@ if(window.location.pathname === "/upload" ) {
     });
     releaseDetails.toggleSideBySide();
 
-    document.addEventListener('DOMContentLoaded', function() {
-        var data = $('.saved-template').data('isTemplate');
+    var mi_textarea = document.getElementById("upload_form_mediainfo");
+    var mediainfo = new EasyMDE({
+        element: mi_textarea,
+        promptURLs: true,
+        tabSize: 4,
+        spellChecker: true,
+        nativeSpellcheck: true,
+        sideBySideFullscreen: false,
+        inputStyle: "textarea",
+        maxHeight: '300px',
+        toolbar: [
+            "bold", "italic", "strikethrough", "|",
+            "code", "quote", "|",
+            "ordered-list", "unordered-list", "|",
+            "link", "image", "|",
+            "horizontal-rule", "clean-block", "|",
+            "side-by-side"
+        ]
     });
+    mediainfo.toggleSideBySide();
 
-
-        var template = null;
+    var template = null;
     $.ajax(
         {
             url: "/api/template",
@@ -118,19 +151,14 @@ if(window.location.pathname === "/upload" ) {
         releaseDetails.value(template['uhd_template']);
     })
 
-    var scrapper = document.getElementById("upload-scrapper");
-    var type =  scrapper.options[scrapper.selectedIndex].value;
-    scrapper.addEventListener('click', function (){
-       type = this.options[this.selectedIndex].value;
-    });
-    var scrapper_url = "/api/scrapper/" + type + "?url=";
-    console.log(scrapper_url);
-
     var get_content = document.getElementById("content-url-button");
 
     get_content.addEventListener('click', function (){
+        var scrapper = document.getElementById("upload-scrapper");
+        var scrapper_url = "/api/scrapper/" + scrapper.options[scrapper.selectedIndex].value + "?url=";
+
         $.ajax({
-            url: scrapper_url + document.getElementById("input-content-url").value,
+            url: encodeURI(scrapper_url + document.getElementById("upload_form_content_url").value),
             type: 'get',
             dataType: 'html',
             async: false,
@@ -139,14 +167,14 @@ if(window.location.pathname === "/upload" ) {
                 var content = JSON.parse(data)['content_info'];
                 contentInfo.value(content.substring(1));
                 document.getElementById("image-from-scrapper").src = JSON.parse(data)['image'];
-                document.getElementById("image_url").value = JSON.parse(data)['image'];
+                document.getElementById("upload_form_content_poster").value = JSON.parse(data)['image'];
                 document.getElementById("image-from-scrapper-content").classList.remove("d-none");
             }
         })
     });
-    var uploadContent = document.getElementById("upload-content");
-    var previewContent = document.getElementById("preview-content");
-    var preview = document.getElementById("preview_btn");
+    const uploadContent = document.getElementById("upload-content");
+    const previewContent = document.getElementById("preview-content");
+    const preview = document.getElementById("preview_btn");
 
     preview.addEventListener('click', function (){
         uploadContent.classList.add("d-none");
@@ -159,6 +187,7 @@ if(window.location.pathname === "/upload" ) {
         var previewTorrentFiles = document.getElementById("preview-torrent-files");
         var previewContentInfo = document.getElementById("content-parsed-message");
         var previewReleaseInfo = document.getElementById("release-details");
+        var previewMediainfo = document.getElementById("adc-torrent-mediainfo");
         var previewImage = document.getElementById("preview-image");
 
         var previewShowMediaInfoBlock = document.getElementById("show-media-info-block");
@@ -168,8 +197,18 @@ if(window.location.pathname === "/upload" ) {
         previewReleaseInfo.innerHTML = marked(releaseDetails.value());
         previewContentInfo.innerHTML = marked(contentInfo.value());
         previewImage.src = document.getElementById("image-from-scrapper").src;
+
+        previewMediainfo.addEventListener('click', function (){
+            var innerDiv = $('<pre class="m-0 pre-wrap"></pre>').html(marked(mediainfo.value()));
+            var modal = $('.modal');
+            modal.addClass('modal-sm');
+
+            $('#simple-adc-modal-header').html('Media Info');
+            $('#simple-adc-modal .modal-body').html(innerDiv[0].outerHTML);
+            $("#simple-adc-modal").modal('show');
+        })
+
         formdata.set("preview", true);
-        formdata.set("torrent_name", "hey");
         $.ajax({
             url: "/upload",
             type: "POST",

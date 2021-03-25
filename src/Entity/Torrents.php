@@ -84,14 +84,24 @@ class Torrents
     private $infoHash;
 
     /**
-     * @ORM\Column(type="integer")
-     */
-    private $contentId;
-
-    /**
      * @ORM\OneToMany(targetEntity=TorrentComments::class, mappedBy="torrents")
      */
     private $idComment;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $contentPoster;
+
+    /**
+     * @ORM\Column(type="text")
+     */
+    private $mediaInfo;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $contentUrl;
 
     public function __construct()
     {
@@ -266,21 +276,6 @@ class Torrents
         return $this;
     }
 
-    public function getContentId(): ?int
-    {
-        return $this->contentId;
-    }
-
-    public function setContentId(int $contentId = null): self
-    {
-        if(!$contentId)
-            $this->contentId = 0;
-        else
-            $this->contentId = $contentId;
-
-        return $this;
-    }
-
     /**
      * @return Collection|TorrentComments[]
      */
@@ -307,6 +302,42 @@ class Torrents
                 $idComment->setTorrents(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getContentPoster(): ?string
+    {
+        return $this->contentPoster;
+    }
+
+    public function setContentPoster(string $contentPoster): self
+    {
+        $this->contentPoster = $contentPoster;
+
+        return $this;
+    }
+
+    public function getMediaInfo(): ?string
+    {
+        return $this->mediaInfo;
+    }
+
+    public function setMediaInfo(string $mediaInfo): self
+    {
+        $this->mediaInfo = $mediaInfo;
+
+        return $this;
+    }
+
+    public function getContentUrl(): ?string
+    {
+        return $this->contentUrl;
+    }
+
+    public function setContentUrl(string $contentUrl): self
+    {
+        $this->contentUrl = $contentUrl;
 
         return $this;
     }
