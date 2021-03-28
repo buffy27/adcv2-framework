@@ -11,6 +11,11 @@ security:
                 class: App\Entity\User
                 property: username
     firewalls:
+        announce:
+            methods: [ GET ]
+            pattern: ^/announce
+            security: false
+            anonymous: true
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
@@ -48,5 +53,5 @@ security:
         - { path: ^/reset-password, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/check-email, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/verify, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/create_news, roles: ROLE_ADMIN }
+        - { path: ^/announce, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/*, roles: ROLE_USER }

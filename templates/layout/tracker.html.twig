@@ -7,10 +7,10 @@
                and uncomment the following Encore helpers to start using Symfony UX #}
         {% block stylesheets %}
             {{ encore_entry_link_tags('app') }}
-            <link rel="stylesheet" href="../css/adc.css">
-            <link rel="stylesheet" href="../css/adc.modal.css">
-            <link rel="stylesheet" href="../css/bootstrap-grid.min.css">
-            <link rel="shortcut icon" type="image/jpg" href="../images/favicon.ico"/>
+            <link rel="stylesheet" href="{{ asset('css/adc.css') }}">
+            <link rel="stylesheet" href="{{ asset('css/adc.modal.css') }}">
+            <link rel="stylesheet" href="{{ asset('css/bootstrap-grid.min.css') }}">
+            <link rel="shortcut icon" type="image/jpg" href="{{ asset('images/favicon.ico') }}"/>
         {% endblock %}
     </head>
     <body>
@@ -54,12 +54,12 @@
                 <a href="/donation">Donation</a>
 
                 <div class="menu-right d-none d-lg-block">
-                    <a href="/profile"><img title="Your Profile" height="20" width="20" src="../images/nav_bar/profile1.svg" /></a>
-                    <a href="/friends"><img title="Friends" height="20" width="20" src="../images/nav_bar/friends.svg"/></a>
-                    <a href="/staffpm"><img title="PM Staff" height="20" width="20" src="../images/nav_bar/staff.svg"/></a>
-                    <a href="/make_rss"><img title="RSS" height="20" width="20" src="../images/nav_bar/rss.svg"/></a>
-                    <a href="irc://irc.rizon.net/asiandvdclub"><img title="IRC" height="20" width="20" src="../images/nav_bar/irc.svg" /></a>
-                    <a href="/logout"><img title="Logout" height="20" width="20" src="../images/nav_bar/logout.svg"/></a>
+                    <a href="/profile"><img title="Your Profile" height="20" width="20" src="{{ asset('images/nav_bar/profile1.svg') }}" /></a>
+                    <a href="/friends"><img title="Friends" height="20" width="20" src="{{ asset('images/nav_bar/friends.svg') }}"/></a>
+                    <a href="/staffpm"><img title="PM Staff" height="20" width="20" src="{{ asset('images/nav_bar/staff.svg') }}"/></a>
+                    <a href="/make_rss"><img title="RSS" height="20" width="20" src="{{ asset('images/nav_bar/rss.svg') }}"/></a>
+                    <a href="irc://irc.rizon.net/asiandvdclub"><img title="IRC" height="20" width="20" src="{{  asset('images/nav_bar/irc.svg') }}" /></a>
+                    <a href="/logout"><img title="Logout" height="20" width="20" src="{{ asset('images/nav_bar/logout.svg') }}"/></a>
                 </div>
 
             </div>

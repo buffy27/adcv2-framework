@@ -154,12 +154,24 @@ class User implements UserInterface
      */
     private $roles = [];
 
+    /**
+     * @ORM\OneToMany(targetEntity=SyncAnnounce::class, mappedBy="user")
+     */
+    private $syncAnnounces;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Peers::class, mappedBy="user")
+     */
+    private $peers;
+
     public function __construct()
     {
         $this->torrents = new ArrayCollection();
         $this->idComment = new ArrayCollection();
         $this->news = new ArrayCollection();
         $this->roles = new ArrayCollection();
+        $this->syncAnnounces = new ArrayCollection();
+        $this->peers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -544,6 +556,66 @@ class User implements UserInterface
             // set the owning side to null (unless already changed)
             if ($news->getAddedBy() === $this) {
                 $news->setAddedBy(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|SyncAnnounce[]
+     */
+    public function getSyncAnnounces(): Collection
+    {
+        return $this->syncAnnounces;
+    }
+
+    public function addSyncAnnounce(SyncAnnounce $syncAnnounce): self
+    {
+        if (!$this->syncAnnounces->contains($syncAnnounce)) {
+            $this->syncAnnounces[] = $syncAnnounce;
+            $syncAnnounce->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSyncAnnounce(SyncAnnounce $syncAnnounce): self
+    {
+        if ($this->syncAnnounces->removeElement($syncAnnounce)) {
+            // set the owning side to null (unless already changed)
+            if ($syncAnnounce->getUser() === $this) {
+                $syncAnnounce->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Peers[]
+     */
+    public function getPeers(): Collection
+    {
+        return $this->peers;
+    }
+
+    public function addPeer(Peers $peer): self
+    {
+        if (!$this->peers->contains($peer)) {
+            $this->peers[] = $peer;
+            $peer->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removePeer(Peers $peer): self
+    {
+        if ($this->peers->removeElement($peer)) {
+            // set the owning side to null (unless already changed)
+            if ($peer->getUser() === $this) {
+                $peer->setUser(null);
             }
         }
 

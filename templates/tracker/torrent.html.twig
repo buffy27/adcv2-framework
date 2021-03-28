@@ -35,31 +35,31 @@
                         <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Actions</div>
                         <div class="col-12 col-sm-10">
                             <div class="d-flex">
-                                <a class="mr-2" href="/download/<?php echo $data['tID']; ?>"><b>Download</b></a>
-                                <?php if (!$data['isBookmarked']) { ?>
+                                {# TODO Add bookmakrs, edit and remove torrents #}
+                                <a class="mr-2" href="{{ path('torrent.download', {id: torrent.id}) }}"><b>Download</b></a>
+                                {% if is_granted("ROLE_ADMIN") %}
                                 <!-- add to bookmarks -->
-                                <a title="Add bookmark" href="/add_bookmark/<?php echo $data['tID']; ?>">
+                                <a title="Add bookmark" href="/add_bookmark/{{ torrent.id }}">
                                     <b>Bookmark</b>
                                 </a>
-                                <?php } else { ?>
+                               {% else %}
                                 <!-- remove from bookmarks -->
-                                <a title="Remove bookmark" href="/remove_bookmark/<?php echo $data['tID']; ?>">
+                                <a title="Remove bookmark" href="/remove_bookmark/{{ torrent.id }}">
                                     <b>Unbookmark</b>
                                 </a>
-                                <?php } ?>
+                                {% endif %}
                                 <div class="ml-auto">
-                                    <!-- <a class="no-decoration" href="/report/<?php echo $data['tID']; ?>">
+                                    <!-- <a class="no-decoration" href="/report/{{ torrent.id }}">
                                         <b>Report</b>
                                     </a> -->
-
-                                    <?php if ($data['canEditTorrent']) { ?>
+                                    {% if is_granted("ROLE_ADMIN") %}
                                     <!-- edit action -->
-                                    <a class="no-decoration ml-2" href="/edit_torrent/<?php echo $data['tID']; ?>"><b>Edit</b></a>
-                                    <?php } ?>
-                                    <?php if ($data['canRemoveTorrent']) { ?>
+                                    <a class="no-decoration ml-2" href="/edit_torrent/{{ torrent.id }}"><b>Edit</b></a>
+                                    {% endif %}
+                                    {% if is_granted("ROLE_ADMIN") %}
                                     <!-- remove action -->
-                                    <a class="no-decoration red ml-2" href="/remove_torrent/<?php echo $data['tID']; ?>"><b>Remove</b></a>
-                                    <?php } ?>
+                                    <a class="no-decoration red ml-2" href="{{ path('torrent.remove', {id: torrent.id}) }}"><b>Remove</b></a>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
@@ -93,7 +93,6 @@
                         <div class="row small-device">
                                 <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 nobr">Content Info</div>
                                 <div class="col-12 col-sm-10">
-
                                     <a target="_blank" href="{{ torrent.contentUrl }}">
                                         {{ torrent.contentUrl }}
                                     </a>
@@ -101,9 +100,6 @@
                                         {{ torrent.contentInfo }}
                                     {% endapply %}
                                 </div>
-                                <script type="text/javascript">
-                                    parseMarkdown("#content-anime-markdown-message", "#content-anime-parsed-message");
-                                </script>
                         </div>
                     </div>
                 {% endif %}
@@ -133,7 +129,7 @@
                     <div class="row small-device">
                         <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">MediaInfo</div>
                         <div class="col-12 col-sm-10">
-                            {% if torrent.mediaInfo is defined %}
+                            {% if torrent.mediaInfo is not null %}
                                  <a href="#" id="modal-view">Click to view</a>
                                  <div class="d-none" id="modal-data">{{ torrent.mediaInfo }}</div>
                             {% else %}
@@ -209,7 +205,7 @@
                     </div>
                 </div>
             </div>
-
+            {# TODO add remove and edit torrent for both staff and user #}
            {% if comments is defined %}
             <div class="mt-5">
                 {% for comment in comments %}
@@ -217,7 +213,6 @@
                         <div class="row small-device">
                             <div class="col-2 pr-0">
                                 <div class="w-100 avatar-container">
-
                                     <img title="" class="title-icon-avatar" src="../images/">
 
                                     <img src="/avatar/{{ comment.user.id }}" class="w-100" />

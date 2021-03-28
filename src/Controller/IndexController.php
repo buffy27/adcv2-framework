@@ -9,6 +9,7 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use phpDocumentor\Reflection\Types\This;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -32,14 +33,13 @@ class IndexController extends AbstractController
     public function index(): Response
     {
         $news = $this->entityMangaer->getRepository(News::class)->findAll();
-
         return $this->render('index/index.html.twig', [
             'news' => $news
         ]);
     }
 
     /**
-     * @IsGranted("ROLE_ADMIN")
+     * @Security ("is_granted('ROLE_ADMIN')")
      * @Route("/create_news", name="news.create")
      */
     public function createNews(Request $request): Response

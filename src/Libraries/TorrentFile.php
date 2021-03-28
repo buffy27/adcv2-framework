@@ -6,6 +6,7 @@ namespace App\Libraries;
 use Rhilip\Bencode\Bencode;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\Request;
 
 class TorrentFile
 {
@@ -13,8 +14,13 @@ class TorrentFile
 
     public function __construct(UploadedFile $file = null)
     {
-        if($file)
+        if($file) {
             $this->file = Bencode::load($file->getRealPath());
+            unset($this->file['announce-list']);
+            $this->file['info']['private'] = 1;
+            $this->file['comment'] = "Torrent created for ADC";
+            $this->file['created by'] = "ADC Team";
+        }
     }
 
     public function getTorrentSize(): int
@@ -36,9 +42,8 @@ class TorrentFile
         return $files;
     }
 
-    public function makeTorrentFile(){
-        unset($this->file['announce-list']);
-        $this->file['info']['private'] = 1;
+    public function makeTorrentFile($path){
+        Bencode::dump($path . "/data/torrents/" . $this->getTorrentFiles()['info_hash'] . ".torrent", $this->file);
     }
 
     public function getTorrentFile(){

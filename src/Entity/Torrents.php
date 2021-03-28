@@ -94,7 +94,7 @@ class Torrents
     private $contentPoster;
 
     /**
-     * @ORM\Column(type="text")
+     * @ORM\Column(type="text", nullable=true)
      */
     private $mediaInfo;
 
@@ -103,9 +103,21 @@ class Torrents
      */
     private $contentUrl;
 
+    /**
+     * @ORM\OneToMany(targetEntity=SyncAnnounce::class, mappedBy="torrent")
+     */
+    private $syncAnnounces;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Peers::class, mappedBy="torrent")
+     */
+    private $peers;
+
     public function __construct()
     {
         $this->idComment = new ArrayCollection();
+        $this->syncAnnounces = new ArrayCollection();
+        $this->peers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -342,4 +354,63 @@ class Torrents
         return $this;
     }
 
+    /**
+     * @return Collection|SyncAnnounce[]
+     */
+    public function getSyncAnnounces(): Collection
+    {
+        return $this->syncAnnounces;
+    }
+
+    public function addSyncAnnounce(SyncAnnounce $syncAnnounce): self
+    {
+        if (!$this->syncAnnounces->contains($syncAnnounce)) {
+            $this->syncAnnounces[] = $syncAnnounce;
+            $syncAnnounce->setTorrent($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSyncAnnounce(SyncAnnounce $syncAnnounce): self
+    {
+        if ($this->syncAnnounces->removeElement($syncAnnounce)) {
+            // set the owning side to null (unless already changed)
+            if ($syncAnnounce->getTorrent() === $this) {
+                $syncAnnounce->setTorrent(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Peers[]
+     */
+    public function getPeers(): Collection
+    {
+        return $this->peers;
+    }
+
+    public function addPeer(Peers $peer): self
+    {
+        if (!$this->peers->contains($peer)) {
+            $this->peers[] = $peer;
+            $peer->setTorrent($this);
+        }
+
+        return $this;
+    }
+
+    public function removePeer(Peers $peer): self
+    {
+        if ($this->peers->removeElement($peer)) {
+            // set the owning side to null (unless already changed)
+            if ($peer->getTorrent() === $this) {
+                $peer->setTorrent(null);
+            }
+        }
+
+        return $this;
+    }
 }
