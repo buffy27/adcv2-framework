@@ -114,7 +114,10 @@ class AnnounceController extends AbstractController
 
         $self = $this->entityMangaer->getRepository(Peers::class)->findByAnnounce($sync->getUser(), $sync->getTorrent(), $queries['peer_id']);
         $torrent = $sync->getTorrent();
-        dump($self);
+        $user = $sync->getUser();
+
+        $trueUploaded = $trueDownloaded = 0;
+
         if(!$self && $queries['event'] != "stopped") {
             $sockres = @pfsockopen($queries['ip'], $queries['port'], $errno, $errstr, 5);
             if (!$sockres) {
@@ -158,16 +161,16 @@ class AnnounceController extends AbstractController
             $torrent->setLeechers($torrent->getLeechers() - 1);
         }
 
-        // $this->log_announce("");
+        $user->setUploaded($user->getUploaded() + $trueUploaded);
+        $user->setDownloaded($user->getDownloaded() + $trueDownloaded);
 
         $this->entityMangaer->flush();
-        dump($this->generateAnnounceResponse($queries, $torrent));
         return new Response($this->generateAnnounceResponse($queries, $torrent), 200, $this->headers);
     }
 
     private function generateAnnounceResponse($queries, $torrent){
         $rep_dict = [
-            'interval' => (int)(900 + rand(5, 20)),   // random interval to avoid BOOM
+            'interval' => (int)(900 + rand(5, 20)),
             'min interval' => (int)(300 + rand(1, 10)),
             'complete' => $torrent->getSeeders(),
             'incomplete' =>  $torrent->getLeechers(),

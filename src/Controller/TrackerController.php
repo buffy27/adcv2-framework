@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Peers;
 use App\Entity\SyncAnnounce;
 use App\Entity\TorrentComments;
 use App\Entity\Torrents;
@@ -56,7 +57,9 @@ class TrackerController extends AbstractController
         if(!$torrent)
             return $this->render("errors/tracker_error.html.twig", ['error' => "Torrent with id " . $id . " was not found in database"]);
         $comments = $this->entityMangaer->getRepository(TorrentComments::class)->findByTorrentId($torrent);
-        dump($this->getParameter('kernel.project_dir'));
+        $peers = $this->entityMangaer->getRepository(Peers::class)->findByTorrent($torrent);
+        $stats = $this->entityMangaer->getRepository(Peers::class)->getPeersCountByUser($this->getUser());
+
         if($request->getMethod() == "POST"){
             $comment = new TorrentComments();
             $comment->setComment($request->get('comment_desc'));
@@ -71,7 +74,9 @@ class TrackerController extends AbstractController
         return $this->render('tracker/torrent.html.twig', [
             'torrent' => $torrent,
             'user' => $this->getUser(),
-            'comments' => $comments
+            'comments' => $comments,
+            'peers' => $peers,
+            'stats' => $stats //TODO important move this to global with https://symfony.com/doc/current/templating/global_variables.html (create service stats)
         ]);
     }
 
@@ -99,7 +104,7 @@ class TrackerController extends AbstractController
         $torrent = $this->entityMangaer->getRepository(Torrents::class)->find($id);
         if(!$torrent)
             return $this->render("errors/tracker_error.html.twig", ['error' => "Torrent with id " . $id . " was not found in database"]);
-        $sync_announce = $this->entityMangaer->getRepository(SyncAnnounce::class)->findByTorrent($torrent);
+        $sync_announce = $this->entityMangaer->getRepository(SyncAnnounce::class)->getSyncAnnounce($this->getUser(), $torrent);
         if(!$sync_announce) {
             $data_passkey = hash("SHA3-512", $this->getUser()->getSecret() . random_bytes(8) . $this->getUser()->getPasskey() . random_bytes(16));
             $sync = new SyncAnnounce();

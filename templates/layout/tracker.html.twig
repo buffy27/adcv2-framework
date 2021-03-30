@@ -27,14 +27,14 @@
         <div class="logo">
             <div class="logo-text">
 
-                <img src="../images/trans.gif" class="main-arrowup valign-bottom" />
-                <span> 0 </span>
-                <img src="../images/trans.gif" class="main-arrowdown valign-bottom" />
-                <span> 0 </span>
+                <img src="{{ asset('images/trans.gif') }}" class="main-arrowup valign-bottom" />
+                <span> {{  stats.seeders }}  </span>
+                <img src="{{ asset('images/trans.gif') }}" class="main-arrowdown valign-bottom" />
+                <span> {{  stats.leechers }} </span>
                 &nbsp;<span>Ratio: </span>
                 <span></span>
                 &nbsp;<a class="no-decoration" href="/messages/inbox">
-                    <img src="../images/trans.gif" class="valign-bottom main-inbox" />
+                    <img src="{{ asset('images/trans.gif') }}" class="valign-bottom main-inbox" />
                 </a>
                 <span>0 (0 New)</span>
                 &nbsp;<span> </span>

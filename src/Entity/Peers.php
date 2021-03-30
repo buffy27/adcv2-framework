@@ -28,7 +28,7 @@ class Peers
     private $ip;
 
     /**
-     * @ORM\Column(type="smallint")
+     * @ORM\Column(type="integer")
      */
     private $port;
 

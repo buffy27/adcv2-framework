@@ -107,7 +107,7 @@ class RegistrationController extends AbstractController
                 "accept_pms" => "all",
                 "profile_info" => "",
             ]);
-            $user->setAvatar($this->getParameter('kernel.project_dir') . '/data/avatar/default.png');
+            $user->setAvatar('default.png');
             $user->setPasskey(hash("sha3-256", $this->mksecret(25) . $form->get('password')->getData() . $this->mksecret(28)));
             $user->setIdLanguage($language);
             $user->setDownloaded(0);
@@ -115,10 +115,7 @@ class RegistrationController extends AbstractController
             $user->setInvitedBy(1);
             $user->setBanned(false);
             $user->setAdded();
-            dump($userClass);
             $user->setRole($userClass);
-
-            //$userRoles = new UserRo
 
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($user);

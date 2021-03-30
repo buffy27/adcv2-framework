@@ -163,9 +163,9 @@
                     <div class="row small-device">
                         <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1"><a class="d-block" href="#" onclick="showPeers(event, 'lg')">Peers</a></div>
                         <div class="col-12 col-sm-10">
-                            <img src="../images/trans.gif" class="main-arrowup valign-bottom" /> <b class="green">{{ torrent.seeders }}</b> seeders
+                            <img src="{{ asset('images/trans.gif') }} " class="main-arrowup valign-bottom" /> <b class="green">{{ torrent.seeders }}</b> seeders
                             &nbsp;
-                            <img src="../images/trans.gif" class="main-arrowdown valign-bottom" /> <b class="red">{{ torrent.leechers }}</b> leechers
+                            <img src="{{ asset('images/trans.gif') }}" class="main-arrowdown valign-bottom" /> <b class="red">{{ torrent.leechers }}</b> leechers
 
                             <div class="d-none" id="adc-peers-list">
                                 <table class="peers-table w-100">
@@ -173,9 +173,9 @@
                                     <tr>
                                         <th class="text-left">Username</th>
                                         <th width="1%" class="text-center nobr">Uploaded</th>
-                                        <th width="1%" class="text-center nobr">Up Speed</th>
+                                        <!-- <th width="1%" class="text-center nobr">Up Speed</th> -->
                                         <th width="1%" class="text-center nobr">Downloaded</th>
-                                        <th width="1%" class="text-center nobr">Down Speed</th>
+                                        <!-- <th width="1%" class="text-center nobr">Down Speed</th> -->
                                         <th width="1%" class="text-center nobr">Connected</th>
                                         <th class="text-right nobr">Client</th>
                                     </tr>
@@ -185,19 +185,19 @@
                                             <td colspan="5">Sorry, there are no peers...</td>
                                         </tr>
                                     {% else %}
-                                        {#
+                                       {% for peer in peers %}
                                             <tr>
                                                 <td class="text-left nobr">
-                                                    <a class="<?php echo empty($peer['remaining']) ? "green" : "r06" ;?> no-decoration" href="/profile/<?php echo $peer['uid']; ?>"><b><?php echo $peer['username']; ?></b></a>
+                                                    <a class="no-decoration" href="/profile/{{ peer.user.id }}"><b>{{ peer.user.username }}</b></a>
                                                 </td>
-                                                <td class="text-center green nobr"><?php echo formatBytes($peer['uploaded']); ?></td>
-                                                <td class="text-center green nobr"><?php echo formatBytes($peer['upspeed']) . "/s"; ?></td>
-                                                <td class="text-center r03 nobr"><?php echo formatBytes($peer['downloaded']); ?></td>
-                                                <td class="text-center green nobr"><?php echo formatBytes($peer['downspeed']) . "/s"; ?></td>
-                                                <td class="text-center nobr"><?php  echo $peer['timespent']; ?></td>
-                                                <td class="text-right nobr"><?php echo $peer['useragent']; ?></td>
+                                                <td class="text-center green nobr">{{ peer.uploaded }}</td>
+                                                <!-- <td class="text-center green nobr"></td> -->
+                                                <td class="text-center r03 nobr">{{ peer.downloaded }}</td>
+                                                {# <td class="text-center green nobr"><</td> #}
+                                                {# <td class="text-center nobr"><?php  echo $peer['timespent']; ?></td> #}
+                                                <td class="text-right nobr">{{ peer.agent }}</td>
                                             </tr>
-                                        #}
+                                        {% endfor %}
                                     {% endif %}
                                 </table>
                             </div>

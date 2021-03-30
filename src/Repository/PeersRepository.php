@@ -33,6 +33,21 @@ class PeersRepository extends ServiceEntityRepository
             ->setParameter('torrent', $torrent)->setParameter('pid', $queries['peer_id'])->getQuery()->getResult();
     }
 
+    public function findByTorrent($torrent){
+        return $this->createQueryBuilder('p')->where("p.torrent = :torrent")->setParameter("torrent", $torrent)->getQuery()->getResult();
+    }
+    public function findPeersByUser($user){
+        return $this->createQueryBuilder('p')->where("p.user = :user")->setParameter('user', $user)->getQuery()->getResult();
+    }
+    public function getPeersCountByUser($user){
+        $total = $this->createQueryBuilder('p')->select('count(p.seeder)')->where('p.user = :user')->setParameter('user', $user)->getQuery()->getResult();
+        $seeders = $this->createQueryBuilder('p')->select('count(p.seeder)')->where('p.user = :user')->andWhere('p.seeder = \'yes\'')->setParameter('user', $user)->getQuery()->getArrayResult();
+        return [
+            'seeders' => $seeders[0][1],
+            'leechers' => $total[0][1] - $seeders[0][1]
+        ];
+    }
+
     // /**
     //  * @return Peers[] Returns an array of Peers objects
     //  */

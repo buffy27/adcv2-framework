@@ -31,6 +31,11 @@ class SyncAnnounceRepository extends ServiceEntityRepository
             ->getQuery()->getResult();
     }
 
+    public function getSyncAnnounce($user, $torrent){
+        return $this->createQueryBuilder('s')->where('s.user = :user')->andWhere('s.torrent = :torrent')
+            ->setParameter('user', $user)->setParameter('torrent', $torrent)->getQuery()->getResult();
+    }
+
 
     // /**
     //  * @return SyncAnnounce[] Returns an array of SyncAnnounce objects
