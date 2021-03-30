@@ -33,7 +33,7 @@ class RegistrationFormType extends AbstractType
                     new Regex([
                         'pattern' => '/^[a-zA-Z0-9_]*$%/',
                         'match' => false,
-                        'message' => 'Your username must be alfanumeric',
+                        'message' => 'Your username must be alphanumeric',
                     ]),
                     new Length([
                         'min' => 5,

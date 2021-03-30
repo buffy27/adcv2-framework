@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Countries;
 use App\Entity\Language;
 use App\Entity\User;
+use App\Entity\UserClass;
 use App\Form\RegistrationFormType;
 use App\Repository\UserRepository;
 use App\Security\EmailVerifier;
@@ -13,6 +14,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use phpDocumentor\Reflection\Types\This;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -52,9 +54,23 @@ class RegistrationController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // encode the plain password
             $secret = $this->mksecret();
             $data = $form->getData();
+
+            if(!empty($this->entityManager->getRepository(User::class)->getUserByUsername($data['username']))){
+                $form->get('username')->addError(new FormError("Username already exists in database"));
+                return $this->render('security/register.html.twig', [
+                    'registrationForm' => $form->createView(),
+                ]);
+            }
+
+            if(!empty($this->entityManager->getRepository(User::class)->getUserByEmail($data['email']))){
+                $form->get('email')->addError(new FormError("Invalid email address"));
+                return $this->render('security/register.html.twig', [
+                    'registrationForm' => $form->createView(),
+                ]);
+            }
+
             $user->setUsername($data['username']);
             $user->setSecret($secret);
             $user->setPassword(
@@ -62,6 +78,7 @@ class RegistrationController extends AbstractController
             );
             $country = $this->entityManager->getRepository(Countries::class)->find($data['id_country']);
             $language = $this->entityManager->getRepository(Language::class)->find(6);
+            $userClass = $this->entityManager->getRepository(UserClass::class)->findOneBy(['name' => 'User']);
             $user->setIdCountry($country);
             $user->setGender($data['gender']);
             $user->setEmail($data['email']);
@@ -98,6 +115,10 @@ class RegistrationController extends AbstractController
             $user->setInvitedBy(1);
             $user->setBanned(false);
             $user->setAdded();
+            dump($userClass);
+            $user->setRole($userClass);
+
+            //$userRoles = new UserRo
 
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($user);
@@ -105,7 +126,7 @@ class RegistrationController extends AbstractController
 
             $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user,
                 (new TemplatedEmail())
-                    ->from(new Address('system@asiandvd.com', 'System'))
+                    ->from(new Address('system@rainandcoffee.com', 'System'))
                     ->to($user->getEmail())
                     ->subject('Please Confirm your Email')
                     ->htmlTemplate('security/confirmation_email.html.twig')

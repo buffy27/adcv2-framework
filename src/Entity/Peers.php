@@ -129,9 +129,12 @@ class Peers
         return $this->downloaded;
     }
 
-    public function setDownloaded(string $downloaded): self
+    public function setDownloaded(string $downloaded = null): self
     {
-        $this->downloaded = $downloaded;
+        if(!$downloaded)
+            $this->downloaded = 0;
+        else
+            $this->downloaded = $downloaded;
 
         return $this;
     }
@@ -141,9 +144,12 @@ class Peers
         return $this->uploaded;
     }
 
-    public function setUploaded(string $uploaded): self
+    public function setUploaded(string $uploaded = null): self
     {
-        $this->uploaded = $uploaded;
+        if(!$uploaded)
+            $this->uploaded = 0;
+        else
+            $this->uploaded = $uploaded;
 
         return $this;
     }
@@ -177,10 +183,12 @@ class Peers
         return $this->started;
     }
 
-    public function setStarted(\DateTimeInterface $started): self
+    public function setStarted(\DateTimeInterface $started = null): self
     {
-        $this->started = $started;
-
+        if(!$started)
+            $this->started = new \DateTime('now');
+        else
+            $this->started = $started;
         return $this;
     }
 
@@ -189,10 +197,12 @@ class Peers
         return $this->lastAction;
     }
 
-    public function setLastAction(\DateTimeInterface $lastAction): self
+    public function setLastAction(\DateTimeInterface $lastAction = null): self
     {
-        $this->lastAction = $lastAction;
-
+        if(!$lastAction)
+            $this->lastAction = new \DateTime('now');
+        else
+            $this->lastAction = $lastAction;
         return $this;
     }
 

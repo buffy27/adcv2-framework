@@ -117,16 +117,13 @@ class TrackerController extends AbstractController
         $torrentFile['announce'] = $request->getSchemeAndHttpHost() . "/announce/" . $data_passkey;
 
         $headers = [
-            'Content-Type' => 'application/x-bittorrent charset=UTF-8',
+            'Content-Type' => 'application/x-bittorrent; charset=UTF-8',
             'Content-Description' => 'File Transfer',
             'Pragma' => 'public',
-            'Content-Disposition' => 'attachment; filename="' . $torrent->getName() . '.torrent',
+            'Content-Disposition' => 'attachment; filename="' . $torrent->getName() . '.torrent"',
             'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
-            'Content-Length' => filesize($path)
-
         ];
         $file = Bencode::encode($torrentFile);
-
         return new Response($file,200, $headers);
     }
 

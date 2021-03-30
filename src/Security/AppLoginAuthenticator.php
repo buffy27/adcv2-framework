@@ -70,7 +70,7 @@ class AppLoginAuthenticator extends AbstractFormLoginAuthenticator implements Pa
         $user = $this->entityManager->getRepository(User::class)->findOneBy(['username' => $credentials['username']]);
 
         if (!$user) {
-            throw new CustomUserMessageAuthenticationException('Username could not be found.');
+            throw new CustomUserMessageAuthenticationException('Invaild credentials.');
         }
         if (!$user->isVerified()) {
             throw new CustomUserMessageAuthenticationException('Username isn\'t verified.');

@@ -144,7 +144,7 @@ class User implements UserInterface
     private $news;
 
     /**
-     * @var Collection|UserClass[]
+     * @var Collection | UserClass[]
      * @ORM\ManyToMany(targetEntity="App\Entity\UserClass")
      * @ORM\JoinTable(
      *      name="user_roles",
@@ -228,6 +228,11 @@ class User implements UserInterface
         $this->roles = $roles;
 
         return $this;
+    }
+
+    public function setRole(UserClass $role)
+    {
+        $this->roles->add($role);
     }
 
     /**

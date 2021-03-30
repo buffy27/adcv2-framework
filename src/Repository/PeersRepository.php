@@ -19,6 +19,20 @@ class PeersRepository extends ServiceEntityRepository
         parent::__construct($registry, Peers::class);
     }
 
+    public function findByAnnounce($user, $torrent, $peer_id){
+        return $this->createQueryBuilder('p')->setMaxResults(1)
+            ->where('p.user = :user')->andWhere('p.torrent = :torrent')->andWhere('p.peerId = :pid')
+            ->setParameter("torrent", $torrent)
+            ->setParameter("user", $user)
+            ->setParameter("pid", $peer_id)
+            ->getQuery()->getOneOrNullResult();
+    }
+    public function getAllPeers($queries, $torrent){
+        return $this->createQueryBuilder('p')->setMaxResults($queries['numwant'])
+            ->where('p.torrent = :torrent')->andWhere('p.peerId != :pid')
+            ->setParameter('torrent', $torrent)->setParameter('pid', $queries['peer_id'])->getQuery()->getResult();
+    }
+
     // /**
     //  * @return Peers[] Returns an array of Peers objects
     //  */
