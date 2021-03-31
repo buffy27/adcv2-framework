@@ -2,8 +2,8 @@
 <project version="4">
   <component name="WebServers">
     <option name="servers">
-      <webServer id="669c3528-fed1-408a-9f1f-246c92feef23" name="vps" url="http://vps-cfa219b6.vps.ovh.net:8000">
-        <fileTransfer rootFolder="/var/www/html/" accessType="SFTP" host="vps-cfa219b6.vps.ovh.net" port="22" sshConfigId="e12293b0-bb29-47df-96db-9d5d96b8601a" sshConfig="ubuntu@vps-cfa219b6.vps.ovh.net:22 password">
+      <webServer id="05206a1e-02b2-4b7d-96df-df4cae39714b" name="box2" url="https://rainandcoffee.ovh">
+        <fileTransfer rootFolder="/var/www/html" accessType="SFTP" host="vps-cfa219b6.vps.ovh.net" port="22" sshConfigId="e12293b0-bb29-47df-96db-9d5d96b8601a" sshConfig="ubuntu@vps-cfa219b6.vps.ovh.net:22 password">
           <advancedOptions>
             <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
           </advancedOptions>
