@@ -1,20 +1,185 @@
-<!DOCTYPE html>
+{% extends 'layout/tracker.html.twig' %}
+{% import'macros/filesystem.html.twig' as filesystem %}
 
-<title>Hello UserProfileController!</title>
+{% block title %}Profile{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
+<div class="row small-device mt-4 mb-5">
+    <div class="col-xl-8 col-lg-10 col-12 mx-auto">
+        <h1 class="text-center">
+            <span class="valign-middle">{{ user.username }}</span> &nbsp;
+            <img class="valign-middle" src="{{ asset('images/flag/' ~ country.flagpic) }}" alt="{{ country.name }}">
+            <img class="valign-middle" width="25" height="25" src="/images/">
+        </h1>
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+        <div class="text-center">
+            <div class="flex w-100">
+                <span class="btn active mb-1">Profile</span>
+                <a href="{{ path('user.settings') }}" class="no-decoration btn mb-1 no-hover-color">General</a>
+                <a href="{{ path('user.tracker') }}" class="no-decoration btn mb-1 no-hover-color">Tracker</a>
+                <a href="{{ path('user.forum') }}" class="no-decoration btn mb-1 no-hover-color">Forum</a>
+                <a href="{{ path('user.security') }}" class="no-decoration btn mb-1 no-hover-color">Security</a>
+            </div>
+        </div>
 
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code><a href="{{ '/home/ubuntu/adcv2/src/Controller/UserProfileController.php'|file_link(0) }}">src/Controller/UserProfileController.php</a></code></li>
-        <li>Your template at <code><a href="{{ '/home/ubuntu/adcv2/templates/user_profile/index.html.twig'|file_link(0) }}">templates/user_profile/index.html.twig</a></code></li>
-    </ul>
+        <div class="fancy-container mt-3 bx-d-sm-0">
+            <!-- join date -->
+            <div class="fancy-row">
+                <div class="row small-device">
+                    <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Joined</div>
+                    <div class="col-12 col-sm-10">
+                        {{ user.added | date('Y.m.d') }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- last seen -->
+            <div class="fancy-row">
+                <div class="row small-device">
+                    <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Last seen</div>
+                    <div class="col-12 col-sm-10">
+                        <?php echo $data['last_seen']; ?>
+                    </div>
+                </div>
+            </div>
+
+            <!-- invited by -->
+            <div class="fancy-row">
+                <div class="row small-device">
+                    <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Invited by</div>
+                    <div class="col-12 col-sm-10">
+                        <?php echo $data['userStats']['invitedby']?>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ip address -->
+            <div class="fancy-row">
+                <div class="row small-device">
+                    <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">IP address</div>
+                    <div class="col-12 col-sm-10">
+                        {{ user.ip }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- uploaded -->
+            <div class="fancy-row">
+                <div class="row small-device">
+                    <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Uploaded</div>
+                    <div class="col-12 col-sm-10">
+                        {{ filesystem.bytesToSize(user.uploaded) }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- downloaded -->
+            <div class="fancy-row">
+                <div class="row small-device">
+                    <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Downloaded</div>
+                    <div class="col-12 col-sm-10">
+                        {{ filesystem.bytesToSize(user.downloaded) }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- share ratio -->
+            <div class="fancy-row">
+                <div class="row small-device">
+                    <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Ratio</div>
+                    <div class="col-12 col-sm-10">
+                        {#{{ user.uploaded / user.downloaded }}#}
+                    </div>
+                </div>
+            </div>
+
+            <?php if (!empty($data['userStats']['require_ratio'])) : ?>
+            <!-- require ratio -->
+            <div class="fancy-row">
+                <div class="row small-device">
+                    <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Require ratio</div>
+                    <div class="col-12 col-sm-10">
+                        <?php echo $data['userStats']['require_ratio']; ?> needs to be filled see FAQ for more info.
+                    </div>
+                </div>
+            </div>
+            <?php endif; ?>
+
+            <!-- bonus points
+            <div class="fancy-row">
+                <div class="row small-device">
+                    <div class="rowhead col-12 col-sm-2 d-flex align-items-center justify-content-end pr-sm-0 text-left-d-sm pb-d-sm-1">Redeem Alms (BP)</div>
+                    <div class="col-12 col-sm-10">
+                        <div class="my-0 align-items-center d-flex">
+                            <?php echo $data['userStats']['bonus_points']; ?>
+                            <img title="golden" class="ml-3 valign-middle" width="25" height="25" src="../images/golden.gif">
+                            <div class="d-flex flex-fill flex-column">
+                                <input type="text" placeholder="Enter the torrent ID to see number of points needed for 5 days promotion" value="" class="mx-2 flex-fill" id="golden-torrent-id" />
+                            </div>
+                            <input type="button" class="btn" value="Proceed" onclick="exchangeBonusPointsForGolden()" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+-->
+            <!-- avatar -->
+            <div class="fancy-row">
+                <div class="row small-device">
+                    <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Avatar</div>
+                    <div class="col-12 col-sm-10">
+                        <img src="{{ path('avatar', {"id": user.id}) }}" class="profile-avatar" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- class -->
+            <div class="fancy-row">
+                <div class="row small-device">
+                    <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Class</div>
+                    <div class="col-12 col-sm-10">
+
+                    </div>
+                </div>
+            </div>
+
+            <?php  if (!empty($data['userStats']['title'])) : ?>
+            <!-- title -->
+            <div class="fancy-row">
+                <div class="row small-device">
+                    <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Title</div>
+                    <div class="col-12 col-sm-10">
+                        <?php echo empty($data['userStats']['title']) ? '---' : $data['userStats']['title']; ?>
+                    </div>
+                </div>
+            </div>
+            <?php endif; ?>
+
+            <!-- invites -->
+            <div class="fancy-row">
+                <div class="row small-device">
+                    <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Invites</div>
+                    <div class="col-12 col-sm-10">
+                        <?php echo $data['userStats']['invites']; ?>
+                        <!--
+                        <div class="my-0 align-items-center d-flex">
+                            Redeem bonus points for single invite
+                            <input type="button" class="ml-2 btn" value="Proceed" onclick="exchangeBonusPointsForInvite()" />
+                        </div>-->
+                    </div>
+                </div>
+            </div>
+
+            <!-- forum posts -->
+            <div class="fancy-row">
+                <div class="row small-device">
+                    <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Forum posts</div>
+                    <div class="col-12 col-sm-10">
+                        0
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
 </div>
 {% endblock %}

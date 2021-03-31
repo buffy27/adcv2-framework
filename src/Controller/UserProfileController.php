@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Countries;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -22,10 +23,24 @@ class UserProfileController extends AbstractController
     {
         $this->entityMangaer = $entityManager;
     }
+
     /**
-     * @Route("/user/profile", name="user_profile")
+     * @Route("/user/profile", name="user.profile")
      */
-    public function index(): Response
+    public function profile(): Response
+    {
+        $country = $this->entityMangaer->getRepository(Countries::class)->find($this->getUser()->getIdCountry());
+        //$country = $this->entityMangaer->getRepo
+        return $this->render('user_profile/index.html.twig', [
+            'user' => $this->getUser(),
+            'country' => $country
+        ]);
+    }
+
+    /**
+     * @Route("/user/profile/{id}", name="user.profile.id")
+     */
+    public function index($id): Response
     {
         return $this->render('user_profile/index.html.twig', [
             'controller_name' => 'UserProfileController',
@@ -33,7 +48,27 @@ class UserProfileController extends AbstractController
     }
 
     /**
-     * @Route("/avatar/{id}", requirements={"id"="\d+"})
+     * @Route("/user/general", name="user.settings")
+     */
+    public function profile_settings(){}
+
+    /**
+     * @Route("/user/tracker", name="user.tracker")
+     */
+    public function tracker_settings(){}
+
+    /**
+     * @Route("/user/forum", name="user.forum")
+     */
+    public function forum_settings(){}
+
+    /**
+     * @Route("/user/security", name="user.security")
+     */
+    public function security_settings(){}
+
+    /**
+     * @Route("/avatar/{id}", requirements={"id"="\d+"}, name="avatar")
      * @param $id
      * @return Response
      */

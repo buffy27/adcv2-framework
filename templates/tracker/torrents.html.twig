@@ -137,7 +137,7 @@
                         <td class="text-center d-none d-md-table-cell">{{ filesystem.bytesToSize(torrent.size) }}</td>
                         <td class="text-center d-none d-md-table-cell">{{ torrent.seeders }}</td>
                         <td class="text-right d-none d-lg-table-cell dark-gray">{{ torrent.leechers }}</td>
-                        <td class="text-center d-none d-lg-table-cell">{{ torrent.added | date("m/d/Y") }}</td>
+                        <td class="text-center d-none d-lg-table-cell">{{ functions.timeago(torrent.added) }}</td>
                         <td class="text-center d-none d-lg-table-cell"></td>
                         <td class="text-center d-none d-lg-table-cell"></td>
                     </tr>
