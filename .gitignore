@@ -1,5 +1,11 @@
 
 ###> symfony/framework-bundle ###
+symfony.lock
+yarn.lock
+postcss-loader@3
+raw-loader@3
+style-loader@1
+.env
 .env.local
 .env.local.php
 .env.*.local
