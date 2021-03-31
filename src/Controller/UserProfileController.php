@@ -34,9 +34,11 @@ class UserProfileController extends AbstractController
 
     /**
      * @Route("/avatar/{id}", requirements={"id"="\d+"})
-     * @IsGranted ({"ROLE_ADMIN", "ROLE_USER"})
+     * @param $id
+     * @return Response
      */
-    public function avatar($id){
+    public function avatar($id): Response
+    {
         $user = $this->entityMangaer->getRepository(User::class)->find($id);
         $avatar = $this->getParameter('kernel.project_dir') . "/data/avatar/" . $user->getAvatar();
         $file = file_get_contents($avatar);

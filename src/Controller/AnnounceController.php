@@ -110,7 +110,7 @@ class AnnounceController extends AbstractController
         Request::setTrustedProxies(['127.0.0.1'],Request::HEADER_X_FORWARDED_ALL);
         $queries['ip'] = $request->getClientIp();
         $queries['user-agent'] = $request->headers->get('user-agent');
-        $queries['seeder'] = ($queries['left'] == 0) ? "yes" : "no";
+        $queries['seeder'] = $queries['left'] == 0;
 
         $self = $this->entityMangaer->getRepository(Peers::class)->findByAnnounce($sync->getUser(), $sync->getTorrent(), $queries['peer_id']);
         $torrent = $sync->getTorrent();
@@ -132,7 +132,7 @@ class AnnounceController extends AbstractController
                 ->setStarted()->setLastAction()->setSeeder($queries['seeder'])->setConnectable($connectable);
             $this->entityMangaer->persist($peer);
 
-            if($queries['seeder'] === "yes")
+            if($queries['seeder'])
                 $torrent->setSeeders($torrent->getSeeders() + 1);
             else
                 $torrent->setLeechers($torrent->getLeechers() + 1);
@@ -142,7 +142,7 @@ class AnnounceController extends AbstractController
 
             if($queries['event'] === "stopped"){
                 $this->entityMangaer->remove($self);
-                if($queries['seeder'] === "yes")
+                if($queries['seeder'])
                     $torrent->setSeeders($torrent->getSeeders() - 1);
                 else
                     $torrent->setLeechers($torrent->getLeechers() - 1);
@@ -168,7 +168,8 @@ class AnnounceController extends AbstractController
         return new Response($this->generateAnnounceResponse($queries, $torrent), 200, $this->headers);
     }
 
-    private function generateAnnounceResponse($queries, $torrent){
+    private function generateAnnounceResponse($queries, $torrent): string
+    {
         $rep_dict = [
             'interval' => (int)(900 + rand(5, 20)),
             'min interval' => (int)(300 + rand(1, 10)),
@@ -177,16 +178,7 @@ class AnnounceController extends AbstractController
             'peers' => '' // By default it is a array object, only when `&compact=1` then it should be a string
         ];
 
-        //$no_peer_id = (bool)($queries['no_peer_id'] == 1);
-
         $peers = $this->entityMangaer->getRepository(Peers::class)->getAllPeers($queries, $torrent);
-        if(count($peers) == 0){
-            $torrent->setSeeders(0);
-            $torrent->setLeechers(0);
-            $this->entityMangaer->flush();
-            $rep_dict['complete'] = 0;
-            $rep_dict['incomplete'] = 0;
-        }
 
         foreach ($peers as $peer){
             if($queries['compact']){

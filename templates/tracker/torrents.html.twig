@@ -1,5 +1,5 @@
 {% extends 'layout/tracker.html.twig' %}
-
+{% import'macros/filesystem.html.twig' as filesystem %}
 {% block title %}Torrents{% endblock %}
 
 {% block body %}
@@ -96,7 +96,7 @@
                 <th width="1%" class="text-center d-none d-md-table-cell">Ul</th>
                 <th width="1%" class="text-right d-none d-lg-table-cell">Age</th>
                 <th width="1%" class="text-center d-none d-lg-table-cell">DLs</th>
-                <th width="1%" class="text-center d-none d-lg-table-cell"><img src="../images/trans.gif" class="main-comments" /></th>
+                <th width="1%" class="text-center d-none d-lg-table-cell"><img src="{{ asset('images/trans.gif') }}" class="main-comments"  alt=""/></th>
             </tr>
             </thead>
             <tbody>
@@ -108,61 +108,46 @@
                 {% for torrent in torrents %}
                     <tr>
                         <td class="text-center p-0">
-                            <img title="" src="../images/trans.gif" class="" /> {{ torrent.getTCategory.getName }}
+                            <img title="" src="{{ asset('images/trans.gif') }}" class=""  alt="category"/> {{ torrent.getTCategory.getName }}
                         </td>
                         <td>
                             <a class="no-decoration valign-middle" href="/torrent/{{ torrent.id }}"> {{ torrent.name }}
                                 {% if torrent.added | date("H:i:s") < "-15 i" %}
                                     <span class="red"><b>(NEW)</b></span>
                                 {% endif %}
-                                <b></b>
 
                                 {% if torrent.specs['format'] == "bdmv" %}
-                                    <img title="Bluray" class="valign-middle" src="../images/bd.svg" width="25" height="25" />
+                                    <img title="Bluray" class="valign-middle" src="{{ asset('images/bd.svg') }}" width="25" height="25" />
                                 {% elseif  torrent.specs['format'] == "uhd" %}
-                                    <img title="UHD" class="valign-middle" src="../images/uhd.svg" width="100" height="25" />
+                                    <img title="UHD" class="valign-middle" src="{{ asset('images/uhd.svg') }}" width="100" height="25" />
                                 {% endif %}
 
                                 {% if torrent.bonus == "freeleech" %}
-                                     <img title="golden" class="valign-middle" src="../images/golden.gif" />
+                                     <img title="golden" class="valign-middle" src="{{ asset('images/golden.gif') }}" />
                                 {% elseif torrent.bonus == "silver" %}
-                                     <img title="silver" class="valign-middle" src="../images/silver.gif" />
+                                     <img title="silver" class="valign-middle" src="{{ asset('images/silver.gif') }}" />
                                 {% endif %}
-                                </b>
                             </a>
                         </td>
-                        {#
-                        <td class="text-center d-none d-sm-table-cell">
-                            <img title="" class="valign-middle" height="15" width="15" src="../images/" />
 
-                        </td>
-                        #}
                         <td class="text-left d-none d-sm-table-cell valign-middle">
-                            <a href="/profile/"></a></td>
-
-                        <td class="text-center d-none d-sm-table-cell"></td>
+                        <td class="text-left d-none d-sm-table-cell valign-middle">
+                            <a href="/profile/{{ torrent.owner.id }}">{{ torrent.owner.username }}</a>
+                        </td>
+                        <td class="text-center d-none d-md-table-cell">{{ filesystem.bytesToSize(torrent.size) }}</td>
                         <td class="text-center d-none d-md-table-cell">{{ torrent.seeders }}</td>
-                        <td class="text-center d-none d-md-table-cell">{{ torrent.leechers }}</td>
-                        <td class="text-right d-none d-lg-table-cell dark-gray">{{ torrent.added | date("m/d/Y") }}</td>
+                        <td class="text-right d-none d-lg-table-cell dark-gray">{{ torrent.leechers }}</td>
+                        <td class="text-center d-none d-lg-table-cell">{{ torrent.added | date("m/d/Y") }}</td>
                         <td class="text-center d-none d-lg-table-cell"></td>
                         <td class="text-center d-none d-lg-table-cell"></td>
                     </tr>
                 {% endfor %}
             {% endif %}
-            
             </tbody>
         </table>
     </div>
-
     <div class="text-center mt-2 mb-4">
-        
-        
         <a  href="/torrents/"><b></b></a>
-        
         <b></b>
-        
-        
-    </div>
-    
     </div>
 {% endblock %}
