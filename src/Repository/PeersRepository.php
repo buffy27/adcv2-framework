@@ -34,7 +34,7 @@ class PeersRepository extends ServiceEntityRepository
     }
 
     public function findByTorrent($torrent){
-        return $this->createQueryBuilder('p')->where("p.torrent = :torrent")->setParameter("torrent", $torrent)->getQuery()->getResult();
+        return $this->createQueryBuilder('p')->where("p.torrent = :torrent")->setParameter("torrent", $torrent)->orderBy('p.seeder', 'ASC')->getQuery()->getResult();
     }
     public function findPeersByUser($user){
         return $this->createQueryBuilder('p')->where("p.user = :user")->setParameter('user', $user)->getQuery()->getResult();

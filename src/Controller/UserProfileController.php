@@ -29,6 +29,7 @@ class UserProfileController extends AbstractController
      */
     public function profile(): Response
     {
+        dump($this->getUser()->getAvatar());
         $country = $this->entityMangaer->getRepository(Countries::class)->find($this->getUser()->getIdCountry());
         //$country = $this->entityMangaer->getRepo
         return $this->render('user_profile/index.html.twig', [
@@ -38,22 +39,58 @@ class UserProfileController extends AbstractController
     }
 
     /**
-     * @Route("/user/profile/{id}", name="user.profile.id")
+     * @Route("/user/profile/{id}", name="user.profile.id", requirements={"id"="\d+"})
+     * @param $id
+     * @return Response
      */
-    public function index($id): Response
+    public function user_profile($id): Response
     {
-        $country = $this->entityMangaer->getRepository(Countries::class)->find($this->getUser()->getIdCountry());
         //$country = $this->entityMangaer->getRepo
-        return $this->render('user_profile/index.html.twig', [
-            'user' => $this->getUser(),
-            'country' => $country
+        if($id == $this->getUser()->getId()){
+            $country = $this->entityMangaer->getRepository(Countries::class)->find($this->getUser()->getIdCountry());
+            return $this->render('user_profile/index.html.twig', [
+                'user' => $this->getUser(),
+                'country' => $country
+            ]);
+        }
+
+        $user = $this->entityMangaer->getRepository(User::class)->find($id);
+        if(!empty($user)) {
+            $country = $this->entityMangaer->getRepository(Countries::class)->find($user->getIdCountry());
+            return $this->render('user_profile/user_profile.html.twig', [
+                'user' => $user,
+                'country' => $country
+            ]);
+        }
+
+        return $this->render('errors/tracker_error.html.twig', [
+            'error' => "User not found!"
+        ]);
+    }
+
+    /**
+     * @Route ("/user/active/{id}", name="user.active.id", requirements={"id"="\d+"})
+     */
+    public function user_active($id){
+        $user = $this->entityMangaer->getRepository(User::class)->find($id);
+        if(!empty($user)) {
+            $country = $this->entityMangaer->getRepository(Countries::class)->find($user->getIdCountry());
+            return $this->render('user_profile/user_active.html.twig', [
+                'user' => $user,
+                'country' => $country
+            ]);
+        }
+
+        return $this->render('errors/tracker_error.html.twig', [
+            'error' => "User not found!"
         ]);
     }
 
     /**
      * @Route("/user/general", name="user.settings")
      */
-    public function profile_settings(){
+    public function profile_settings(): Response
+    {
         $country = $this->entityMangaer->getRepository(Countries::class)->find($this->getUser()->getIdCountry());
         return $this->render('user_profile/profile_settings.html.twig',[
             'user' => $this->getUser(),
@@ -64,17 +101,50 @@ class UserProfileController extends AbstractController
     /**
      * @Route("/user/tracker", name="user.tracker")
      */
-    public function tracker_settings(){}
+    public function tracker_settings(): Response
+    {
+        $country = $this->entityMangaer->getRepository(Countries::class)->find($this->getUser()->getIdCountry());
+        return $this->render('user_profile/tracker_settings.html.twig',[
+            'user' => $this->getUser(),
+            'country' => $country
+        ]);
+    }
 
     /**
      * @Route("/user/forum", name="user.forum")
      */
-    public function forum_settings(){}
+    public function forum_settings(): Response
+    {
+        $country = $this->entityMangaer->getRepository(Countries::class)->find($this->getUser()->getIdCountry());
+        return $this->render('user_profile/forum_settings.html.twig',[
+            'user' => $this->getUser(),
+            'country' => $country
+        ]);
+    }
 
     /**
      * @Route("/user/security", name="user.security")
      */
-    public function security_settings(){}
+    public function security_settings(): Response
+    {
+        $country = $this->entityMangaer->getRepository(Countries::class)->find($this->getUser()->getIdCountry());
+        return $this->render('user_profile/security_settings.html.twig',[
+            'user' => $this->getUser(),
+            'country' => $country
+        ]);
+    }
+
+    /**
+     * @Route("/user/active", name="user.active")
+     */
+    public function active(): Response
+    {
+        $country = $this->entityMangaer->getRepository(Countries::class)->find($this->getUser()->getIdCountry());
+        return $this->render('user_profile/active.html.twig',[
+            'user' => $this->getUser(),
+            'country' => $country
+        ]);
+    }
 
     /**
      * @Route("/avatar/{id}", requirements={"id"="\d+"}, name="avatar")

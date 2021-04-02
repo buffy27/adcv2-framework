@@ -71,7 +71,7 @@
                     <div class="row small-device">
                         <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 nobr">Uploaded by</div>
                         <div class="col-12 col-sm-10">
-                            <a class="r04" href="/profile/{{ torrent.getOwner.getId }}"><b>{{ torrent.getOwner.getUsername }}</b></a>
+                            <a class="r04" href="{{ path('user.profile.id', {"id": torrent.getOwner.getId}) }}"><b>{{ torrent.getOwner.getUsername }}</b></a>
                             {# title icon
                             <img title="title" class="valign-middle" height="15" width="15" src="../images/<?php echo $data['torrentData']['uploader_title_icon']; ?>">
                             #}
@@ -161,13 +161,13 @@
                 <!-- peers -->
                 <div class="fancy-row">
                     <div class="row small-device">
-                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1"><a class="d-block" href="#" onclick="showPeers(event, 'lg')">Peers</a></div>
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1"><a class="d-block" id="adc-peers-list-view" href="#">Peers</a></div>
                         <div class="col-12 col-sm-10">
                             <img src="{{ asset('images/trans.gif') }} " class="main-arrowup valign-bottom" /> <b class="green">{{ torrent.seeders }}</b> seeders
                             &nbsp;
                             <img src="{{ asset('images/trans.gif') }}" class="main-arrowdown valign-bottom" /> <b class="red">{{ torrent.leechers }}</b> leechers
 
-                            <div class="d-none" id="adc-peers-list">
+                            <div class="d-none" id="peers-list">
                                 <table class="peers-table w-100">
                                     <thead>
                                     <tr>
@@ -176,8 +176,9 @@
                                         <!-- <th width="1%" class="text-center nobr">Up Speed</th> -->
                                         <th width="1%" class="text-center nobr">Downloaded</th>
                                         <!-- <th width="1%" class="text-center nobr">Down Speed</th> -->
-                                        <th width="1%" class="text-center nobr">Connected</th>
+                                        <!-- <th width="1%" class="text-center nobr">Connected</th>-->
                                         <th class="text-right nobr">Client</th>
+                                        <th class="text-right nobr">Age</th>
                                     </tr>
                                     </thead>
                                     {% if not torrent.seeders and not torrent.leechers %}
@@ -188,7 +189,12 @@
                                        {% for peer in peers %}
                                             <tr>
                                                 <td class="text-left nobr">
-                                                    <a class="no-decoration" href="/profile/{{ peer.user.id }}"><b>{{ peer.user.username }}</b></a>
+                                                    {% if peer.seeder %}
+                                                    <img src="{{ asset('images/trans.gif') }} " class="main-arrowup valign-bottom" />
+                                                    {% else %}
+                                                        <img src="{{ asset('images/trans.gif') }}" class="main-arrowdown valign-bottom" />
+                                                    {% endif %}
+                                                    <a class="no-decoration" href="{{ path('user.profile.id', {"id":peer.user.id}) }}"><b>{{ peer.user.username }}</b></a>
                                                 </td>
                                                 <td class="text-center green nobr">{{ peer.uploaded }}</td>
                                                 <!-- <td class="text-center green nobr"></td> -->
@@ -196,6 +202,7 @@
                                                 {# <td class="text-center green nobr"><</td> #}
                                                 {# <td class="text-center nobr"><?php  echo $peer['timespent']; ?></td> #}
                                                 <td class="text-right nobr">{{ peer.agent }}</td>
+                                                <td class="text-right nobr">{{ functions.timeago(peer.started) }}</td>
                                             </tr>
                                         {% endfor %}
                                     {% endif %}

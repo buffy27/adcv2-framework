@@ -1,10 +1,10 @@
 {% extends 'layout/tracker.html.twig' %}
 
-{% block title %}Profile Settings{% endblock %}
+{% block title %}Active{% endblock %}
 
 {% block body %}
     <div class="row small-device mt-4 mb-5">
-            <div class="col-xl-8 col-lg-10 col-12 mx-auto">
+        <div class="col-xl-8 col-lg-10 col-12 mx-auto">
             <h1 class="text-center">
                 <span class="valign-middle">{{ user.username }}</span> &nbsp;
                 <img class="valign-middle" src="{{ asset('images/flag/' ~ country.flagpic) }}" alt="{{ country.name }}">
@@ -14,11 +14,11 @@
             <div class="text-center">
                 <div class="flex w-100">
                     <a href="{{ path('user.profile') }}" class="no-decoration btn mb-1 no-hover-color">Profile</a>
-                    <span class="btn active mb-1">General</span>
+                    <a href="{{ path('user.settings') }}" class="no-decoration btn mb-1 no-hover-color">General</a>
                     <a href="{{ path('user.tracker') }}" class="no-decoration btn mb-1 no-hover-color">Tracker</a>
                     <a href="{{ path('user.forum') }}" class="no-decoration btn mb-1 no-hover-color">Forum</a>
                     <a href="{{ path('user.security') }}" class="no-decoration btn mb-1 no-hover-color">Security</a>
-                    <a href="{{ path('user.active') }}" class="no-decoration btn mb-1 no-hover-color">Active</a>
+                    <span class="btn active mb-1">Active</span>
                 </div>
             </div>
 

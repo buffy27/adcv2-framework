@@ -54,6 +54,20 @@ if(modal_view) {
     });
 }
 
+const modal_data_peers = document.getElementById("peers-list");
+const modal_view_peers = document.getElementById("adc-peers-list-view");
+if(modal_view_peers) {
+    modal_view_peers.addEventListener('click', function () {
+
+        var innerDiv = $('<pre class="m-0 pre-wrap"></pre>').html(modal_data_peers.innerHTML);
+        var modal = $('.modal');
+        modal.addClass('modal-sm');
+        $('#simple-adc-modal-header').html('Peers');
+        $('#simple-adc-modal .modal-body').html(innerDiv[0].outerHTML);
+        $("#simple-adc-modal").modal('show');
+    });
+}
+
 if(window.location.pathname === "/upload" ) {
     let formdata = new FormData();
     formdata.append("preview", true);

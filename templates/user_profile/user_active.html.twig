@@ -1,0 +1,25 @@
+{% extends 'layout/tracker.html.twig' %}
+
+{% block title %}Active{% endblock %}
+
+{% block body %}
+    <div class="row small-device mt-4 mb-5">
+        <div class="col-xl-8 col-lg-10 col-12 mx-auto">
+            <h1 class="text-center">
+                <span class="valign-middle">{{ user.username }}</span> &nbsp;
+                <img class="valign-middle" src="{{ asset('images/flag/' ~ country.flagpic) }}" alt="{{ country.name }}">
+                <img class="valign-middle" width="25" height="25" src="/images/">
+            </h1>
+
+            <div class="text-center">
+                <div class="flex w-100">
+                    <a href="{{ path('user.profile.id', {"id":user.id}) }}" class="no-decoration btn mb-1 no-hover-color">Profile</a>
+                    <span class="btn active mb-1">Active</span>
+                </div>
+            </div>
+
+            <div class="fancy-container mt-3 bx-d-sm-0">
+            </div>
+        </div>
+    </div>
+{% endblock %}

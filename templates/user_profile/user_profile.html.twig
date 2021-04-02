@@ -1,0 +1,128 @@
+{% extends 'layout/tracker.html.twig' %}
+{% import'macros/filesystem.html.twig' as filesystem %}
+
+{% block title %}Profile{% endblock %}
+
+{% block body %}
+    <div class="row small-device mt-4 mb-5">
+        <div class="col-xl-8 col-lg-10 col-12 mx-auto">
+            <h1 class="text-center">
+                <span class="valign-middle">{{ user.username }}</span> &nbsp;
+                <img class="valign-middle" src="{{ asset('images/flag/' ~ country.flagpic) }}" alt="{{ country.name }}">
+                <img class="valign-middle" width="25" height="25" src="/images/">
+            </h1>
+
+            <div class="text-center">
+                <div class="flex w-100">
+                    <span class="btn active mb-1">Profile</span>
+                    <a href="{{ path('user.active.id', {"id": user.id} ) }}" class="no-decoration btn mb-1 no-hover-color">Active</a>
+                </div>
+            </div>
+
+            <div class="fancy-container mt-3 bx-d-sm-0">
+                <!-- join date -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Joined</div>
+                        <div class="col-12 col-sm-10">
+                            {{ user.added | date('Y.m.d') }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- last seen -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Last seen</div>
+                        <div class="col-12 col-sm-10">
+                            <?php echo $data['last_seen']; ?>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- invited by -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Invited by</div>
+                        <div class="col-12 col-sm-10">
+                            <?php echo $data['userStats']['invitedby']?>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- uploaded -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Uploaded</div>
+                        <div class="col-12 col-sm-10">
+                            {{ filesystem.bytesToSize(user.uploaded) }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- downloaded -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Downloaded</div>
+                        <div class="col-12 col-sm-10">
+                            {{ filesystem.bytesToSize(user.downloaded) }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- share ratio -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Ratio</div>
+                        <div class="col-12 col-sm-10">
+                            {#{{ user.uploaded / user.downloaded }}#}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- avatar -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Avatar</div>
+                        <div class="col-12 col-sm-10">
+                            <img src="{{ path('avatar', {"id": user.id}) }}" class="profile-avatar" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- class -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Class</div>
+                        <div class="col-12 col-sm-10">
+
+                        </div>
+                    </div>
+                </div>
+
+                <?php  if (!empty($data['userStats']['title'])) : ?>
+                <!-- title -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Title</div>
+                        <div class="col-12 col-sm-10">
+                            <?php echo empty($data['userStats']['title']) ? '---' : $data['userStats']['title']; ?>
+                        </div>
+                    </div>
+                </div>
+                <?php endif; ?>
+
+                <!-- forum posts -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Forum posts</div>
+                        <div class="col-12 col-sm-10">
+                            0
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

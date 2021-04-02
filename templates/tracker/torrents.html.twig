@@ -132,7 +132,7 @@
 
                         <td class="text-left d-none d-sm-table-cell valign-middle">
                         <td class="text-left d-none d-sm-table-cell valign-middle">
-                            <a href="/profile/{{ torrent.owner.id }}">{{ torrent.owner.username }}</a>
+                            <a href="{{ path('user.profile.id', {"id":torrent.owner.id}) }}">{{ torrent.owner.username }}</a>
                         </td>
                         <td class="text-center d-none d-md-table-cell">{{ filesystem.bytesToSize(torrent.size) }}</td>
                         <td class="text-center d-none d-md-table-cell">{{ torrent.seeders }}</td>
