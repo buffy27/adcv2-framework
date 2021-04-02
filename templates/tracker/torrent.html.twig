@@ -22,9 +22,9 @@
             <h1 class="text-center">
                 {{ torrent.name }}
                 {% if torrent.bonus == "freeleech" %}
-                    <img title="golden" class="valign-middle" src="../images/golden.gif">
+                    <img title="golden" class="valign-middle" src="{{ asset('images/golden.gif') }}">
                 {% elseif torrent.bonus == "silver" %}
-                    <img title="silver" class="valign-middle" src="../images/silver.gif">
+                    <img title="silver" class="valign-middle" src="{{ asset('images/silver.gif') }}">
                 {% endif %}
             </h1>
 
@@ -221,8 +221,8 @@
                             <div class="col-10">
                                 <div class="pl-d-sm-2">
                                     <div class="d-flex">
-                                        <a class="mr-2 comment-author" href="/profile/{{ comment.user.id }}"><b>{{  comment.user.username }}</b></a>
-                                        <span>({{ comment.added | date("H:i:s") }} ago)</span>
+                                        <a class="mr-2 comment-author" href="{{ path("user.profile.id", {"id":comment.user.id}) }}"><b>{{  comment.user.username }}</b></a>
+                                        <span>({{ functions.timeago(comment.added) }})</span>
                                         <span class="d-none comment-created-at"></span>
                                     </div>
                                     <hr class="mt-2 mb-1" />
@@ -230,7 +230,7 @@
                                         {{ comment.comment }}
                                     {% endapply %}
                                     {%  if comment.editedAt %}
-                                    <p class="mt-1 mb-0 smaller">(Last edited at {{ comment.editedAt | date("H:i:s") }})</p>
+                                    <p class="mt-1 mb-0 smaller">(Last edited at {{ functions.timeago(comment.editedAt)}})</p>
                                     {% endif %}
                                 </div>
                             </div>

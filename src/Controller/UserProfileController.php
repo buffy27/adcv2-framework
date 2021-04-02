@@ -42,15 +42,24 @@ class UserProfileController extends AbstractController
      */
     public function index($id): Response
     {
+        $country = $this->entityMangaer->getRepository(Countries::class)->find($this->getUser()->getIdCountry());
+        //$country = $this->entityMangaer->getRepo
         return $this->render('user_profile/index.html.twig', [
-            'controller_name' => 'UserProfileController',
+            'user' => $this->getUser(),
+            'country' => $country
         ]);
     }
 
     /**
      * @Route("/user/general", name="user.settings")
      */
-    public function profile_settings(){}
+    public function profile_settings(){
+        $country = $this->entityMangaer->getRepository(Countries::class)->find($this->getUser()->getIdCountry());
+        return $this->render('user_profile/profile_settings.html.twig',[
+            'user' => $this->getUser(),
+            'country' => $country
+        ]);
+    }
 
     /**
      * @Route("/user/tracker", name="user.tracker")
