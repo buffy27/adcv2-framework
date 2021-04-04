@@ -83,7 +83,6 @@ class RegistrationFormType extends AbstractType
                 'choices'  => $options['data']['countries']
             ])
             ->add('faq', CheckboxType::class, [
-
                 'mapped' => false,
                 'constraints' => [
                     new IsTrue([

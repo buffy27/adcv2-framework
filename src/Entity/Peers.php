@@ -74,6 +74,7 @@ class Peers
 
     /**
      * @ORM\ManyToOne(targetEntity=Torrents::class, inversedBy="peers")
+     * @ORM\JoinColumn (onDelete="CASCADE")
      */
     private $torrent;
 

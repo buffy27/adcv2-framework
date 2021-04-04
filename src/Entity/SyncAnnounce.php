@@ -36,6 +36,7 @@ class SyncAnnounce
 
     /**
      * @ORM\ManyToOne(targetEntity=Torrents::class, inversedBy="syncAnnounces")
+     * @ORM\JoinColumn (onDelete="SET NULL")
      */
     private $torrent;
 

@@ -34,6 +34,7 @@ class TorrentComments
 
     /**
      * @ORM\ManyToOne(targetEntity=Torrents::class, inversedBy="idComment")
+     * @ORM\JoinColumn(onDelete="CASCADE")
      */
     private $torrents;
 

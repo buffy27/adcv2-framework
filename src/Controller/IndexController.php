@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Countries;
 use App\Entity\News;
 use App\Entity\UserClass;
+use App\Services\TrackerMemcached;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use phpDocumentor\Reflection\Types\This;
@@ -30,8 +31,9 @@ class IndexController extends AbstractController
      * @Route("/", name="index")
      * @Route("/index", name="index.index")
      */
-    public function index(): Response
+    public function index(TrackerMemcached $trackerMemcached): Response
     {
+
         $news = $this->entityMangaer->getRepository(News::class)->findAll();
         return $this->render('index/index.html.twig', [
             'news' => $news

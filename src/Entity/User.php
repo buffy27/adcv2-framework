@@ -235,6 +235,10 @@ class User implements UserInterface
         $this->roles->add($role);
     }
 
+    public function getUserClass(){
+        return $this->roles->toArray()[0];
+    }
+
     /**
      * @see UserInterface
      */

@@ -23,6 +23,81 @@
             </div>
 
             <div class="fancy-container mt-3 bx-d-sm-0">
+                {{ form_start(userSettings) }}
+                <!-- account parked -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 lh-20">{{ form_label(userSettings.parked) }}</div>
+                        <div class="col-12 col-sm-10">
+                            <label class="valign-middle">
+                                {{ form_widget(userSettings.parked) }}
+                                <span>I will be away for a long time.</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- accept pms from -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 lh-20">{{ form_label(userSettings.accept_pms) }}</div>
+                        <div class="col-12 col-sm-10 d-flex flex-column">
+                            {{ form_widget(userSettings.accept_pms) }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- pm details -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 lh-20">{{ form_label(userSettings.pm_details) }}</div>
+                        <div class="col-12 col-sm-10">
+                            {{ form_widget(userSettings.pm_details) }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- country -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 lh-20">{{ form_label(userSettings.id_country) }}</div>
+                        <div class="col-12 col-sm-10">
+                            {{ form_widget(userSettings.id_country) }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- avatar -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">{{ form_label(userSettings.avatar) }}</div>
+                        <div class="col-12 col-sm-10">
+                            {{ form_widget(userSettings.avatar) }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- profile description -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Summary</div>
+                        <div class="col-12 col-sm-10">
+                            <textarea autocomplete="off" name="text_area" id="markdown-editor"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- save settings button -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="col-12 col-sm-2"></div>
+                        <div class="col-12 col-sm-10">
+                            {{ form_widget(userSettings.submit) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+                {{ form_end(userSettings) }}
             </div>
         </div>
     </div>

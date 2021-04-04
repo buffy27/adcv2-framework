@@ -175,7 +175,7 @@ class AnnounceController extends AbstractController
             'min interval' => (int)(300 + rand(1, 10)),
             'complete' => $torrent->getSeeders(),
             'incomplete' =>  $torrent->getLeechers(),
-            'peers' => '' // By default it is a array object, only when `&compact=1` then it should be a string
+            'peers' => ''
         ];
 
         $peers = $this->entityMangaer->getRepository(Peers::class)->getAllPeers($queries, $torrent);

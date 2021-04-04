@@ -21,8 +21,70 @@
                     <span class="btn active mb-1">Active</span>
                 </div>
             </div>
+            <div class="fancy-container mt-3 bx-d-lg-0">
+                <div class="col-lg-6 col-md-6 d-flex order-3 order-md-2 order-lg-1 mt-1">
+                    <div class=" bt-0 br-md-0 bx-d-sm-0 w-100">
+                        <div class="p-2">
+                            <input class="mb-2 w-100" type="text" name="searchbox" value="">
+                            <p class="m-0 p-0 mt-2 text-right">
+                                <input class="btn" type="submit" name="search" value="Search">
+                                <input class="btn" type="submit" name="reset" value="Reset">
+                                <input class="btn" type="submit" name="zip_torrents" value="Download Torrents">
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 d-flex order-2 order-md-3 order-lg-2 mb-1 mt-1 ml-2">
+                        <div class="bt-0 bb-d-md-0 br-lg-0 bx-d-sm-0 w-100">
+                            <div class="row small-device">
+                                <div class="col-6 pl-3 pl-lg-2">
+                                    <label class="nobr valign-middle"><input type="checkbox" name="bookmarked" value="1"><span>My Uploads</span></label><br>
+                                    <label class="nobr valign-middle"><input type="checkbox" name="completed" value="1" checked><span>Seeding</span></label><br>
+                                    <label class="nobr valign-middle"><input type="checkbox" name="my_uploads" value="1"><span>Leeching</span></label><br>
+                                    <label class="nobr valign-middle"><input type="checkbox" name="seeds_needed" value="1"><span>Completed</span></label><br>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="torrenttable table-responsive mt-3 mb-4">
+                <table class="torrenttable_helper bx-d-sm-0 w-100">
+                    <thead>
+                    <tr>
+                        <th class="text-left">Name</th>
+                        <th class="text-right"></th>
+                        <th class="text-left d-none d-sm-table-cell">Uploader</th>
+                        <th width="1%" class="text-center d-none d-sm-table-cell">Size</th>
+                        <th width="1%" class="text-center d-none d-md-table-cell">Up</th>
+                        <th width="1%" class="text-center d-none d-md-table-cell">Dn</th>
+                        <th width="1%" class="text-right d-none d-lg-table-cell">Age</th>
+                        <th width="1%" class="text-center d-none d-lg-table-cell">Uploaded</th>
+                        <th width="1%" class="text-center d-none d-lg-table-cell">Downloaded</th>
+                        <th width="1%" class="text-center d-none d-lg-table-cell">Ratio</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>
+                            <a class="no-decoration valign-middle" href="/torrent/">
+                            </a>
+                        </td>
+                        <td class="text-center d-none d-sm-table-cell">
+                            <img title="" class="valign-middle" height="15" width="15" src="../images/">
+                        </td>
+                        <td class="text-left d-none d-sm-table-cell valign-middle">
+                            <a href="/profile/"></a></td>
 
-            <div class="fancy-container mt-3 bx-d-sm-0">
+                        <td class="text-center d-none d-sm-table-cell"></td>
+                        <td class="text-center d-none d-md-table-cell"></td>
+                        <td class="text-center d-none d-md-table-cell"></td>
+                        <td class="text-right d-none d-lg-table-cell dark-gray"></td>
+                        <td class="text-center d-none d-lg-table-cell"></td>
+                        <td class="text-center d-none d-lg-table-cell"></td>
+                        <td class="text-center d-none d-lg-table-cell"></td>
+                    </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>

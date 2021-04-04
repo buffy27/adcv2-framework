@@ -23,7 +23,80 @@
             </div>
 
             <div class="fancy-container mt-3 bx-d-sm-0">
+                <!-- reset passkey -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 lh-20 red">Reset Passkey:</div>
+                        <div class="col-12 col-sm-10">
+                            <input type="checkbox" name="reset_passkey">
+                            <p class="small mt-1 mb-0">By checking this your passkey will be reseted and you will need to redownload the .torrent files in order to seed again. </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- email -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 lh-20">Change Email:</div>
+                        <div class="col-12 col-sm-10">
+                            <input type="text" name="new_email" value="{{ user.email }}" />
+                            <p class="small mt-1 mb-0">Confirmation email will be send to the old account</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- old password -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 lh-20">Old password:</div>
+                        <div class="col-12 col-sm-10">
+                            <input type="password" name="old_pass" />
+                            <p class="small mt-1 mb-0">Verify your old password</p>
+                            <?php if(!empty($data['error']['old_pass'])):?>
+                            <p class="small mt-1 mb-0"><?php echo $data['error']['old_pass']; ?></p>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- new password -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 lh-20">New password:</div>
+                        <div class="col-12 col-sm-10">
+                            <input type="password" name="new_pass" />
+                            <p class="small mt-1 mb-0">Enter new password, must be  12-20 characters, one uppercase, number, special character, <b>do not use ? & ` ~ ' / \ ; ( ) € ‘ ´ ^ | ~ £ ¥</b></p>
+                            <?php if(!empty($data['error']['new_pass'])):?>
+                            <p class="small mt-1 mb-0"><?php echo $data['error']['new_pass']; ?></p>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- confirm password -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 lh-20">Confirm password:</div>
+                        <div class="col-12 col-sm-10">
+                            <input type="password" name="new_confirm_pass" id="new_confirm_pass"/>
+                            <p class="small mt-1 mb-0">Re-enter your new password</p>
+                            <?php if(!empty($data['error']['new_confirm_pass'])):?>
+                            <p class="small mt-1 mb-0"><?php echo $data['error']['new_confirm_pass']; ?></p>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- save settings button -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="col-12 col-sm-2"></div>
+                        <div class="col-12 col-sm-10">
+                            <input type="submit" class="btn" name="submit" value="Save settings" />
+                        </div>
+                    </div>
+                </div>
+            </div>
             </div>
         </div>
-    </div>
 {% endblock %}

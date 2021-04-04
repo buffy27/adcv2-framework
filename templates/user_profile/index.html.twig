@@ -94,35 +94,6 @@
                 </div>
             </div>
 
-            <?php if (!empty($data['userStats']['require_ratio'])) : ?>
-            <!-- require ratio -->
-            <div class="fancy-row">
-                <div class="row small-device">
-                    <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Require ratio</div>
-                    <div class="col-12 col-sm-10">
-                        <?php echo $data['userStats']['require_ratio']; ?> needs to be filled see FAQ for more info.
-                    </div>
-                </div>
-            </div>
-            <?php endif; ?>
-
-            <!-- bonus points
-            <div class="fancy-row">
-                <div class="row small-device">
-                    <div class="rowhead col-12 col-sm-2 d-flex align-items-center justify-content-end pr-sm-0 text-left-d-sm pb-d-sm-1">Redeem Alms (BP)</div>
-                    <div class="col-12 col-sm-10">
-                        <div class="my-0 align-items-center d-flex">
-                            <?php echo $data['userStats']['bonus_points']; ?>
-                            <img title="golden" class="ml-3 valign-middle" width="25" height="25" src="../images/golden.gif">
-                            <div class="d-flex flex-fill flex-column">
-                                <input type="text" placeholder="Enter the torrent ID to see number of points needed for 5 days promotion" value="" class="mx-2 flex-fill" id="golden-torrent-id" />
-                            </div>
-                            <input type="button" class="btn" value="Proceed" onclick="exchangeBonusPointsForGolden()" />
-                        </div>
-                    </div>
-                </div>
-            </div>
--->
             <!-- avatar -->
             <div class="fancy-row">
                 <div class="row small-device">
@@ -138,7 +109,7 @@
                 <div class="row small-device">
                     <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Class</div>
                     <div class="col-12 col-sm-10">
-
+                        {{ class_name }}
                     </div>
                 </div>
             </div>

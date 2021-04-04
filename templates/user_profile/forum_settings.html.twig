@@ -23,6 +23,50 @@
             </div>
 
             <div class="fancy-container mt-3 bx-d-sm-0">
+                <!-- details -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 lh-20">Topics per page</div>
+                        <div class="col-12 col-sm-10">
+                            <input type="number" name="topics_per_page" value="<?php echo $data['fs']['topics_per_page']; ?>" min="0" max="100" />
+                            <br />
+                            <p class="small mt-1 mb-0">(max = 100, 0 = default)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- torrents per page -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 lh-20">Posts per page</div>
+                        <div class="col-12 col-sm-10">
+                            <input type="number" name="posts_per_page" value="<?php echo $data['fs']['posts_per_page']; ?>" min="0" max="100"/>
+                            <br />
+                            <p class="small mt-1 mb-0">(max = 100, 0 = default)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- forum signature -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 lh-20">Forum signature</div>
+                        <div class="col-12 col-sm-10">
+                            <textarea autocomplete="off" name="text_area" id="markdown-editor"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- save settings button -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="col-12 col-sm-2"></div>
+                        <div class="col-12 col-sm-10">
+                            <input type="submit" class="btn" name="submit" value="Save settings" />
+                        </div>
+                    </div>
+                </div>
+            </div>
             </div>
         </div>
     </div>
