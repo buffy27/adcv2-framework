@@ -73,7 +73,7 @@ class TrackerController extends AbstractController
 
         return $this->render('tracker/torrent.html.twig', [
             'torrent' => $torrent,
-            'user' => $this->getUser(),
+            'torrent_details' => array_flip($this->getUser()->getTrackerSettings()['torrent_details']),
             'comments' => $comments,
             'peers' => $peers,
             'stats' => $stats //TODO important move this to global with https://symfony.com/doc/current/templating/global_variables.html (create service stats)

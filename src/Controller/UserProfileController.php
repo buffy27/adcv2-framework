@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Countries;
 use App\Entity\User;
+use App\Form\TrackerSettingsFormType;
 use App\Services\TrackerMemcached;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -14,6 +15,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Validator\Constraints\Json;
 
 
 class UserProfileController extends AbstractController
@@ -86,23 +88,64 @@ class UserProfileController extends AbstractController
     /**
      * @Route("/user/general", name="user.settings")
      */
-    public function profile_settings(): Response
+    public function profile_settings(Request $request): Response
     {
         $countries = $this->entityManager->getRepository(Countries::class)->findAllNames();
+        $user = $this->getUser();
 
         $userSettings = $this->createForm(ProfileSettingsFormType::class, [
-            'countries' => $countries
+            'countries' => $countries,
+            'personal_settings' => $user->getPersonalSettings(),
+            'country' => $this->memcached->getUserStats()['country']->getId()
         ]);
 
+        $userSettings->handleRequest($request);
+        if($userSettings->isSubmitted()){
+            $formData = $userSettings->getData();
+
+            $user->setIdCountry($this->entityManager->getRepository(Countries::class)->find($formData['id_country']));
+            $user->setPersonalSettings([
+                'account_parked' => $formData['parked'],
+                'accept_pms' => $formData['accept_pms'],
+                'pm_details' => $formData['pm_details'],
+            ]);
+            $this->entityManager->flush();
+            unset($user);
+            return $this->render('user_profile/profile_settings.html.twig', array_merge($this->memcached->getUserStats(), ['userSettings' => $userSettings->createView()]));
+        }
+        unset($user);
         return $this->render('user_profile/profile_settings.html.twig', array_merge($this->memcached->getUserStats(), ['userSettings' => $userSettings->createView()]));
     }
 
     /**
      * @Route("/user/tracker", name="user.tracker")
      */
-    public function tracker_settings(): Response
+    public function tracker_settings(Request $request): Response
     {
-        return $this->render('user_profile/tracker_settings.html.twig', $this->memcached->getUserStats());
+        $user = $this->getUser();
+
+        $trackerSettings = $this->createForm(TrackerSettingsFormType::class, [
+            'tracker_settings' => $user->getTrackerSettings()
+        ]);
+
+        $trackerSettings->handleRequest($request);
+        if($trackerSettings->isSubmitted()){
+            $formData = $trackerSettings->getData();
+
+            $user->setTrackerSettings([
+                'torrents_page' => $formData['torrents_page'],
+                'comments_torrent_page' => $formData['comments_torrent_page'],
+                'torrent_details' => $formData['torrent_details'],
+            ]);
+            $this->entityManager->flush();
+
+            return $this->render('user_profile/tracker_settings.html.twig', array_merge($this->memcached->getUserStats(), [
+                'trackerSettings' => $trackerSettings->createView()
+            ]));
+        }
+        return $this->render('user_profile/tracker_settings.html.twig', array_merge($this->memcached->getUserStats(), [
+            'trackerSettings' => $trackerSettings->createView()
+        ]));
     }
 
     /**

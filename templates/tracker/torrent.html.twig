@@ -88,7 +88,7 @@
                 </div>
 
                 <!-- anidb / imdb info -->
-                {% if torrent.contentInfo and user.trackerSettings['show_content'] == "on" %}
+                {% if torrent.contentInfo and torrent_details.show_content is defined %}
                     <div class="fancy-row">
                         <div class="row small-device">
                                 <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 nobr">Content Info</div>
@@ -104,7 +104,7 @@
                     </div>
                 {% endif %}
                 <!-- description & image -->
-                {% if user.trackerSettings['show_desc'] == "on" %}
+                {% if torrent_details.show_desc is defined %}
                 <div class="fancy-row">
                     <div class="row small-device">
                         <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Release Details</div>
@@ -124,7 +124,7 @@
                 </div>
                 {% endif %}
 
-                {% if user.trackerSettings['show_mediainfo'] == "on" %}
+                {% if torrent_details.show_mediainfo is defined %}
                 <div class="fancy-row">
                     <div class="row small-device">
                         <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">MediaInfo</div>
@@ -143,7 +143,7 @@
                 <!-- files -->
                 <div class="fancy-row">
                     <div class="row small-device">
-                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1"><a class="d-block" href="#" onclick="showTorrentFiles(event, '/torrent_files/{{ torrent.id }}">Torrent Files</a></div>
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1"><a class="d-block" href="#">Torrent Files</a></div>
                         <div class="col-12 col-sm-10 ">{# number of files here #}
                             <div class="d-none" id="adc-files-list"></div>
                         </div>
@@ -196,9 +196,9 @@
                                                     {% endif %}
                                                     <a class="no-decoration" href="{{ path('user.profile.id', {"id":peer.user.id}) }}"><b>{{ peer.user.username }}</b></a>
                                                 </td>
-                                                <td class="text-center green nobr">{{ peer.uploaded }}</td>
+                                                <td class="text-center green nobr">{{ filesystem.bytesToSize(peer.uploaded) }}</td>
                                                 <!-- <td class="text-center green nobr"></td> -->
-                                                <td class="text-center r03 nobr">{{ peer.downloaded }}</td>
+                                                <td class="text-center r03 nobr">{{ filesystem.bytesToSize(peer.downloaded) }}</td>
                                                 {# <td class="text-center green nobr"><</td> #}
                                                 {# <td class="text-center nobr"><?php  echo $peer['timespent']; ?></td> #}
                                                 <td class="text-right nobr">{{ peer.agent }}</td>

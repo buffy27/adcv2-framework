@@ -45,7 +45,6 @@ class TrackerMemcached
     }
     public function getUserStats()
     {
-        dump($this->security->getUser()->getUserClass());
         $country = $this->entityManager->getRepository(Countries::class)->find($this->security->getUser()->getIdCountry());
         //$class = $this->entityManager->getRepository(UserClass::class)->find($this->security->getUser()->getRoles());
         return [

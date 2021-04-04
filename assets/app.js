@@ -20,6 +20,7 @@ import EasyMDE from 'easymde';
 
 import marked from 'marked';
 
+
 var markdown_editor = document.getElementById("markdown-editor");
 if(markdown_editor){
     var mk = new EasyMDE({
@@ -39,8 +40,11 @@ if(markdown_editor){
             "side-by-side"
         ]
     });
+
     mk.toggleSideBySide();
 }
+console.log(mk)
+console.log("hello");
 const modal_data = document.getElementById("modal-data");
 const modal_view = document.getElementById("modal-view");
 if(modal_view) {

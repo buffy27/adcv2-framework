@@ -23,30 +23,17 @@
             </div>
 
             <div class="fancy-container mt-3 bx-d-sm-0">
+                {{ form_start(trackerSettings) }}
                 <!-- details -->
                 <div class="fancy-row">
                     <div class="row small-device">
-                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 lh-20">Torrent details</div>
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 lh-20">{{ form_label(trackerSettings.torrent_details) }}</div>
                         <div class="col-12 col-sm-10">
-                            <label class="valign-middle">
-                                <input type="checkbox" id="show_desc" name="show_desc" />
-                                <span>Show torrent description.</span>
-                            </label>
-                            <br />
-                            <label class="valign-middle">
-                                <input type="checkbox" id="show_nfo" name="show_nfo"  />
-                                <span>Show NFO file.</span>
-                            </label>
-                            <br />
-                            <label class="valign-middle">
-                                <input type="checkbox" id="show_content" name="show_content"/>
-                                <span>Show additional information (AniDB, IMDb).</span>
-                            </label>
-                            <br />
-                            <label class="valign-middle">
-                                <input type="checkbox" id="show_content" name="show_mediainfo" />
-                                <span>Show Media info link.</span>
-                            </label>
+                            {% for value in trackerSettings.torrent_details %}
+                                {{ form_widget(value) }}
+                                {{ form_label(value) }}
+                                <br/>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>
@@ -54,9 +41,9 @@
                 <!-- torrents per page -->
                 <div class="fancy-row">
                     <div class="row small-device">
-                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 lh-20">Torrents / page</div>
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 lh-20">{{ form_label(trackerSettings.torrents_page) }}</div>
                         <div class="col-12 col-sm-10">
-
+                            {{ form_widget(trackerSettings.torrents_page) }}
                         </div>
                     </div>
                 </div>
@@ -64,9 +51,9 @@
                 <!-- comments per torrent page -->
                 <div class="fancy-row">
                     <div class="row small-device">
-                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 lh-20">Comments / page</div>
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 lh-20">{{ form_label(trackerSettings.comments_torrent_page) }}</div>
                         <div class="col-12 col-sm-10">
-
+                            {{ form_widget(trackerSettings.comments_torrent_page) }}
                         </div>
                     </div>
                 </div>
@@ -76,10 +63,11 @@
                     <div class="row small-device">
                         <div class="col-12 col-sm-2"></div>
                         <div class="col-12 col-sm-10">
-                            <input type="submit" class="btn" name="submit" value="Save settings" />
+                            {{ form_widget(trackerSettings.submit) }}
                         </div>
                     </div>
                 </div>
+                {{ form_end(trackerSettings) }}
             </div>
         </div>
     </div>

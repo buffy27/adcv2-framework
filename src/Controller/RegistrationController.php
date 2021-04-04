@@ -98,14 +98,9 @@ class RegistrationController extends AbstractController
                 "signature" => "",
             ]);
             $user->setPersonalSettings([
-                "precheck" => "on",
-                "delete_after" => "on",
-                "save_sendbox" => "on",
-                "notify_torrents_comment" => "on",
-                "notify_forum_comment" => "on",
-                "account_parked" => "on",
-                "accept_pms" => "all",
-                "profile_info" => "",
+                'account_parked' => false,
+                'accept_pms' => "all",
+                'pm_details' => [],
             ]);
             $user->setAvatar('default.png');
             $user->setPasskey(hash("sha3-256", $this->mksecret(25) . $form->get('password')->getData() . $this->mksecret(28)));

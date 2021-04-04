@@ -32,22 +32,34 @@ class ProfileSettingsFormType extends AbstractType
         $builder
             ->add('parked', CheckboxType::class, [
                 'label' => 'Account parked',
-                'required' => false
+                'required' => false,
+                'data' => isset($options['data']['personal_settings']['account_parked'])
             ])
             ->add('accept_pms', ChoiceType::class,[
                 'label' => "Accept PMs from",
-                'choices' => ['All (except blocks)' => 0, 'Friends & staff only' => 1, 'Staff only' => 2],
-                'expanded' => true
+                'choices' => ['All (except blocks)' => "all", 'Friends & staff only' => "friends", 'Staff only' => "staff"],
+                'expanded' => true,
+                'data' => $options['data']['personal_settings']['accept_pms'],
+
             ])
             ->add('pm_details', ChoiceType::class,[
                 'label' => "PMs details",
-                'choices' => ['All (except blocks)' => 'all', 'Friends & staff only' => 'fs' , 'Staff only' => 'staff' ],
+                'choices' => [
+                    'Delete private messages on reply' => 'delete_after',
+                    'Save private messages to sentbox' => 'save_sendbox' ,
+                    'Notify me when someone comments on my torrents' => 'notify_torrents_comment',
+                    'Notify me when someone quoted me at forum, torrent comment or offer comment' => 'notify_forum_comment'
+                ],
                 'expanded' => true,
                 'multiple' => true,
+                'data' => array_values($options['data']['personal_settings']['pm_details']),
+                'required' => false
             ])
             ->add('id_country', ChoiceType::class, [
                 'label' => "Country",
-                'choices'  => $options['data']['countries']
+                'choices'  => $options['data']['countries'],
+                'data' => $options['data']['country'],
+                'required' => false
             ])
             ->add('avatar', FileType::class, [
                 'label' => 'Change Avatar',
@@ -61,14 +73,16 @@ class ProfileSettingsFormType extends AbstractType
                             'image/png',
 
                         ],
-                        'mimeTypesMessage' => 'Please upload a valid torrent file',
+                        'mimeTypesMessage' => 'Please upload a valid torrent file (jpeg, gif, png)',
                     ]),
                 ],
+
             ])
             ->add('submit', SubmitType::class,[
                 'attr' => [
                     'class' => 'btn'
-                ]
+                ],
+                'label' => "Save Settings"
             ])
         ;
     }

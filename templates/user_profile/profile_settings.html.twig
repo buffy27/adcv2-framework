@@ -52,7 +52,11 @@
                     <div class="row small-device">
                         <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 lh-20">{{ form_label(userSettings.pm_details) }}</div>
                         <div class="col-12 col-sm-10">
-                            {{ form_widget(userSettings.pm_details) }}
+                            {% for t in userSettings.pm_details %}
+                                {{ form_widget(t) }}
+                                {{ form_label(t) }}
+                                <br>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>
