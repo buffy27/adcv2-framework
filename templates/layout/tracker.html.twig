@@ -1,3 +1,4 @@
+{% import'macros/filesystem.html.twig' as filesystem %}
 <!DOCTYPE html>
 <html>
     <head>
@@ -28,9 +29,9 @@
             <div class="logo-text">
 
                 <img src="{{ asset('images/trans.gif') }}" class="main-arrowup valign-bottom" />
-                <span>   </span>
+                <span> {{ trackerCache.getPeer.seeders ~ " / " ~ filesystem.bytesToSize(trackerCache.userStats.downloaded)}}  </span>
                 <img src="{{ asset('images/trans.gif') }}" class="main-arrowdown valign-bottom" />
-                <span>  </span>
+                <span> {{ trackerCache.getPeer.lechers ~ " / " ~ filesystem.bytesToSize(trackerCache.userStats.uploaded)}} </span>
                 &nbsp;<span>Ratio: </span>
                 <span></span>
                 &nbsp;<a class="no-decoration" href="/messages/inbox">

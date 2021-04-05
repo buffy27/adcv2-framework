@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Peers;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use function Webmozart\Assert\Tests\StaticAnalysis\eq;
 
 /**
  * @method Peers|null find($id, $lockMode = null, $lockVersion = null)
@@ -39,12 +40,15 @@ class PeersRepository extends ServiceEntityRepository
     public function findPeersByUser($user){
         return $this->createQueryBuilder('p')->where("p.user = :user")->setParameter('user', $user)->getQuery()->getResult();
     }
-    public function getPeersCountByUser($user){
-        $total = $this->createQueryBuilder('p')->select('count(p.seeder)')->where('p.user = :user')->setParameter('user', $user)->getQuery()->getResult();
-        $seeders = $this->createQueryBuilder('p')->select('count(p.seeder)')->where('p.user = :user')->andWhere('p.seeder = \'yes\'')->setParameter('user', $user)->getQuery()->getArrayResult();
+    public function getPeersCountByUser($user): array
+    {
+        $qb = $this->createQueryBuilder('p');
+        $seeder  = $qb->select('COUNT(p.seeder)')->where('p.user = :user')->setParameter('user', $user)->andWhere('p.seeder = 1')->getQuery()->getOneOrNullResult();
+        $leecher  = $qb->select('COUNT(p.seeder)')->where('p.user = :user')->setParameter('user', $user)->andWhere('p.seeder = 0')->getQuery()->getOneOrNullResult();
+
         return [
-            'seeders' => $seeders[0][1],
-            'leechers' => $total[0][1] - $seeders[0][1]
+            'lechers' => $leecher[1],
+            'seeders' => $seeder[1]
         ];
     }
 

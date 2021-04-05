@@ -31,8 +31,6 @@ class RequestListener
         if ($request->attributes->get('_route') === '_wdt') {
             return;
         }
-        //Check if the tracker has closed the signup form
-        //TODO check this route
        if($request->attributes->get('_route') == "app_register" && !$tracker_status->getGlobalSignup()) {
            $html = $this->container->get('twig')->render('security/closed_signup.html.twig', []);
            $event->setResponse(new Response($html));
@@ -44,8 +42,6 @@ class RequestListener
         if (!$request->isXmlHttpRequest()) {
             return;
         }
-
         $response = $event->getResponse();
-        //dump($response);
     }
 }

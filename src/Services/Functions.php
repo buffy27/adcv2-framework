@@ -4,8 +4,15 @@
 namespace App\Services;
 
 
+use Doctrine\ORM\EntityManagerInterface;
+
 class Functions
 {
+    private $entityManager;
+    public function __construct(EntityManagerInterface $entityManager) {
+        $this->entityManager = $entityManager;
+    }
+
     public function timeago(\DateTime $date) {
 
         $timestamp = strtotime($date->format('Y-m-d H:i:s'));
@@ -23,5 +30,9 @@ class Functions
             $diff = round($diff);
             return $diff . " " . $strTime[$i] . "(s) ago ";
         }
+    }
+
+    public function getUserStats(){
+
     }
 }

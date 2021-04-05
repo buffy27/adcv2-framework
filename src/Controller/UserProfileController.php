@@ -38,6 +38,7 @@ class UserProfileController extends AbstractController
      */
     public function profile(Request $request): Response
     {
+        dump($this->memcached->getUserStats());
         return $this->render('user_profile/index.html.twig', $this->memcached->getUserStats());
     }
 

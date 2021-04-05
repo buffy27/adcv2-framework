@@ -14,7 +14,7 @@
                 <div class="news-container">
                     {% for value in news %}
                     <p class="mt-0 mb-1 mt-2">
-                        Posted {{ value.added | date("m/d/Y")}} ago
+                        Posted {{ value.added | date("m/d/Y")}}
                         -- by
                         <b><a href="/profile/{{ value.addedBy.id }}">{{ value.addedBy.username }}</a></b>
                     </p>
@@ -27,7 +27,9 @@
                                 {% endif %}
                             </div>
                             <div class="news-text" data-id="{{ value.id | raw }}">
-                                {{ value.text }}
+                                {% apply markdown_to_html %}
+                                    {{ value.text }}
+                                {% endapply %}
                             </div>
                             <div id="single-parsed-news-{{ value.id | raw}}"></div>
                         </div>

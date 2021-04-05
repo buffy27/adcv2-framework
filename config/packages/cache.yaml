@@ -4,7 +4,7 @@ framework:
         pools:
             doctrine.cache_pool:
                 adapter: cache.adapter.memcached
-            custom_thing.cache:
+            tracker_cache:
                 adapter: cache.adapter.memcached
         # Unique name of your app: used to compute stable namespaces for cache keys.
         #prefix_seed: your_vendor_name/app_name
