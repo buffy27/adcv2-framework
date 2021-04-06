@@ -6,9 +6,11 @@
     <div class="row small-device mt-4 mb-5">
             <div class="col-xl-8 col-lg-10 col-12 mx-auto">
             <h1 class="text-center">
-                <span class="valign-middle">{{ user.username }}</span> &nbsp;
-                <img class="valign-middle" src="{{ asset('images/flag/' ~ country.flagpic) }}" alt="{{ country.name }}">
-                <img class="valign-middle" width="25" height="25" src="/images/">
+                <span class="valign-middle">{{ trackerCache.userStats.username }}</span> &nbsp;
+                <img class="valign-middle" src="{{ asset('images/flag/' ~ trackerCache.userStats.flagpic) }}" alt="{{ trackerCache.userStats.country }}" >
+                {% if trackerCache.userStats.title is defined %}
+                    <img class="valign-middle" width="25" height="25" src="{{ asset('/images/svg_donation/' ~ trackerCache.userStats.title.titlepic ) }}" title="{{ trackerCache.userStats.title.name }}">
+                {% endif %}
             </h1>
 
             <div class="text-center">

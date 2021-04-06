@@ -8,7 +8,9 @@
             <h1 class="text-center">
                 <span class="valign-middle">{{ user.username }}</span> &nbsp;
                 <img class="valign-middle" src="{{ asset('images/flag/' ~ country.flagpic) }}" alt="{{ country.name }}">
-                <img class="valign-middle" width="25" height="25" src="/images/">
+                {% if title is not null %}
+                    <img class="valign-middle" width="25" height="25" src="{{ asset('/images/svg_donation/' ~ title.titlepic) }}" alt="{{ title.name }}" title="{{ title.name }}">
+                {% endif %}
             </h1>
 
             <div class="text-center">

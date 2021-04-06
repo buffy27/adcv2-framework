@@ -9,7 +9,9 @@
             <h1 class="text-center">
                 <span class="valign-middle">{{ user.username }}</span> &nbsp;
                 <img class="valign-middle" src="{{ asset('images/flag/' ~ country.flagpic) }}" alt="{{ country.name }}">
-                <img class="valign-middle" width="25" height="25" src="/images/">
+                {% if title is not null %}
+                    <img class="valign-middle" width="25" height="25" src="{{ asset('/images/svg_donation/' ~ title.titlepic) }}" alt="{{ title.name }}" title="{{ title.name }}">
+                {% endif %}
             </h1>
 
             <div class="text-center">
@@ -100,17 +102,17 @@
                     </div>
                 </div>
 
-                <?php  if (!empty($data['userStats']['title'])) : ?>
+                {% if title is not null %}
                 <!-- title -->
                 <div class="fancy-row">
                     <div class="row small-device">
                         <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Title</div>
                         <div class="col-12 col-sm-10">
-                            <?php echo empty($data['userStats']['title']) ? '---' : $data['userStats']['title']; ?>
+                            {{ title.name }}
                         </div>
                     </div>
                 </div>
-                <?php endif; ?>
+                {% endif %}
 
                 <!-- forum posts -->
                 <div class="fancy-row">

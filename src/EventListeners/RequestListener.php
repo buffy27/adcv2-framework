@@ -3,27 +3,30 @@
 namespace App\EventListeners;
 
 use App\Entity\Tracker;
+use App\Services\TrackerMemcached;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
+use Symfony\Component\Security\Core\Security;
 
 class RequestListener
 {
-    private EntityManagerInterface $eventManager;
+    private EntityManagerInterface $entityManager;
     private ContainerInterface $container;
-
-    public function __construct(EntityManagerInterface $eventManager, ContainerInterface $container)
+    private Security $security;
+    public function __construct(EntityManagerInterface $entityManager, ContainerInterface $container, Security $security)
     {
-        $this->eventManager = $eventManager;
+        $this->entityManager = $entityManager;
         $this->container = $container;
+        $this->security = $security;
     }
 
     public function onKernelRequest(RequestEvent $event)
     {
         $request = $event->getRequest();
-        $tracker_status = $this->eventManager->getRepository(Tracker::class)->find(1);
+        $tracker_status = $this->entityManager->getRepository(Tracker::class)->find(1);
 
         if (!$event->isMasterRequest()) {
             return;
@@ -31,10 +34,16 @@ class RequestListener
         if ($request->attributes->get('_route') === '_wdt') {
             return;
         }
-       if($request->attributes->get('_route') == "app_register" && !$tracker_status->getGlobalSignup()) {
+        $user = $this->security->getUser();
+        if(!is_null($user)) {
+            $user->setLastAction(new \DateTime('now'));
+            $this->entityManager->flush();
+        }
+
+        if($request->attributes->get('_route') == "app_register" && !$tracker_status->getGlobalSignup()) {
            $html = $this->container->get('twig')->render('security/closed_signup.html.twig', []);
            $event->setResponse(new Response($html));
-       }
+        }
     }
 
     public function onKernelResponse(ResponseEvent $event){

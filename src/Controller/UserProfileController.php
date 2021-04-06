@@ -3,12 +3,15 @@
 namespace App\Controller;
 
 use App\Entity\Countries;
+use App\Entity\Invites;
 use App\Entity\User;
+use App\Form\SendInviteFormType;
 use App\Form\TrackerSettingsFormType;
 use App\Services\TrackerMemcached;
 use Doctrine\ORM\EntityManagerInterface;
 
 use App\Form\ProfileSettingsFormType;
+use phpDocumentor\Reflection\Types\This;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -16,6 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\Json;
+use function Webmozart\Assert\Tests\StaticAnalysis\nullOrCount;
 
 
 class UserProfileController extends AbstractController
@@ -38,8 +42,7 @@ class UserProfileController extends AbstractController
      */
     public function profile(Request $request): Response
     {
-        dump($this->memcached->getUserStats());
-        return $this->render('user_profile/index.html.twig', $this->memcached->getUserStats());
+        return $this->render('user_profile/index.html.twig');
     }
 
     /**
@@ -50,16 +53,24 @@ class UserProfileController extends AbstractController
     public function user_profile($id): Response
     {
         if($id == $this->getUser()->getId()){
-            return $this->render('user_profile/index.html.twig', $this->memcached->getUserStats());
+            return $this->render('user_profile/index.html.twig');
         }
 
         $user = $this->entityManager->getRepository(User::class)->find($id);
+        if(!is_null($user->getIdTitle())){
+            $title = [
+                'name' => $user->getIdTitle()->getTitle(),
+                'titlepic' => $user->getIdTitle()->getTitlepic()
+            ];
+        }
+
         if(!empty($user)) {
             $country = $this->entityManager->getRepository(Countries::class)->find($user->getIdCountry());
             return $this->render('user_profile/user_profile.html.twig', [
                 'user' => $user,
                 'country' => $country,
-                'class' => $user->getUserClass()
+                'class' => $user->getUserClass(),
+                'title' => isset($title) ? $title : null
             ]);
         }
 
@@ -73,11 +84,18 @@ class UserProfileController extends AbstractController
      */
     public function user_active($id){
         $user = $this->entityManager->getRepository(User::class)->find($id);
+        if(!is_null($user->getIdTitle())){
+            $title = [
+                'name' => $user->getIdTitle()->getTitle(),
+                'titlepic' => $user->getIdTitle()->getTitlepic()
+            ];
+        }
         if(!empty($user)) {
             $country = $this->entityManager->getRepository(Countries::class)->find($user->getIdCountry());
             return $this->render('user_profile/user_active.html.twig', [
                 'user' => $user,
-                'country' => $country
+                'country' => $country,
+                'title' => isset($title) ? $title : null
             ]);
         }
 
@@ -97,7 +115,7 @@ class UserProfileController extends AbstractController
         $userSettings = $this->createForm(ProfileSettingsFormType::class, [
             'countries' => $countries,
             'personal_settings' => $user->getPersonalSettings(),
-            'country' => $this->memcached->getUserStats()['country']->getId()
+            'country' => $this->memcached->getUserStats()['country_id']
         ]);
 
         $userSettings->handleRequest($request);
@@ -112,10 +130,11 @@ class UserProfileController extends AbstractController
             ]);
             $this->entityManager->flush();
             unset($user);
-            return $this->render('user_profile/profile_settings.html.twig', array_merge($this->memcached->getUserStats(), ['userSettings' => $userSettings->createView()]));
+            $this->memcached->removeUserStats();
+            return $this->render('user_profile/profile_settings.html.twig', ['userSettings' => $userSettings->createView()]);
         }
         unset($user);
-        return $this->render('user_profile/profile_settings.html.twig', array_merge($this->memcached->getUserStats(), ['userSettings' => $userSettings->createView()]));
+        return $this->render('user_profile/profile_settings.html.twig',  ['userSettings' => $userSettings->createView()]);
     }
 
     /**
@@ -163,6 +182,32 @@ class UserProfileController extends AbstractController
     public function security_settings(): Response
     {
         return $this->render('user_profile/security_settings.html.twig', $this->memcached->getUserStats());
+    }
+
+    /**
+     * @Route ("/user/send_invite", name="user.send_invite")
+     */
+    public function send_invite(Request $request): Response
+    {
+        $sendInvite = $this->createForm(SendInviteFormType::class);
+
+        $sendInvite->handleRequest($request);
+        if($sendInvite->isSubmitted() && $sendInvite->isValid()){
+            $invite = new Invites();
+            $invite->setEmail($sendInvite->get('email'));
+            $invite->setAdded();
+            $invite->setStatus('pending');
+            $invite->setInvite(hash('SHA3-256', hash("SHA3-256", random_bytes(20))));
+            $invite->setExpires(date_create('+1 day'));
+            $invite->setInviter($this->getUser());
+            $invite->setInvitee();
+            $this->entityManager->persist($invite);
+            $this->entityManager->flush();
+        }
+
+        return $this->render('user_profile/send_invite.html.twig', array_merge($this->memcached->getUserStats(), [
+            'sendInvite' => $sendInvite->createView()
+        ]));
     }
 
     /**

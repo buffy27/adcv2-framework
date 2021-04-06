@@ -7,9 +7,11 @@
 <div class="row small-device mt-4 mb-5">
     <div class="col-xl-8 col-lg-10 col-12 mx-auto">
         <h1 class="text-center">
-            <span class="valign-middle">{{ user.username }}</span> &nbsp;
-            <img class="valign-middle" src="{{ asset('images/flag/' ~ country.flagpic) }}" alt="{{ country.name }}">
-            <img class="valign-middle" width="25" height="25" src="/images/">
+            <span class="valign-middle">{{ trackerCache.userStats.username }}</span> &nbsp;
+            <img class="valign-middle" src="{{ asset('images/flag/' ~ trackerCache.userStats.flagpic) }}" alt="{{ trackerCache.userStats.country }}">
+            {% if trackerCache.userStats.title is defined %}
+                <img class="valign-middle" width="25" height="25" src="{{ asset('/images/svg_donation/' ~ trackerCache.userStats.title.titlepic ) }}" alt="{{ trackerCache.userStats.title.name }}" title="{{ trackerCache.userStats.title.name }}">
+            {% endif %}
         </h1>
 
         <div class="text-center">
@@ -29,7 +31,7 @@
                 <div class="row small-device">
                     <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Joined</div>
                     <div class="col-12 col-sm-10">
-                        {{ user.added | date('Y.m.d') }}
+                        {{ trackerCache.userStats.added | date('Y.m.d') }}
                     </div>
                 </div>
             </div>
@@ -39,7 +41,7 @@
                 <div class="row small-device">
                     <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Last seen</div>
                     <div class="col-12 col-sm-10">
-                        <?php echo $data['last_seen']; ?>
+                        {{ trackerCache.userStats.last_action | date("Y-m-d h:i:s") }}
                     </div>
                 </div>
             </div>
@@ -49,7 +51,7 @@
                 <div class="row small-device">
                     <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Invited by</div>
                     <div class="col-12 col-sm-10">
-                        <?php echo $data['userStats']['invitedby']?>
+{#                        {{ trackerCache.userStats.invited_by is null ? "System" : "<a>  </a>" }}#}
                     </div>
                 </div>
             </div>
@@ -59,7 +61,7 @@
                 <div class="row small-device">
                     <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">IP address</div>
                     <div class="col-12 col-sm-10">
-                        {{ user.ip }}
+                        {{ trackerCache.userStats.ip }}
                     </div>
                 </div>
             </div>
@@ -69,7 +71,7 @@
                 <div class="row small-device">
                     <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Uploaded</div>
                     <div class="col-12 col-sm-10">
-                        {{ filesystem.bytesToSize(user.uploaded) }}
+                        {{ filesystem.bytesToSize(trackerCache.userStats.uploaded) }}
                     </div>
                 </div>
             </div>
@@ -79,7 +81,7 @@
                 <div class="row small-device">
                     <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Downloaded</div>
                     <div class="col-12 col-sm-10">
-                        {{ filesystem.bytesToSize(user.downloaded) }}
+                        {{ filesystem.bytesToSize(trackerCache.userStats.downloaded) }}
                     </div>
                 </div>
             </div>
@@ -99,7 +101,7 @@
                 <div class="row small-device">
                     <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Avatar</div>
                     <div class="col-12 col-sm-10">
-                        <img src="{{ path('avatar', {"id": user.id}) }}" class="profile-avatar" />
+                        <img src="{{ path('avatar', {"id": trackerCache.userStats.id}) }}" class="profile-avatar" />
                     </div>
                 </div>
             </div>
@@ -109,29 +111,31 @@
                 <div class="row small-device">
                     <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Class</div>
                     <div class="col-12 col-sm-10">
-                        {{ class_name }}
+                        {{ trackerCache.userStats.class.name }}
                     </div>
                 </div>
             </div>
 
-            <?php  if (!empty($data['userStats']['title'])) : ?>
-            <!-- title -->
-            <div class="fancy-row">
-                <div class="row small-device">
-                    <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Title</div>
-                    <div class="col-12 col-sm-10">
-                        <?php echo empty($data['userStats']['title']) ? '---' : $data['userStats']['title']; ?>
+            {% if trackerCache.userStats.title is defined %}
+                <!-- title -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Title</div>
+                        <div class="col-12 col-sm-10">
+                            {{ trackerCache.userStats.title.name }}
+                        </div>
                     </div>
                 </div>
-            </div>
-            <?php endif; ?>
+            {% endif %}
+
 
             <!-- invites -->
             <div class="fancy-row">
                 <div class="row small-device">
                     <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Invites</div>
                     <div class="col-12 col-sm-10">
-                        <?php echo $data['userStats']['invites']; ?>
+                        {{ trackerCache.userStats.invites }}
+                        <a href="{{ path('user.send_invite') }}">[Send invite]</a>
                         <!--
                         <div class="my-0 align-items-center d-flex">
                             Redeem bonus points for single invite

@@ -23,6 +23,7 @@ use Symfony\Component\Mime\Address;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Security\Guard\GuardAuthenticatorHandler;
+use Symfony\Component\Validator\Constraints\Json;
 use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
 
 class RegistrationController extends AbstractController
@@ -136,7 +137,7 @@ class RegistrationController extends AbstractController
      * @Route("/signup/{invite}", name="app_register.invite")
      */
     public function registerInvite($invite, Request $request, UserPasswordEncoderInterface $passwordEncoder, GuardAuthenticatorHandler $guardHandler, AppLoginAuthenticator $authenticator){
-        return new RedirectResponse($this->generateUrl('app_login'));
+        return new JsonResponse("Test " . $invite);
     }
 
     /**

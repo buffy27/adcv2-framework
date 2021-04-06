@@ -70,7 +70,7 @@ class TrackerController extends AbstractController
             $this->entityMangaer->flush();
             return new RedirectResponse($this->generateUrl('torrent', ['id' => $id]));
         }
-
+        
         return $this->render('tracker/torrent.html.twig', [
             'torrent' => $torrent,
             'torrent_details' => array_flip($this->getUser()->getTrackerSettings()['torrent_details']),

@@ -31,8 +31,4 @@ class Functions
             return $diff . " " . $strTime[$i] . "(s) ago ";
         }
     }
-
-    public function getUserStats(){
-
-    }
 }

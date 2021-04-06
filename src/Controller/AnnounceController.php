@@ -6,6 +6,7 @@ namespace App\Controller;
 use App\Entity\Logs;
 use App\Entity\Peers;
 use App\Entity\SyncAnnounce;
+use App\Services\TrackerMemcached;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception\TrackerException;
 use http\Exception\BadMessageException;
@@ -26,10 +27,12 @@ class AnnounceController extends AbstractController
     ];
 
     private $entityMangaer;
+    private $memcached;
 
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(EntityManagerInterface $entityManager, TrackerMemcached $memcached)
     {
         $this->entityMangaer = $entityManager;
+        $this->memcached = $memcached;
     }
 
     /**
@@ -107,7 +110,7 @@ class AnnounceController extends AbstractController
             return new Response($this->error(104, [":port" => $queries['port']]), 200, $this->headers);
         }
         //TODO Recheck proxies
-        Request::setTrustedProxies(['127.0.0.1'],Request::HEADER_X_FORWARDED_ALL);
+        Request::setTrustedProxies(['127.0.0.1'],Request::HEADER_X_FORWARDED_HOST);
         $queries['ip'] = $request->getClientIp();
         $queries['user-agent'] = $request->headers->get('user-agent');
         $queries['seeder'] = $queries['left'] == 0;
@@ -117,8 +120,12 @@ class AnnounceController extends AbstractController
         $user = $sync->getUser();
 
         $trueUploaded = $trueDownloaded = 0;
+        $thisUploaded = $thisDownloaded = 0;
 
         if(!$self && $queries['event'] != "stopped") {
+            $trueUploaded = max(0, $queries['uploaded']);
+            $trueDownloaded = max(0, $queries['downloaded']);
+
             $sockres = @pfsockopen($queries['ip'], $queries['port'], $errno, $errstr, 5);
             if (!$sockres) {
                 $connectable = "no";
@@ -127,7 +134,7 @@ class AnnounceController extends AbstractController
                 @fclose($sockres);
             }
             $peer = new Peers();
-            $peer->setTorrent($sync->getTorrent())->setUser($sync->getUser())->setUploaded()->setDownloaded()->setToGo($queries['left'])
+            $peer->setTorrent($sync->getTorrent())->setUser($sync->getUser())->setUploaded($trueUploaded)->setDownloaded($trueDownloaded)->setToGo($queries['left'])
                 ->setIp($queries['ip'])->setPort($queries['port'])->setPeerId($queries['peer_id'])->setAgent($queries['user-agent'])
                 ->setStarted()->setLastAction()->setSeeder($queries['seeder'])->setConnectable($connectable);
             $this->entityMangaer->persist($peer);
@@ -137,8 +144,8 @@ class AnnounceController extends AbstractController
             else
                 $torrent->setLeechers($torrent->getLeechers() + 1);
         }else{
-            $trueUploaded = max(0, $queries['uploaded'] - $self->getUploaded());
-            $trueDownloaded = max(0, $queries['downloaded'] - $self->getDownloaded());
+            $thisUploaded = $trueUploaded = max(0, $queries['uploaded'] - $self->getUploaded());
+            $thisDownloaded = $trueDownloaded = max(0, $queries['downloaded'] - $self->getDownloaded());
 
             if($queries['event'] === "stopped"){
                 $this->entityMangaer->remove($self);
@@ -156,14 +163,17 @@ class AnnounceController extends AbstractController
                      ->setLastAction(new \DateTime('now'));
             }
         }
+
         if($queries['event'] === "completed"){
             $torrent->setSeeders($torrent->getSeeders() + 1);
             $torrent->setLeechers($torrent->getLeechers() - 1);
         }
 
-        $user->setUploaded($user->getUploaded() + $trueUploaded);
-        $user->setDownloaded($user->getDownloaded() + $trueDownloaded);
-
+        $user->setUploaded($user->getUploaded() + $thisUploaded);
+        $user->setDownloaded($user->getDownloaded() + $thisDownloaded);
+        if($this->memcached->cleanPeers()){
+            $this->log_announce("Stats d= ". $trueDownloaded);
+        }
         $this->entityMangaer->flush();
         return new Response($this->generateAnnounceResponse($queries, $torrent), 200, $this->headers);
     }

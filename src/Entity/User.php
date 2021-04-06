@@ -99,11 +99,6 @@ class User implements UserInterface
     private $banned;
 
     /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
-    private $invitedBy;
-
-    /**
      * @ORM\Column(type="bigint")
      */
     private $downloaded;
@@ -164,6 +159,26 @@ class User implements UserInterface
      */
     private $peers;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=Titles::class, inversedBy="users")
+     */
+    private $idTitle;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=True)
+     */
+    private $last_action;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Invites::class, mappedBy="inviter")
+     */
+    private $invites;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private $userInvites;
+
     public function __construct()
     {
         $this->torrents = new ArrayCollection();
@@ -172,6 +187,7 @@ class User implements UserInterface
         $this->roles = new ArrayCollection();
         $this->syncAnnounces = new ArrayCollection();
         $this->peers = new ArrayCollection();
+        $this->invites = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -424,18 +440,6 @@ class User implements UserInterface
         return $this;
     }
 
-    public function getInvitedBy(): ?int
-    {
-        return $this->invitedBy;
-    }
-
-    public function setInvitedBy(?int $invitedBy): self
-    {
-        $this->invitedBy = $invitedBy;
-
-        return $this;
-    }
-
     public function getDownloaded(): ?string
     {
         return $this->downloaded;
@@ -629,5 +633,70 @@ class User implements UserInterface
         }
 
         return $this;
+    }
+
+    public function getIdTitle(): ?Titles
+    {
+        return $this->idTitle;
+    }
+
+    public function setIdTitle(?Titles $idTitle): self
+    {
+        $this->idTitle = $idTitle;
+
+        return $this;
+    }
+
+    public function getLastAction(): ?\DateTimeInterface
+    {
+        return $this->last_action;
+    }
+
+    public function setLastAction(\DateTimeInterface $last_action): self
+    {
+        $this->last_action = $last_action;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Invites[]
+     */
+    public function getInvites(): Collection
+    {
+        return $this->invites;
+    }
+
+    public function addInvite(Invites $invite): self
+    {
+        if (!$this->invites->contains($invite)) {
+            $this->invites[] = $invite;
+            $invite->setInviter($this);
+        }
+
+        return $this;
+    }
+
+    public function removeInvite(Invites $invite): self
+    {
+        if ($this->invites->removeElement($invite)) {
+            // set the owning side to null (unless already changed)
+            if ($invite->getInviter() === $this) {
+                $invite->setInviter(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function setUserInvites(?int $Invites): self
+    {
+        $this->userInvites = $Invites;
+
+        return $this;
+    }
+    public function getUserInvites(): int
+    {
+        return $this->userInvites;
     }
 }

@@ -6,9 +6,11 @@
     <div class="row small-device mt-4 mb-5">
         <div class="col-xl-8 col-lg-10 col-12 mx-auto">
             <h1 class="text-center">
-                <span class="valign-middle">{{ user.username }}</span> &nbsp;
-                <img class="valign-middle" src="{{ asset('images/flag/' ~ country.flagpic) }}" alt="{{ country.name }}">
-                <img class="valign-middle" width="25" height="25" src="/images/">
+                <span class="valign-middle">{{ trackerCache.userStats.username }}</span> &nbsp;
+                <img class="valign-middle" src="{{ asset('images/flag/' ~ trackerCache.userStats.flagpic) }}" alt="{{ trackerCache.userStats.country }}">
+                {% if trackerCache.userStats.title is defined %}
+                    <img class="valign-middle" width="25" height="25" src="{{ asset('/images/svg_donation/' ~ trackerCache.userStats.title.titlepic ) }}" alt="{{ trackerCache.userStats.title.name }}" title="{{ trackerCache.userStats.title.name }}">
+                {% endif %}
             </h1>
 
             <div class="text-center">
@@ -39,7 +41,7 @@
                     <div class="row small-device">
                         <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 lh-20">Change Email:</div>
                         <div class="col-12 col-sm-10">
-                            <input type="text" name="new_email" value="{{ user.email }}" />
+                            <input type="text" name="new_email" value="{{ trackerCache.userStats.email }}" />
                             <p class="small mt-1 mb-0">Confirmation email will be send to the old account</p>
                         </div>
                     </div>

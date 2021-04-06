@@ -42,6 +42,16 @@ class Invites
      */
     private $email;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="invites")
+     */
+    private $inviter;
+
+    /**
+     * @ORM\OneToOne(targetEntity=User::class, cascade={"persist", "remove"})
+     */
+    private $invitee;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -64,9 +74,12 @@ class Invites
         return $this->added;
     }
 
-    public function setAdded(\DateTimeInterface $added): self
+    public function setAdded(\DateTimeInterface $added = null): self
     {
-        $this->added = $added;
+        if(!$added)
+            $this->added = new \DateTime('now');
+        else
+            $this->added = $added;
 
         return $this;
     }
@@ -103,6 +116,30 @@ class Invites
     public function setEmail(string $email): self
     {
         $this->email = $email;
+
+        return $this;
+    }
+
+    public function getInviter(): ?User
+    {
+        return $this->inviter;
+    }
+
+    public function setInviter(?User $inviter): self
+    {
+        $this->inviter = $inviter;
+
+        return $this;
+    }
+
+    public function getInvitee(): ?User
+    {
+        return $this->invitee;
+    }
+
+    public function setInvitee(?User $invitee = null): self
+    {
+        $this->invitee = $invitee;
 
         return $this;
     }
