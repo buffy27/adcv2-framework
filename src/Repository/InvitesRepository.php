@@ -18,6 +18,12 @@ class InvitesRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Invites::class);
     }
+    public function findByInvite($invite){
+        return $this->createQueryBuilder('i')
+            ->where("i.invite = :invite")
+            ->setParameter('invite', $invite)
+            ->getQuery()->getResult();
+    }
 
     // /**
     //  * @return Invites[] Returns an array of Invites objects

@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Countries;
+use App\Entity\Invites;
 use App\Entity\Language;
 use App\Entity\User;
 use App\Entity\UserClass;
@@ -41,7 +42,7 @@ class RegistrationController extends AbstractController
     /**
      * @Route("/signup", name="app_register")
      */
-    public function register(Request $request, UserPasswordEncoderInterface $passwordEncoder, GuardAuthenticatorHandler $guardHandler, AppLoginAuthenticator $authenticator): Response
+    public function register(Request $request): Response
     {
         $user = new User();
         $countries = $this->entityManager->getRepository(Countries::class)->findAllNames();
@@ -108,7 +109,6 @@ class RegistrationController extends AbstractController
             $user->setIdLanguage($language);
             $user->setDownloaded(0);
             $user->setUploaded(0);
-            $user->setInvitedBy(1);
             $user->setBanned(false);
             $user->setAdded();
             $user->setRole($userClass);
@@ -134,10 +134,103 @@ class RegistrationController extends AbstractController
     }
 
     /**
-     * @Route("/signup/{invite}", name="app_register.invite")
+     * @Route("/signup/{invite}", name="app_register.invite", requirements={"invite"="^[a-zA-Z0-9]{64,64}$"})
      */
-    public function registerInvite($invite, Request $request, UserPasswordEncoderInterface $passwordEncoder, GuardAuthenticatorHandler $guardHandler, AppLoginAuthenticator $authenticator){
-        return new JsonResponse("Test " . $invite);
+    public function registerInvite($invite, Request $request){
+        /** @var Invites $invites */
+        $invites = $this->entityManager->getRepository(Invites::class)->findByInvite($invite);
+        if(!$invites){
+            return $this->render("errors/404.html.twig", [
+                'error' => "Page not found"
+            ]);
+        }
+
+        $user = new User();
+        $countries = $this->entityManager->getRepository(Countries::class)->findAllNames();
+
+        $form = $this->createForm(RegistrationFormType::class, [
+            'countries' => $countries,
+            'email' => $invites->getEmail()
+        ]);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $secret = $this->mksecret();
+            $data = $form->getData();
+
+            if(!empty($this->entityManager->getRepository(User::class)->getUserByUsername($data['username']))){
+                $form->get('username')->addError(new FormError("Username already exists in database"));
+                return $this->render('security/register.html.twig', [
+                    'registrationForm' => $form->createView(),
+                ]);
+            }
+
+            if(!empty($this->entityManager->getRepository(User::class)->getUserByEmail($data['email']))){
+                $form->get('email')->addError(new FormError("Invalid email address"));
+                return $this->render('security/register.html.twig', [
+                    'registrationForm' => $form->createView(),
+                ]);
+            }
+
+            $user->setUsername($data['username']);
+            $user->setSecret($secret);
+            $user->setPassword(
+                hash("sha3-256",  $secret . $form->get('password')->getData() .  $secret . $form->get('username')->getData() . $secret)
+            );
+            $country = $this->entityManager->getRepository(Countries::class)->find($data['id_country']);
+            $language = $this->entityManager->getRepository(Language::class)->find(6);
+            $userClass = $this->entityManager->getRepository(UserClass::class)->findOneBy(['name' => 'User']);
+            $user->setIdCountry($country);
+            $user->setGender($data['gender']);
+            $user->setEmail($data['email']);
+            $user->setBirthday($data['birthday']);
+            $user->setIp($request->getClientIp());
+            $user->setTrackerSettings([
+                "show_desc" => "on",
+                "show_content" => "on",
+                "show_mediainfo" => "on",
+                "show_nfo" => "on",
+                "torrents_page" => 50,
+                "comments_torrent_page" => 15
+            ]);
+            $user->setForumSettings([
+                "topics_per_page" => 3,
+                "posts_per_page" => 10,
+                "signature" => "",
+            ]);
+            $user->setPersonalSettings([
+                'account_parked' => false,
+                'accept_pms' => "all",
+                'pm_details' => [],
+            ]);
+            $user->setAvatar('default.png');
+            $user->setPasskey(hash("sha3-256", $this->mksecret(25) . $form->get('password')->getData() . $this->mksecret(28)));
+            $user->setIdLanguage($language);
+            $user->setDownloaded(0);
+            $user->setUploaded(0);
+            $user->setBanned(false);
+            $user->setAdded();
+            $user->setRole($userClass);
+
+            $entityManager = $this->getDoctrine()->getManager();
+            $entityManager->persist($user);
+            $entityManager->flush();
+
+            $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user,
+                (new TemplatedEmail())
+                    ->from(new Address('system@rainandcoffee.com', 'System'))
+                    ->to($user->getEmail())
+                    ->subject('Please Confirm your Email')
+                    ->htmlTemplate('security/confirmation_email.html.twig')
+            );
+
+            return $this->redirectToRoute('app_login');
+        }
+
+        return $this->render('security/register.html.twig', [
+            'registrationForm' => $form->createView(),
+        ]);
     }
 
     /**

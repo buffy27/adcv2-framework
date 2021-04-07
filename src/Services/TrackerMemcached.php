@@ -3,6 +3,7 @@
 
 namespace App\Services;
 
+use App\Entity\Invites;
 use App\Entity\Peers;
 use App\Entity\Torrents;
 use App\Entity\User;
@@ -31,6 +32,7 @@ class TrackerMemcached
         try {
             return $this->trackerCache->get(md5($this->security->getUser()->getUsername()), function (ItemInterface $item) {
                 $user = $this->security->getUser();
+                $invited_by = $this->entityManager->getRepository(Invites::class)->findOneBy(['inviter' => $this->security->getUser()]);
                 $stats = [
                     'downloaded' => $user->getDownloaded(),
                     'uploaded' => $user->getUploaded(),

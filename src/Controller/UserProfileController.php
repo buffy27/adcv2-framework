@@ -189,6 +189,11 @@ class UserProfileController extends AbstractController
      */
     public function send_invite(Request $request): Response
     {
+        if(!$this->getUser()->getUserInvites()){
+            return $this->render('errors/tracker_error.html.twig',[
+                'error' => "You don't have any invites."
+            ]);
+        }
         $sendInvite = $this->createForm(SendInviteFormType::class);
 
         $sendInvite->handleRequest($request);

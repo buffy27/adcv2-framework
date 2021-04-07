@@ -695,7 +695,7 @@ class User implements UserInterface
 
         return $this;
     }
-    public function getUserInvites(): int
+    public function getUserInvites()
     {
         return $this->userInvites;
     }
