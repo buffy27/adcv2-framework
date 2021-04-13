@@ -13,10 +13,13 @@ use Doctrine\ORM\EntityManagerInterface;
 use App\Form\ProfileSettingsFormType;
 use phpDocumentor\Reflection\Types\This;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Address;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\Json;
 use function Webmozart\Assert\Tests\StaticAnalysis\nullOrCount;
@@ -187,7 +190,7 @@ class UserProfileController extends AbstractController
     /**
      * @Route ("/user/send_invite", name="user.send_invite")
      */
-    public function send_invite(Request $request): Response
+    public function send_invite(Request $request, MailerInterface $mailer): Response
     {
         if(!$this->getUser()->getUserInvites()){
             return $this->render('errors/tracker_error.html.twig',[
@@ -198,16 +201,34 @@ class UserProfileController extends AbstractController
 
         $sendInvite->handleRequest($request);
         if($sendInvite->isSubmitted() && $sendInvite->isValid()){
+            if(!empty($this->entityManager->getRepository(User::class)->getUserByEmail($sendInvite->get('email')->getData()))){
+                return $this->render('errors/tracker_error.html.twig',[
+                    'error' => "User already exists!"
+                ]);
+            }
+            $gen_inv = hash('SHA3-256', hash("SHA3-256", random_bytes(20)));
             $invite = new Invites();
-            $invite->setEmail($sendInvite->get('email'));
+            $invite->setEmail($sendInvite->get('email')->getData());
             $invite->setAdded();
             $invite->setStatus('pending');
-            $invite->setInvite(hash('SHA3-256', hash("SHA3-256", random_bytes(20))));
+            $invite->setInvite($gen_inv);
             $invite->setExpires(date_create('+1 day'));
             $invite->setInviter($this->getUser());
             $invite->setInvitee();
             $this->entityManager->persist($invite);
+            $email = (new TemplatedEmail())->from(new Address('system@rainandcoffee.com', 'System'))
+                ->to($sendInvite->get('email')->getData())
+                ->subject("Register your ADC account")
+                ->htmlTemplate("security/invite.html.twig");
+
+            $context = $email->getContext();
+            $context['inviter'] = $this->getUser()->getUsername();
+            $context['invite_url'] = $request->getSchemeAndHttpHost() ."/signup/" . $gen_inv;
+            $email->context($context);
+            $mailer->send($email);
+            $this->getUser()->setUserInvites($this->getUser()->getUserInvites()-1);
             $this->entityManager->flush();
+            $this->memcached->removeUserStats();
         }
 
         return $this->render('user_profile/send_invite.html.twig', array_merge($this->memcached->getUserStats(), [

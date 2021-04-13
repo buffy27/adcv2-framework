@@ -147,10 +147,10 @@ class RegistrationController extends AbstractController
 
         $user = new User();
         $countries = $this->entityManager->getRepository(Countries::class)->findAllNames();
-
+        dump($invites);
         $form = $this->createForm(RegistrationFormType::class, [
             'countries' => $countries,
-            'email' => $invites->getEmail()
+            'email' => $invites[0]->getEmail()
         ]);
 
         $form->handleRequest($request);
@@ -166,7 +166,7 @@ class RegistrationController extends AbstractController
                 ]);
             }
 
-            if(!empty($this->entityManager->getRepository(User::class)->getUserByEmail($data['email']))){
+            if(!empty($this->entityManager->getRepository(User::class)->getUserByEmail($data['email'])) || $data['email'] != $invites[0]->getEmail()) {
                 $form->get('email')->addError(new FormError("Invalid email address"));
                 return $this->render('security/register.html.twig', [
                     'registrationForm' => $form->createView(),

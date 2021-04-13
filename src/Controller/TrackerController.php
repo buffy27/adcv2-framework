@@ -41,7 +41,6 @@ class TrackerController extends AbstractController
      */
     public function torrents(Request $request): Response
     {
-        dump($request->getSchemeAndHttpHost());
         $torrents = $this->entityMangaer->getRepository(Torrents::class)->findAll();
         return $this->render('tracker/torrents.html.twig', [
             'torrents' => $torrents

@@ -1,0 +1,12 @@
+{% block title %}You have been invited to ADC{% endblock %}
+
+{% block body %}
+    <h1>Hello you have been invited to ADC by user {{ inviter }}</h1>
+    <p>
+        You can register your account on the this <a href="{{ invite_url }}">link</a>.
+    </p>
+
+    <p>
+        Cheers!
+    </p>
+{% endblock %}
