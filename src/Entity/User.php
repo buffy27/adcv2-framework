@@ -231,11 +231,10 @@ class User implements UserInterface
     /**
      * @see UserInterface
      */
-    public function getRoles(): array
+    public function getRoles()
     {
         $roles = $this->roles->toArray();
         $roles = $roles[0];
-
         return $roles->getRoles();
     }
 

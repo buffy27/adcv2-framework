@@ -201,6 +201,11 @@ class UserProfileController extends AbstractController
 
         $sendInvite->handleRequest($request);
         if($sendInvite->isSubmitted() && $sendInvite->isValid()){
+            if($sendInvite->get('email')->getData() == $this->getUser()->getEmail()){
+                return $this->render('errors/tracker_error.html.twig',[
+                    'error' => "You can't have multiple accounts"
+                ]);
+            }
             if(!empty($this->entityManager->getRepository(User::class)->getUserByEmail($sendInvite->get('email')->getData()))){
                 return $this->render('errors/tracker_error.html.twig',[
                     'error' => "User already exists!"

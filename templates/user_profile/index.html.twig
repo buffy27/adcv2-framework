@@ -51,7 +51,12 @@
                 <div class="row small-device">
                     <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Invited by</div>
                     <div class="col-12 col-sm-10">
-{#                        {{ trackerCache.userStats.invited_by is null ? "System" : "<a>  </a>" }}#}
+                        {% if trackerCache.userStats.invitedby is null %}
+                            System
+                        {% else %}
+                            <a href="{{ path('user.profile.id', {id:trackerCache.userStats.invitedby.id}) }}">{{ trackerCache.userStats.invitedby.username }}</a>
+                        {% endif %}
+
                     </div>
                 </div>
             </div>

@@ -44,6 +44,10 @@ class RegistrationController extends AbstractController
      */
     public function register(Request $request): Response
     {
+        if ($this->getUser()) {
+            return $this->redirectToRoute('index');
+        }
+
         $user = new User();
         $countries = $this->entityManager->getRepository(Countries::class)->findAllNames();
 
@@ -137,6 +141,18 @@ class RegistrationController extends AbstractController
      * @Route("/signup/{invite}", name="app_register.invite", requirements={"invite"="^[a-zA-Z0-9]{64,64}$"})
      */
     public function registerInvite($invite, Request $request){
+
+        if ($this->getUser()) {
+            return $this->redirectToRoute('index');
+        }
+
+        if($this->isGranted('ROLE_USER')){
+            return $this->render("errors/tracker_error.html.twig", [
+                'error' => "You are already logged in"
+            ]);
+        }
+
+
         /** @var Invites $invites */
         $invites = $this->entityManager->getRepository(Invites::class)->findByInvite($invite);
         if(!$invites){
@@ -144,7 +160,9 @@ class RegistrationController extends AbstractController
                 'error' => "Page not found"
             ]);
         }
-
+        if($invites[0]->getStatus() == "confirmed"){
+            return $this->redirectToRoute('app_login');
+        }
         $user = new User();
         $countries = $this->entityManager->getRepository(Countries::class)->findAllNames();
         dump($invites);
@@ -212,7 +230,8 @@ class RegistrationController extends AbstractController
             $user->setBanned(false);
             $user->setAdded();
             $user->setRole($userClass);
-
+            $invites[0]->setInvitee($user);
+            $invites[0]->setStatus("confirmed");
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($user);
             $entityManager->flush();

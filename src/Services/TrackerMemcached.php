@@ -32,7 +32,8 @@ class TrackerMemcached
         try {
             return $this->trackerCache->get(md5($this->security->getUser()->getUsername()), function (ItemInterface $item) {
                 $user = $this->security->getUser();
-                $invited_by = $this->entityManager->getRepository(Invites::class)->findOneBy(['inviter' => $this->security->getUser()]);
+                $invited_by = $this->entityManager->getRepository(Invites::class)->findOneBy(['invitee' => $this->security->getUser()]);
+
                 $stats = [
                     'downloaded' => $user->getDownloaded(),
                     'uploaded' => $user->getUploaded(),
@@ -53,6 +54,12 @@ class TrackerMemcached
                         'name' => $user->getIdTitle()->getTitle(),
                         'titlepic' => $user->getIdTitle()->getTitlepic()
                     ];
+                }
+                if(!empty($invited_by)){
+                    $stats['invitedby']['username'] = $invited_by->getInviter()->getUserName();
+                    $stats['invitedby']['id'] = $invited_by->getInviter()->getId();
+                }else{
+                    $stats['invitedby'] = null;
                 }
                 $item->expiresAt(date_create('+30 minute'));
                 return $stats;

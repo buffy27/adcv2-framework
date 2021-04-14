@@ -41,6 +41,8 @@ class RequestListener
         }
 
         if($request->attributes->get('_route') == "app_register" && !$tracker_status->getGlobalSignup()) {
+            if($this->security->getUser())
+                return;
            $html = $this->container->get('twig')->render('security/closed_signup.html.twig', []);
            $event->setResponse(new Response($html));
         }
