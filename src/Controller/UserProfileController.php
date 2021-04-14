@@ -4,7 +4,9 @@ namespace App\Controller;
 
 use App\Entity\Countries;
 use App\Entity\Invites;
+use App\Entity\Peers;
 use App\Entity\User;
+use App\Form\ActiveSearchFormType;
 use App\Form\SendInviteFormType;
 use App\Form\TrackerSettingsFormType;
 use App\Services\TrackerMemcached;
@@ -15,6 +17,7 @@ use phpDocumentor\Reflection\Types\This;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -246,7 +249,13 @@ class UserProfileController extends AbstractController
      */
     public function active(): Response
     {
-        return $this->render('user_profile/active.html.twig', $this->memcached->getUserStats());
+        $peers = $this->entityManager->getRepository(Peers::class)->findPeersByUser($this->getUser());
+        $searchForm = $this->createForm(ActiveSearchFormType::class);
+        dump($searchForm->createView());
+        return $this->render('user_profile/active.html.twig', [
+            'peers' => $peers,
+            'searchForm' => $searchForm->createView()
+        ]);
     }
 
     /**
