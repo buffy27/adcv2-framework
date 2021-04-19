@@ -189,7 +189,9 @@ class TrackerController extends AbstractController
                 $torrent->setSeeders();
                 $torrent->setLeechers();
                 $torrent->setSize($torrent_file->getTorrentSize());
-                $torrent->setBonus('normal');
+                $torrent->setBonus();
+                $torrent->setSnatched(0);
+                $torrent->setDoubleTorrent(0);
                 $torrent->setSpecs([
                     "type" => $category->getName(),
                     "format" => $request->get('template_radio')

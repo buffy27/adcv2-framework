@@ -23,95 +23,119 @@ class Torrents
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, options={"default":""})
      */
     private $name;
 
     /**
-     * @ORM\Column(type="text")
+     * @ORM\Column(type="text", nullable=true)
      */
     private $description;
 
     /**
-     * @ORM\Column(type="bigint")
+     * @ORM\Column(type="bigint", options={"default":0})
      */
     private $size;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime", options={"default": "CURRENT_TIMESTAMP"})
      */
     private $added;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="integer", options={"default":0})
      */
     private $seeders;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="integer", options={"default":0})
      */
     private $leechers;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", options={"default":"normal"})
      */
     private $bonus;
 
     /**
-     * @ORM\Column (type="array", name="specs")
+     * @ORM\Column(type="json", nullable=true)
      */
     private $specs = [];
 
     /**
      * @ORM\ManyToOne(targetEntity=TorrentsCategory::class, inversedBy="torrents")
+     * @ORM\JoinColumn(nullable=true)
      */
     private $tCategory;
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="torrents")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=true)
      */
     private $owner;
 
     /**
-     * @ORM\Column(type="text")
+     * @ORM\Column(type="text", nullable=true)
      */
     private $contentInfo;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $infoHash;
 
     /**
      * @ORM\OneToMany(targetEntity=TorrentComments::class, mappedBy="torrents")
+     * @ORM\JoinColumn (nullable=true)
      */
     private $idComment;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $contentPoster;
 
     /**
-     * @ORM\Column(type="text", nullable=true)
+     * @ORM\Column(type="text", nullable=true, nullable=true)
      */
     private $mediaInfo;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $contentUrl;
 
     /**
      * @ORM\OneToMany(targetEntity=SyncAnnounce::class, mappedBy="torrent")
+     * @ORM\JoinColumn(nullable=true)
      */
     private $syncAnnounces;
 
     /**
      * @ORM\OneToMany(targetEntity=Peers::class, mappedBy="torrent")
+     * @ORM\JoinColumn(nullable=true)
      */
     private $peers;
+
+    /**
+     * @ORM\Column(type="integer", options={"default":0})
+     */
+    private $Snatched;
+
+    /** 
+     * @ORM\Column(type="boolean", options={"default":0})
+     */
+    private $DoubleTorrent;
+
+    /**
+     * @ORM\Column(type="bigint", options={"default":0})
+     */
+    private $Balance;
+
+    /**
+     * @ORM\Column(type="datetime", options={"default":"CURRENT_TIMESTAMP"})
+     */
+    private $LastAction;
 
     public function __construct()
     {
@@ -230,9 +254,12 @@ class Torrents
         return $this->bonus;
     }
 
-    public function setBonus(string $bonus): self
+    public function setBonus(string $bonus = null): self
     {
-        $this->bonus = $bonus;
+        if(!$bonus)
+            $this->bonus = "normal";
+        else
+            $this->bonus = $bonus;
 
         return $this;
     }
@@ -410,6 +437,54 @@ class Torrents
                 $peer->setTorrent(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getSnatched(): ?int
+    {
+        return $this->Snatched;
+    }
+
+    public function setSnatched(int $Snatched): self
+    {
+        $this->Snatched = $Snatched;
+
+        return $this;
+    }
+
+    public function getDoubleTorrent(): ?bool
+    {
+        return $this->DoubleTorrent;
+    }
+
+    public function setDoubleTorrent(bool $DoubleTorrent): self
+    {
+        $this->DoubleTorrent = $DoubleTorrent;
+
+        return $this;
+    }
+
+    public function getBalance(): ?string
+    {
+        return $this->Balance;
+    }
+
+    public function setBalance(string $Balance): self
+    {
+        $this->Balance = $Balance;
+
+        return $this;
+    }
+
+    public function getLastAction(): ?\DateTimeInterface
+    {
+        return $this->LastAction;
+    }
+
+    public function setLastAction(\DateTimeInterface $LastAction): self
+    {
+        $this->LastAction = $LastAction;
 
         return $this;
     }

@@ -29,6 +29,7 @@ class TrackerMemcached
     }
     public function getUserStats() : array
     {
+        $this->removeUserStats();
         try {
             return $this->trackerCache->get(md5($this->security->getUser()->getUsername()), function (ItemInterface $item) {
                 $user = $this->security->getUser();
@@ -90,12 +91,11 @@ class TrackerMemcached
     public function cleanPeers(){
         //TODO check this to a no-return type
         return $this->trackerCache->get('peersCleanUp', function (ItemInterface $item) {
-            $item->expiresAt(date_create('+12 hours'));
+            $item->expiresAt(date_create('+6 hours'));
             /** @var Peers $peers */
             $peers = $this->entityManager->getRepository(Peers::class)->findAll();
             foreach ($peers as $peer) {
                 $interval  = date_diff($peer->getLastAction(), new \DateTime('now'));
-                dump($interval);
                 if ($interval->h > 0) {
                     $this->entityManager->remove($peer);
                 }

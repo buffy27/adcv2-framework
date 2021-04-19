@@ -45,6 +45,7 @@ class AnnounceController extends AbstractController
          * When a torrent is removed it won't remove the peers from the sync_announce table
          * this is because the peers needs to be informed that torrent was removed in the client.
          */
+        return new Response($this->error(103), 200, $this->headers);
         $agent = $request->server->get('HTTP_USER_AGENT');
         $allHeaders = $request->server->getHeaders();
         if (preg_match("/^Mozilla/", $agent) || preg_match("/^Opera/", $agent) || preg_match("/^Links/", $agent) || preg_match("/^Lynx/", $agent) )

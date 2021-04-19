@@ -26,105 +26,107 @@ class User implements UserInterface
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=180, unique=true)
+     * @ORM\Column(type="string", length=180, unique=true, nullable=true)
      */
     private $username;
 
     /**
      * @var string The hashed password
-     * @ORM\Column(type="string", name="passhash")
+     * @ORM\Column(type="string", name="passhash", nullable=true)
      */
     private $password;
 
     /**
      * @var string The secret for password
-     * @ORM\Column(type="string", name="secret")
+     * @ORM\Column(type="string", name="secret", nullable=true)
      */
     private $secret;
 
     /**
      * @ORM\OneToMany(targetEntity=Torrents::class, mappedBy="owner")
+     *
      */
     private $torrents;
 
     /**
-     * @ORM\Column(type="array", name="tracker_settings")
+     * @ORM\Column(type="array", name="tracker_settings", nullable=true)
      */
     private array $trackerSettings = [];
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $email;
 
     /**
-     * @ORM\Column(type="boolean")
+     * @ORM\Column(type="boolean", nullable=true)
      */
     private $isVerified = false;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $gender;
 
     /**
      * @ORM\ManyToOne(targetEntity=Countries::class, inversedBy="users")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=true)
      */
     private $idCountry;
 
     /**
-     * @ORM\Column(type="date")
+     * @ORM\Column(type="date", nullable=true)
      */
     private $birthday;
 
     /**
-     * @ORM\Column(type="array")
+     * @ORM\Column(type="array", nullable=true)
      */
     private $forumSettings = [];
 
     /**
-     * @ORM\Column(type="array")
+     * @ORM\Column(type="array", nullable=true)
      */
     private $personalSettings = [];
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $avatar;
 
     /**
-     * @ORM\Column(type="boolean")
+     * @ORM\Column(type="boolean", nullable=true)
      */
     private $banned;
 
     /**
-     * @ORM\Column(type="bigint")
+     * @ORM\Column(type="bigint", nullable=true)
      */
     private $downloaded;
 
     /**
-     * @ORM\Column(type="bigint")
+     * @ORM\Column(type="bigint", nullable=true)
      */
     private $uploaded;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $ip;
 
     /**
-     * @ORM\Column(type="string", length=64)
+     * @ORM\Column(type="string", length=64, nullable=true)
      */
     private $passkey;
 
     /**
      * @ORM\ManyToOne(targetEntity=Language::class, inversedBy="users")
+     * @ORM\Column (nullable=true)
      */
     private $idLanguage;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime", nullable=true)
      */
     private $added;
 
