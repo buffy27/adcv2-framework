@@ -2,505 +2,375 @@
 
 namespace App\Entity;
 
+use App\Repository\XbtFilesUsersRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * XbtFilesUsers
- *
- * @ORM\Table(name="xbt_files_users", indexes={@ORM\Index(name="fid_idx", columns={"fid"}), @ORM\Index(name="mtime_idx", columns={"mtime"}), @ORM\Index(name="remaining_idx", columns={"remaining"}), @ORM\Index(name="uid_active", columns={"uid", "active"})})
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass=XbtFilesUsersRepository::class)
  */
 class XbtFilesUsers
 {
     /**
-     * @var int
-     *
-     * @ORM\Column(name="uid", type="integer", nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="NONE")
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="xbtFilesUsers")
+     * @ORM\JoinColumn(name="uid")
      */
     private $uid;
 
     /**
-     * @var binary
-     *
-     * @ORM\Column(name="peer_id", type="binary", nullable=false, options={"default"="0x"})
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="NONE")
-     */
-    private $peerId = '0x';
-
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="fid", type="integer", nullable=false)
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="NONE")
+     * @ORM\ManyToOne(targetEntity=Torrents::class, inversedBy="xbtFilesUsers")
+     * @ORM\JoinColumn(name="fid")
      */
     private $fid;
 
     /**
-     * @var bool
-     *
-     * @ORM\Column(name="active", type="boolean", nullable=false)
+     * @ORM\Column(type="boolean", options={"default":0})
      */
     private $active;
 
     /**
-     * @var int
-     *
-     * @ORM\Column(name="announced", type="integer", nullable=false)
+     * @ORM\Column(type="integer", options={"default":0})
      */
     private $announced;
 
     /**
-     * @var bool
-     *
-     * @ORM\Column(name="completed", type="boolean", nullable=false, options={"default":0})
+     * @ORM\Column(type="boolean", nullable=true)
      */
-    private $completed = '0';
+    private $completed;
 
     /**
-     * @var int
-     *
-     * @ORM\Column(name="downloaded", type="bigint", nullable=false, options={"default":0})
+     * @ORM\Column(type="bigint", options={"default":0})
      */
     private $downloaded;
 
     /**
-     * @var int
-     *
-     * @ORM\Column(name="remaining", type="bigint", nullable=false, options={"default":0})
+     * @ORM\Column(type="bigint", options={"default":0})
      */
     private $remaining;
 
     /**
-     * @var int
-     *
-     * @ORM\Column(name="uploaded", type="bigint", nullable=false, options={"default":0})
+     * @ORM\Column(type="bigint", options={"default":0})
      */
     private $uploaded;
 
     /**
-     * @var int
-     *
-     * @ORM\Column(name="upspeed", type="bigint", nullable=false, options={"default":0})
+     * @ORM\Column(type="bigint", options={"default":0})
      */
     private $upspeed;
 
     /**
-     * @var int
-     *
-     * @ORM\Column(name="downspeed", type="bigint", nullable=false, options={"default":0})
+     * @ORM\Column(type="bigint", options={"default":0})
      */
     private $downspeed;
 
     /**
-     * @var int
-     *
-     * @ORM\Column(name="corrupt", type="bigint", nullable=false, options={"default":0})
+     * @ORM\Column(type="bigint", options={"default":0})
      */
-    private $corrupt = '0';
+    private $corrupt;
 
     /**
-     * @var int
-     *
-     * @ORM\Column(name="timespent", type="bigint", nullable=false, options={"default":0})
+     * @ORM\Column(type="bigint", options={"default":0})
      */
     private $timespent;
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="useragent", type="string", length=51, nullable=false, options={"default":""})
+     * @ORM\Column(type="string", length=255, options={"default":""})
      */
     private $useragent;
 
     /**
-     * @var bool
-     *
-     * @ORM\Column(name="connectable", type="boolean", nullable=false, options={"default"="0"})
+     * @ORM\Column(type="boolean", options={"default":0})
      */
-    private $connectable = true;
+    private $connectable;
 
     /**
-     * @var int|null
-     *
-     * @ORM\Column(name="ctime", type="integer", nullable=true)
+     * @ORM\Column(type="binary", nullable=true)
+     */
+    private $peer_id;
+
+    /**
+     * @ORM\Column(type="integer", options={"default":0})
      */
     private $ctime;
 
     /**
-     * @var int
-     *
-     * @ORM\Column(name="mtime", type="integer", nullable=false)
+     * @ORM\Column(type="integer", options={"default":0})
      */
     private $mtime;
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="ip", type="string", length=15, nullable=false, options={"default":""})
+     * @ORM\Column(type="string", length=15, nullable=true)
      */
-    private $ip = '';
+    private $ip;
 
     /**
-     * @var binary|null
-     *
-     * @ORM\Column(name="ipv4", type="binary", nullable=true)
+     * @ORM\Column(type="binary", nullable=true)
      */
     private $ipv4;
 
     /**
-     * @var binary|null
-     *
-     * @ORM\Column(name="ipv6", type="binary", nullable=true)
+     * @ORM\Column(type="binary", nullable=true)
      */
     private $ipv6;
 
     /**
-     * @var int
-     *
-     * @ORM\Column(name="port", type="integer", nullable=false, options={"default":0})
+     * @ORM\Column(type="integer", options={"default":0})
      */
-    private $port = '0';
+    private $port;
 
-    /**
-     * @return int
-     */
-    public function getUid(): int
+
+    public function getUid(): ?User
     {
         return $this->uid;
     }
 
-    /**
-     * @param int $uid
-     */
-    public function setUid(int $uid): void
+    public function setUid(?User $uid): self
     {
         $this->uid = $uid;
+
+        return $this;
     }
 
-    /**
-     * @return binary
-     */
-    public function getPeerId()
-    {
-        return $this->peerId;
-    }
-
-    /**
-     * @param binary $peerId
-     */
-    public function setPeerId($peerId): void
-    {
-        $this->peerId = $peerId;
-    }
-
-    /**
-     * @return int
-     */
-    public function getFid(): int
+    public function getFid(): ?Torrents
     {
         return $this->fid;
     }
 
-    /**
-     * @param int $fid
-     */
-    public function setFid(int $fid): void
+    public function setFid(?Torrents $fid): self
     {
         $this->fid = $fid;
+
+        return $this;
     }
 
-    /**
-     * @return bool
-     */
-    public function isActive(): bool
+    public function getActive(): ?bool
     {
         return $this->active;
     }
 
-    /**
-     * @param bool $active
-     */
-    public function setActive(bool $active): void
+    public function setActive(bool $active): self
     {
         $this->active = $active;
+
+        return $this;
     }
 
-    /**
-     * @return int
-     */
-    public function getAnnounced(): int
+    public function getAnnounced(): ?int
     {
         return $this->announced;
     }
 
-    /**
-     * @param int $announced
-     */
-    public function setAnnounced(int $announced): void
+    public function setAnnounced(int $announced): self
     {
         $this->announced = $announced;
+
+        return $this;
     }
 
-    /**
-     * @return bool
-     */
-    public function isCompleted()
+    public function getCompleted(): ?bool
     {
         return $this->completed;
     }
 
-    /**
-     * @param bool $completed
-     */
-    public function setCompleted($completed): void
+    public function setCompleted(bool $completed): self
     {
         $this->completed = $completed;
+
+        return $this;
     }
 
-    /**
-     * @return int
-     */
-    public function getDownloaded(): int
+    public function getDownloaded(): ?string
     {
         return $this->downloaded;
     }
 
-    /**
-     * @param int $downloaded
-     */
-    public function setDownloaded(int $downloaded): void
+    public function setDownloaded(string $downloaded): self
     {
         $this->downloaded = $downloaded;
+
+        return $this;
     }
 
-    /**
-     * @return int
-     */
-    public function getRemaining(): int
+    public function getRemaining(): ?string
     {
         return $this->remaining;
     }
 
-    /**
-     * @param int $remaining
-     */
-    public function setRemaining(int $remaining): void
+    public function setRemaining(string $remaining): self
     {
         $this->remaining = $remaining;
+
+        return $this;
     }
 
-    /**
-     * @return int
-     */
-    public function getUploaded(): int
+    public function getUploaded(): ?string
     {
         return $this->uploaded;
     }
 
-    /**
-     * @param int $uploaded
-     */
-    public function setUploaded(int $uploaded): void
+    public function setUploaded(string $uploaded): self
     {
         $this->uploaded = $uploaded;
+
+        return $this;
     }
 
-    /**
-     * @return int
-     */
-    public function getUpspeed(): int
+    public function getUpspeed(): ?string
     {
         return $this->upspeed;
     }
 
-    /**
-     * @param int $upspeed
-     */
-    public function setUpspeed(int $upspeed): void
+    public function setUpspeed(string $upspeed): self
     {
         $this->upspeed = $upspeed;
+
+        return $this;
     }
 
-    /**
-     * @return int
-     */
-    public function getDownspeed(): int
+    public function getDownspeed(): ?string
     {
         return $this->downspeed;
     }
 
-    /**
-     * @param int $downspeed
-     */
-    public function setDownspeed(int $downspeed): void
+    public function setDownspeed(string $downspeed): self
     {
         $this->downspeed = $downspeed;
+
+        return $this;
     }
 
-    /**
-     * @return int
-     */
-    public function getCorrupt()
+    public function getCorrupt(): ?string
     {
         return $this->corrupt;
     }
 
-    /**
-     * @param int $corrupt
-     */
-    public function setCorrupt($corrupt): void
+    public function setCorrupt(string $corrupt): self
     {
         $this->corrupt = $corrupt;
+
+        return $this;
     }
 
-    /**
-     * @return int
-     */
-    public function getTimespent(): int
+    public function getTimespent(): ?string
     {
         return $this->timespent;
     }
 
-    /**
-     * @param int $timespent
-     */
-    public function setTimespent(int $timespent): void
+    public function setTimespent(string $timespent): self
     {
         $this->timespent = $timespent;
+
+        return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getUseragent(): string
+    public function getUseragent(): ?string
     {
         return $this->useragent;
     }
 
-    /**
-     * @param string $useragent
-     */
-    public function setUseragent(string $useragent): void
+    public function setUseragent(string $useragent): self
     {
         $this->useragent = $useragent;
+
+        return $this;
     }
 
-    /**
-     * @return bool
-     */
-    public function isConnectable(): bool
+    public function getConnectable(): ?bool
     {
         return $this->connectable;
     }
 
-    /**
-     * @param bool $connectable
-     */
-    public function setConnectable(bool $connectable): void
+    public function setConnectable(bool $connectable): self
     {
         $this->connectable = $connectable;
+
+        return $this;
     }
 
-    /**
-     * @return int|null
-     */
+    public function getPeerId()
+    {
+        return $this->peer_id;
+    }
+
+    public function setPeerId($peer_id): self
+    {
+        $this->peer_id = $peer_id;
+
+        return $this;
+    }
+
     public function getCtime(): ?int
     {
         return $this->ctime;
     }
 
-    /**
-     * @param int|null $ctime
-     */
-    public function setCtime(?int $ctime): void
+    public function setCtime(int $ctime): self
     {
         $this->ctime = $ctime;
+
+        return $this;
     }
 
-    /**
-     * @return int
-     */
-    public function getMtime(): int
+    public function getMtime(): ?int
     {
         return $this->mtime;
     }
 
-    /**
-     * @param int $mtime
-     */
-    public function setMtime(int $mtime): void
+    public function setMtime(int $mtime): self
     {
         $this->mtime = $mtime;
+
+        return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getIp(): string
+    public function getIp(): ?string
     {
         return $this->ip;
     }
 
-    /**
-     * @param string $ip
-     */
-    public function setIp(string $ip): void
+    public function setIp(string $ip): self
     {
         $this->ip = $ip;
+
+        return $this;
     }
 
-    /**
-     * @return binary|null
-     */
-    public function getIpv4(): ?binary
+    public function getIpv4()
     {
         return $this->ipv4;
     }
 
-    /**
-     * @param binary|null $ipv4
-     */
-    public function setIpv4(?binary $ipv4): void
+    public function setIpv4($ipv4): self
     {
         $this->ipv4 = $ipv4;
+
+        return $this;
     }
 
-    /**
-     * @return binary|null
-     */
-    public function getIpv6(): ?binary
+    public function getIpv6()
     {
         return $this->ipv6;
     }
 
-    /**
-     * @param binary|null $ipv6
-     */
-    public function setIpv6(?binary $ipv6): void
+    public function setIpv6($ipv6): self
     {
         $this->ipv6 = $ipv6;
+
+        return $this;
     }
 
-    /**
-     * @return int
-     */
-    public function getPort()
+    public function getPort(): ?int
     {
         return $this->port;
     }
 
-    /**
-     * @param int $port
-     */
-    public function setPort($port): void
+    public function setPort(int $port): self
     {
         $this->port = $port;
+
+        return $this;
     }
-
-
-
 }

@@ -4,6 +4,7 @@
 namespace App\Services;
 
 
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 
 class Functions
@@ -31,8 +32,10 @@ class Functions
             return $diff . " " . $strTime[$i] . "(s) ago ";
         }
     }
-    public function timeago_short(\DateTime $date) {
-
+    public function timeago_short($date) {
+        if(is_numeric($date)){
+            $date = DateTime::createFromFormat( 'U', $date);
+        }
         $timestamp = strtotime($date->format('Y-m-d H:i:s'));
 
         $strTime = array("s", "m", "h", "d", "M", "Y");

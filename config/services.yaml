@@ -4,7 +4,9 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
-
+    app.announce_url: http://announce.rainandcoffee.ovh/
+    app.announce_pw: eab60017a9901581d9428aaf13323eba6daf0ae2b7dab39368cf3aa100319cc1706401a60962f6cca34bb98504ba179ca54438aafdaf295800d413d989391f15
+    app.announce_debug: false
 services:
     # default configuration for services in *this* file
     _defaults:
@@ -37,4 +39,5 @@ services:
 
     App\Services\TrackerMemcached:
         class: App\Services\TrackerMemcached
+
 

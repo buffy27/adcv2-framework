@@ -121,7 +121,7 @@ class User implements UserInterface
 
     /**
      * @ORM\ManyToOne(targetEntity=Language::class, inversedBy="users")
-     * @ORM\Column (nullable=true)
+     * @ORM\JoinColumn (nullable=true)
      */
     private $idLanguage;
 
@@ -181,6 +181,41 @@ class User implements UserInterface
      */
     private $userInvites;
 
+    /**
+     * @ORM\OneToMany(targetEntity=XbtFilesUsers::class, mappedBy="uid")
+     */
+    private $fid;
+
+    /**
+     * @ORM\OneToMany(targetEntity=XbtFilesUsers::class, mappedBy="uid")
+     */
+    private $xbtFilesUsers;
+
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $visible;
+
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $can_leech;
+
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $track_ipv6;
+
+    /**
+     * @ORM\Column(type="bigint", options={"default":0})
+     */
+    private $UploadedDaily;
+
+    /**
+     * @ORM\Column(type="bigint", options={"default":0})
+     */
+    private $DownloadedDaily;
+
     public function __construct()
     {
         $this->torrents = new ArrayCollection();
@@ -190,6 +225,8 @@ class User implements UserInterface
         $this->syncAnnounces = new ArrayCollection();
         $this->peers = new ArrayCollection();
         $this->invites = new ArrayCollection();
+        $this->fid = new ArrayCollection();
+        $this->xbtFilesUsers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -699,5 +736,125 @@ class User implements UserInterface
     public function getUserInvites()
     {
         return $this->userInvites;
+    }
+
+    /**
+     * @return Collection|XbtFilesUsers[]
+     */
+    public function getFid(): Collection
+    {
+        return $this->fid;
+    }
+
+    public function addFid(XbtFilesUsers $fid): self
+    {
+        if (!$this->fid->contains($fid)) {
+            $this->fid[] = $fid;
+            $fid->setUid($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFid(XbtFilesUsers $fid): self
+    {
+        if ($this->fid->removeElement($fid)) {
+            // set the owning side to null (unless already changed)
+            if ($fid->getUid() === $this) {
+                $fid->setUid(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|XbtFilesUsers[]
+     */
+    public function getXbtFilesUsers(): Collection
+    {
+        return $this->xbtFilesUsers;
+    }
+
+    public function addXbtFilesUser(XbtFilesUsers $xbtFilesUser): self
+    {
+        if (!$this->xbtFilesUsers->contains($xbtFilesUser)) {
+            $this->xbtFilesUsers[] = $xbtFilesUser;
+            $xbtFilesUser->setUid($this);
+        }
+
+        return $this;
+    }
+
+    public function removeXbtFilesUser(XbtFilesUsers $xbtFilesUser): self
+    {
+        if ($this->xbtFilesUsers->removeElement($xbtFilesUser)) {
+            // set the owning side to null (unless already changed)
+            if ($xbtFilesUser->getUid() === $this) {
+                $xbtFilesUser->setUid(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getVisible(): ?bool
+    {
+        return $this->visible;
+    }
+
+    public function setVisible(?bool $visible): self
+    {
+        $this->visible = $visible;
+
+        return $this;
+    }
+
+    public function getCanLeech(): ?bool
+    {
+        return $this->can_leech;
+    }
+
+    public function setCanLeech(?bool $can_leech): self
+    {
+        $this->can_leech = $can_leech;
+
+        return $this;
+    }
+
+    public function getTrackIpv6(): ?bool
+    {
+        return $this->track_ipv6;
+    }
+
+    public function setTrackIpv6(?bool $track_ipv6): self
+    {
+        $this->track_ipv6 = $track_ipv6;
+
+        return $this;
+    }
+
+    public function getUploadedDaily(): ?string
+    {
+        return $this->UploadedDaily;
+    }
+
+    public function setUploadedDaily(string $UploadedDaily): self
+    {
+        $this->UploadedDaily = $UploadedDaily;
+
+        return $this;
+    }
+
+    public function getDownloadedDaily(): ?string
+    {
+        return $this->DownloadedDaily;
+    }
+
+    public function setDownloadedDaily(string $DownloadedDaily): self
+    {
+        $this->DownloadedDaily = $DownloadedDaily;
+
+        return $this;
     }
 }

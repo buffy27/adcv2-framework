@@ -11,10 +11,16 @@
                 <div class="fancy-container bx-d-sm-0">
                     <!-- annouce -->
                     <div class="fancy-row">
+                        <div class="row small-device center">
+                            <b class="black">Check our upload <a href="{{ path('rules') }}#upload_rules">rules</a> and make of no dupe before Uploading</b>
+                        </div>
+                    </div>
+                    <!-- annouce -->
+                    <div class="fancy-row">
                         <div class="row small-device">
                             <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Announce URL</div>
                             <div class="col-12 col-sm-10">
-                                <b class="black">{{ announce }}/announce</b>
+                                <b class="black">Leave the announce empty</b>
                             </div>
                         </div>
                     </div>
@@ -66,7 +72,7 @@
                             <div class="col-12 col-sm-10">
                                 {{ form_widget(uploadForm.torrent_name) }}
                                 <p class="mt-1 mb-0 smaller red"></p>
-                                <p class="mt-1 mb-0 smaller">Name: Main, English, Native; box set part 1/2/3 of 3; S1 of 2 or S1 S2; orig/release year(s);post - PAL/SECAM/R2J/3D/MGVC - 1080i; UHD/DVD/BD/BDISO/DVDISO/CD 5/9 25/50/100; add custom to(if) audio/subs; en jp audio, en dub only; no/none en sub, no sub, jp subs only; 2 char. country if not Jp/US; other type</p>
+                                {#<p class="mt-1 mb-0 smaller">Name: Main, English, Native; box set part 1/2/3 of 3; S1 of 2 or S1 S2; orig/release year(s);post - PAL/SECAM/R2J/3D/MGVC - 1080i; UHD/DVD/BD/BDISO/DVDISO/CD 5/9 25/50/100; add custom to(if) audio/subs; en jp audio, en dub only; no/none en sub, no sub, jp subs only; 2 char. country if not Jp/US; other type</p>#}
                             </div>
                         </div>
                     </div>

@@ -7,8 +7,10 @@ use App\Entity\SyncAnnounce;
 use App\Entity\TorrentComments;
 use App\Entity\Torrents;
 use App\Entity\TorrentsCategory;
+use App\Entity\XbtFilesUsers;
 use App\Form\UploadFormType;
 use App\Form\UploadPreviewFormType;
+use App\Libraries\AnnounceFunctions;
 use App\Libraries\TorrentFile;
 use Doctrine\ORM\EntityManagerInterface;
 use phpDocumentor\Reflection\Types\This;
@@ -21,6 +23,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Validator\Constraints\Json;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 use function Twig\Extra\Markdown\twig_html_to_markdown;
@@ -30,10 +33,12 @@ use function Webmozart\Assert\Tests\StaticAnalysis\nullOrIsEmpty;
 class TrackerController extends AbstractController
 {
     private $entityMangaer;
+    private $announce;
 
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(EntityManagerInterface $entityManager, AnnounceFunctions $announce)
     {
         $this->entityMangaer = $entityManager;
+        $this->announce = $announce;
     }
 
     /**
@@ -52,11 +57,13 @@ class TrackerController extends AbstractController
      */
     public function torrent($id, Request $request): Response
     {
+
         $torrent = $this->entityMangaer->getRepository(Torrents::class)->find($id);
         if(!$torrent)
             return $this->render("errors/tracker_error.html.twig", ['error' => "Torrent with id " . $id . " was not found in database"]);
         $comments = $this->entityMangaer->getRepository(TorrentComments::class)->findByTorrentId($torrent);
-        $peers = $this->entityMangaer->getRepository(Peers::class)->findByTorrent($torrent);
+        $peers = $this->entityMangaer->getRepository(XbtFilesUsers::class)->findByTorrent($torrent->getId());
+            //TODO See radiance get user stats internal
         $stats = $this->entityMangaer->getRepository(Peers::class)->getPeersCountByUser($this->getUser());
 
         if($request->getMethod() == "POST"){
@@ -89,6 +96,7 @@ class TrackerController extends AbstractController
         $torrent = $this->entityMangaer->getRepository(Torrents::class)->find($id);
         if(!$torrent)
             return $this->render("errors/tracker_error.html.twig", ['error' => "Torrent with id " . $id . " was not found in database"]);
+        $this->announce->deleteTorrent($torrent->getInfoHash());
         unlink($this->getParameter("kernel.project_dir") . "/data/torrents/" . $torrent->getInfoHash(). ".torrent");
         $this->entityMangaer->remove($torrent);
         $this->entityMangaer->flush();
@@ -116,9 +124,16 @@ class TrackerController extends AbstractController
         }else{
             $data_passkey = $sync_announce[0]->getDataPasskey();
         }
+        $error = isset($this->announce->addUser($data_passkey, $this->getUser()->getId())['error']) ? $this->announce->addUser($data_passkey, $this->getUser()->getId())['error'] : null;
+
+        if(isset($error)){
+            return $this->render('errors/tracker_error.html.twig', [
+                'error' => $error
+            ]);
+        }
         $path = $this->getParameter("kernel.project_dir") . "/data/torrents/" . $torrent->getInfoHash(). ".torrent";
         $torrentFile = Bencode::load($path);
-        $torrentFile['announce'] = $request->getSchemeAndHttpHost() . "/announce/" . $data_passkey;
+        $torrentFile['announce'] = $this->getParameter('app.announce_url') . $data_passkey . "/announce";
 
         $headers = [
             'Content-Type' => 'application/x-bittorrent; charset=UTF-8',
@@ -128,6 +143,7 @@ class TrackerController extends AbstractController
             'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
         ];
         $file = Bencode::encode($torrentFile);
+
         return new Response($file,200, $headers);
     }
 
@@ -175,9 +191,7 @@ class TrackerController extends AbstractController
             $torrent_file = new TorrentFile($form->get('torrent_file')->getData());
             $formData = $form->getData();
             $checkFile = $this->getParameter('kernel.project_dir') . "/data/torrents" . $torrent_file->getTorrentFiles()['info_hash'] . ".torrent";
-            if($torrent_file->getTorrentFile()['announce'] != $request->getSchemeAndHttpHost() . "/announce")
-                $form->get('torrent_file')->addError(new FormError("Invalid announce"));
-            else if(file_exists($checkFile)){
+            if(file_exists($checkFile)){
                 $form->get('torrent_file')->addError(new FormError("Torrent already exists in database"));
             }else{
                 $category = $this->entityMangaer->getRepository(TorrentsCategory::class)->find($formData['tCategory']);
@@ -211,6 +225,15 @@ class TrackerController extends AbstractController
                 $entityManager->persist($torrent);
                 $entityManager->flush();
                 $torrentFile->makeTorrentFile($this->getParameter('kernel.project_dir'));
+
+                $error = isset($this->announce->addTorrent($torrent->getId(), $torrent->getInfoHash())['error']) ? $this->announce->addUser($torrent->getId(), $torrent->getInfoHash())['error'] : null;
+
+                if(isset($error)){
+                    return $this->render('errors/tracker_error.html.twig', [
+                        'error' => $error
+                    ]);
+                }
+
                 return new RedirectResponse($this->generateUrl('torrent', ['id' => $torrent->getId()]));
             }
         }
