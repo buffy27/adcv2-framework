@@ -56,6 +56,31 @@ class AnnounceFunctions extends AbstractController
         }
         return false;
     }
+    public function getStats($Type, $Params = false) {
+        $Get = $this->getParameter('app.announce_pw') . '/report?';
+        if ($Type === 0) { //STATS_MAIN
+            $Get .= 'get=stats';
+        } elseif ($Type === 1 && !empty($Params['key'])) { //STATS_USER
+            $Get .= "get=user&key=$Params[key]";
+        } elseif ($Type === 2) { //STATS_DB
+            $Get .= 'get=db';
+        } elseif ($Type === 3) { //STATS_DOMAIN
+            $Get .= 'get=domain';
+        } else {
+            return false;
+        }
+        $Response = $this->send($Get);
+        if ($Response === false) {
+            return false;
+        }
+        $Stats = (array)json_decode($Response['response']->getContent(), true);
+        /* $Stats = array();
+        foreach (explode("\n", $Response) as $Stat) {
+            list($Val, $Key) = explode(" ", $Stat, 2);
+            $Stats[$Key] = $Val;
+        } */
+        return $Stats;
+    }
     private function send($Get) {
         $StartTime = microtime(true);
         try {

@@ -85,19 +85,25 @@
                     </tr>
                     <tr>
                         <td class="descriptor">Total Peers</td>
-                        <td class="figure">{{ trackerCache.trackerStatus.peers }}</td>
+                        <td class="figure">{{ trackerCache.trackerStatus.peers['seeders tracked'] + trackerCache.trackerStatus.peers['leechers tracked'] }}</td>
                     </tr>
                     <tr>
                         <td class="descriptor">Seeders</td>
-                        <td class="figure"></td>
+                        <td class="figure">{{ trackerCache.trackerStatus.peers['seeders tracked'] }}</td>
                     </tr>
                     <tr>
                         <td class="descriptor">Leechers</td>
-                        <td class="figure"></td>
+                        <td class="figure">{{ trackerCache.trackerStatus.peers['leechers tracked'] }}</td>
                     </tr>
                     <tr>
                         <td class="descriptor">Ratio S/L</td>
-                        <td class="figure"></td>
+                        <td class="figure">
+                            {% if trackerCache.trackerStatus.peers['leechers tracked'] != 0  %}
+                                {{ trackerCache.trackerStatus.peers['seeders tracked']/trackerCache.trackerStatus.peers['leechers tracked'] }}
+                            {% else %}
+                                {{ "---" }}
+                            {% endif %}
+                        </td>
                     </tr>
                     </tbody>
                 </table>

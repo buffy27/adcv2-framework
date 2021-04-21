@@ -21,6 +21,13 @@ class XbtFilesUsersRepository extends ServiceEntityRepository
     public function findByTorrent($torrent){
         return $this->createQueryBuilder('p')->where("p.fid = :torrent")->setParameter("torrent", $torrent)->orderBy('p.completed', 'ASC')->getQuery()->getResult();
     }
+    public function getPeersCountByUser($user)
+    {
+        return [
+            'seeders' => count($this->createQueryBuilder('p')->where("p.active = 1")->andWhere("p.remaining = 0")->andWhere("p.uid = :user")->setParameter('user', $user)->getQuery()->getResult()),
+            'leechers' => count($this->createQueryBuilder('p')->where("p.active = 1")->andWhere("p.remaining > 0")->andWhere("p.uid = :user")->setParameter('user', $user)->getQuery()->getResult())
+        ];
+    }
     // /**
     //  * @return XbtFilesUsers[] Returns an array of XbtFilesUsers objects
     //  */

@@ -184,11 +184,6 @@ class User implements UserInterface
     /**
      * @ORM\OneToMany(targetEntity=XbtFilesUsers::class, mappedBy="uid")
      */
-    private $fid;
-
-    /**
-     * @ORM\OneToMany(targetEntity=XbtFilesUsers::class, mappedBy="uid")
-     */
     private $xbtFilesUsers;
 
     /**
@@ -216,6 +211,11 @@ class User implements UserInterface
      */
     private $DownloadedDaily;
 
+    /**
+     * @ORM\OneToMany(targetEntity=XbtPeersHistory::class, mappedBy="uid")
+     */
+    private $xbtPeersHistories;
+
     public function __construct()
     {
         $this->torrents = new ArrayCollection();
@@ -225,8 +225,8 @@ class User implements UserInterface
         $this->syncAnnounces = new ArrayCollection();
         $this->peers = new ArrayCollection();
         $this->invites = new ArrayCollection();
-        $this->fid = new ArrayCollection();
         $this->xbtFilesUsers = new ArrayCollection();
+        $this->xbtPeersHistories = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -741,36 +741,6 @@ class User implements UserInterface
     /**
      * @return Collection|XbtFilesUsers[]
      */
-    public function getFid(): Collection
-    {
-        return $this->fid;
-    }
-
-    public function addFid(XbtFilesUsers $fid): self
-    {
-        if (!$this->fid->contains($fid)) {
-            $this->fid[] = $fid;
-            $fid->setUid($this);
-        }
-
-        return $this;
-    }
-
-    public function removeFid(XbtFilesUsers $fid): self
-    {
-        if ($this->fid->removeElement($fid)) {
-            // set the owning side to null (unless already changed)
-            if ($fid->getUid() === $this) {
-                $fid->setUid(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|XbtFilesUsers[]
-     */
     public function getXbtFilesUsers(): Collection
     {
         return $this->xbtFilesUsers;
@@ -854,6 +824,36 @@ class User implements UserInterface
     public function setDownloadedDaily(string $DownloadedDaily): self
     {
         $this->DownloadedDaily = $DownloadedDaily;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|XbtPeersHistory[]
+     */
+    public function getXbtPeersHistories(): Collection
+    {
+        return $this->xbtPeersHistories;
+    }
+
+    public function addXbtPeersHistory(XbtPeersHistory $xbtPeersHistory): self
+    {
+        if (!$this->xbtPeersHistories->contains($xbtPeersHistory)) {
+            $this->xbtPeersHistories[] = $xbtPeersHistory;
+            $xbtPeersHistory->setUid($this);
+        }
+
+        return $this;
+    }
+
+    public function removeXbtPeersHistory(XbtPeersHistory $xbtPeersHistory): self
+    {
+        if ($this->xbtPeersHistories->removeElement($xbtPeersHistory)) {
+            // set the owning side to null (unless already changed)
+            if ($xbtPeersHistory->getUid() === $this) {
+                $xbtPeersHistory->setUid(null);
+            }
+        }
 
         return $this;
     }

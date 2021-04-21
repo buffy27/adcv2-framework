@@ -14,7 +14,7 @@ class XbtFilesUsers
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="NONE")
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="xbtFilesUsers")
-     * @ORM\JoinColumn(name="uid")
+     * @ORM\JoinColumn(name="uid", onDelete="CASCADE")
      */
     private $uid;
 
@@ -22,7 +22,7 @@ class XbtFilesUsers
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="NONE")
      * @ORM\ManyToOne(targetEntity=Torrents::class, inversedBy="xbtFilesUsers")
-     * @ORM\JoinColumn(name="fid")
+     * @ORM\JoinColumn(name="fid", onDelete="CASCADE")
      */
     private $fid;
 

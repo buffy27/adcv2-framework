@@ -57,7 +57,6 @@ class TrackerController extends AbstractController
      */
     public function torrent($id, Request $request): Response
     {
-
         $torrent = $this->entityMangaer->getRepository(Torrents::class)->find($id);
         if(!$torrent)
             return $this->render("errors/tracker_error.html.twig", ['error' => "Torrent with id " . $id . " was not found in database"]);
@@ -96,7 +95,14 @@ class TrackerController extends AbstractController
         $torrent = $this->entityMangaer->getRepository(Torrents::class)->find($id);
         if(!$torrent)
             return $this->render("errors/tracker_error.html.twig", ['error' => "Torrent with id " . $id . " was not found in database"]);
-        $this->announce->deleteTorrent($torrent->getInfoHash());
+
+        $error = isset($this->announce->deleteTorrent($torrent->getInfoHash())['error']) ? $this->announce->deleteTorrent($torrent->getInfoHash())['error'] : null;
+        if(isset($error)){
+            return $this->render('errors/tracker_error.html.twig', [
+                'error' => $error
+            ]);
+        }
+
         unlink($this->getParameter("kernel.project_dir") . "/data/torrents/" . $torrent->getInfoHash(). ".torrent");
         $this->entityMangaer->remove($torrent);
         $this->entityMangaer->flush();
@@ -204,8 +210,10 @@ class TrackerController extends AbstractController
                 $torrent->setLeechers();
                 $torrent->setSize($torrent_file->getTorrentSize());
                 $torrent->setBonus();
+                $torrent->setBalance(0);
                 $torrent->setSnatched(0);
                 $torrent->setDoubleTorrent(0);
+                $torrent->setLastAction();
                 $torrent->setSpecs([
                     "type" => $category->getName(),
                     "format" => $request->get('template_radio')

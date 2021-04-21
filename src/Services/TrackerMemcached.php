@@ -7,6 +7,8 @@ use App\Entity\Invites;
 use App\Entity\Peers;
 use App\Entity\Torrents;
 use App\Entity\User;
+use App\Entity\XbtFilesUsers;
+use App\Libraries\AnnounceFunctions;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Security\Core\Security;
@@ -14,18 +16,21 @@ use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
 use \Datetime;
+use function Webmozart\Assert\Tests\StaticAnalysis\throws;
 
 class TrackerMemcached
 {
     private $entityManager;
     private $security;
     private $trackerCache;
+    private $announce;
 
-    public function __construct(EntityManagerInterface $entityManager, Security $security, CacheInterface $trackerCache)
+    public function __construct(EntityManagerInterface $entityManager, Security $security, CacheInterface $trackerCache, AnnounceFunctions $announce)
     {
         $this->security = $security;
         $this->entityManager = $entityManager;
         $this->trackerCache = $trackerCache;
+        $this->announce = $announce;
     }
     public function getUserStats() : array
     {
@@ -77,16 +82,18 @@ class TrackerMemcached
            $item->expiresAt(date_create('+15 minutes'));
            $active_accounts = $this->entityManager->getRepository(User::class)->findAll();
            $torrents = $this->entityManager->getRepository(Torrents::class)->findAll();
-           $peers = $this->entityManager->getRepository(Peers::class)->findAll();
+           $peers = $this->announce->getStats(0);
+
            return [
                'active_accounts' => count($active_accounts),
                'torrents' => count($torrents),
-               'peers' => count($peers)
+               'peers' => $peers
            ];
         });
     }
     public function getPeer(){
-        return $this->entityManager->getRepository(Peers::class)->getPeersCountByUser($this->security->getUser());
+
+        return $this->entityManager->getRepository(XbtFilesUsers::class)->getPeersCountByUser($this->security->getUser());
     }
     public function cleanPeers(){
         //TODO check this to a no-return type

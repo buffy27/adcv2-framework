@@ -6,6 +6,7 @@ use App\Entity\Countries;
 use App\Entity\Invites;
 use App\Entity\Peers;
 use App\Entity\User;
+use App\Entity\XbtFilesUsers;
 use App\Form\ActiveSearchFormType;
 use App\Form\SendInviteFormType;
 use App\Form\TrackerSettingsFormType;
@@ -249,7 +250,7 @@ class UserProfileController extends AbstractController
      */
     public function active(): Response
     {
-        $peers = $this->entityManager->getRepository(Peers::class)->findPeersByUser($this->getUser());
+        $peers = $this->entityManager->getRepository(XbtFilesUsers::class)->findBy(['uid' => $this->getUser(), 'active' => 1]);
         $searchForm = $this->createForm(ActiveSearchFormType::class);
         dump($searchForm->createView());
         return $this->render('user_profile/active.html.twig', [

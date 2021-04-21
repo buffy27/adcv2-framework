@@ -137,11 +137,23 @@ class Torrents
      */
     private $LastAction;
 
+    /**
+     * @ORM\OneToMany(targetEntity=XbtFilesUsers::class, mappedBy="fid")
+     */
+    private $xbtFilesUsers;
+
+    /**
+     * @ORM\OneToMany(targetEntity=XbtPeersHistory::class, mappedBy="fid")
+     */
+    private $xbtPeersHistories;
+
     public function __construct()
     {
         $this->idComment = new ArrayCollection();
         $this->syncAnnounces = new ArrayCollection();
         $this->peers = new ArrayCollection();
+        $this->xbtFilesUsers = new ArrayCollection();
+        $this->xbtPeersHistories = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -482,9 +494,72 @@ class Torrents
         return $this->LastAction;
     }
 
-    public function setLastAction(\DateTimeInterface $LastAction): self
+    public function setLastAction(\DateTimeInterface $LastAction = null): self
     {
-        $this->LastAction = $LastAction;
+        if(!$LastAction)
+            $this->LastAction = new \DateTime('now');
+        else
+            $this->LastAction = $LastAction;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|XbtFilesUsers[]
+     */
+    public function getXbtFilesUsers(): Collection
+    {
+        return $this->xbtFilesUsers;
+    }
+
+    public function addXbtFilesUser(XbtFilesUsers $xbtFilesUser): self
+    {
+        if (!$this->xbtFilesUsers->contains($xbtFilesUser)) {
+            $this->xbtFilesUsers[] = $xbtFilesUser;
+            $xbtFilesUser->setFid($this);
+        }
+
+        return $this;
+    }
+
+    public function removeXbtFilesUser(XbtFilesUsers $xbtFilesUser): self
+    {
+        if ($this->xbtFilesUsers->removeElement($xbtFilesUser)) {
+            // set the owning side to null (unless already changed)
+            if ($xbtFilesUser->getFid() === $this) {
+                $xbtFilesUser->setFid(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|XbtPeersHistory[]
+     */
+    public function getXbtPeersHistories(): Collection
+    {
+        return $this->xbtPeersHistories;
+    }
+
+    public function addXbtPeersHistory(XbtPeersHistory $xbtPeersHistory): self
+    {
+        if (!$this->xbtPeersHistories->contains($xbtPeersHistory)) {
+            $this->xbtPeersHistories[] = $xbtPeersHistory;
+            $xbtPeersHistory->setFid($this);
+        }
+
+        return $this;
+    }
+
+    public function removeXbtPeersHistory(XbtPeersHistory $xbtPeersHistory): self
+    {
+        if ($this->xbtPeersHistories->removeElement($xbtPeersHistory)) {
+            // set the owning side to null (unless already changed)
+            if ($xbtPeersHistory->getFid() === $this) {
+                $xbtPeersHistory->setFid(null);
+            }
+        }
 
         return $this;
     }
