@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Countries;
 use App\Entity\Invites;
 use App\Entity\Peers;
+use App\Entity\Snatched;
 use App\Entity\User;
 use App\Entity\XbtFilesUsers;
 use App\Form\ActiveSearchFormType;
@@ -22,6 +23,7 @@ use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Routing\Annotation\Route;
@@ -246,16 +248,23 @@ class UserProfileController extends AbstractController
     }
 
     /**
-     * @Route("/user/active", name="user.active")
+     * @Route("/user/active", name="user.active", methods={"GET"})
      */
-    public function active(): Response
+    public function active(SessionInterface $session, Request $request): Response
     {
-        $peers = $this->entityManager->getRepository(XbtFilesUsers::class)->findBy(['uid' => $this->getUser(), 'active' => 1]);
+        if(!$session->has('active') || $session->get('active') == "active_torrents") {
+            $session->set('active', 'active_torrents');
+            $peers = $this->entityManager->getRepository(Snatched::class)->findBy(['user' => $this->getUser()]);
+        }else{
+            $peers = $this->entityManager->getRepository(Peers::class)->findBy(['user' => $this->getUser()]);
+        }
+
         $searchForm = $this->createForm(ActiveSearchFormType::class);
-        dump($searchForm->createView());
+       // dump($request->query->get(''));
         return $this->render('user_profile/active.html.twig', [
             'peers' => $peers,
-            'searchForm' => $searchForm->createView()
+            'searchForm' => $searchForm->createView(),
+            'active' => $session->get('active')
         ]);
     }
 

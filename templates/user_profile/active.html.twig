@@ -40,12 +40,12 @@
                         <div class="bt-0 bb-d-md-0 br-lg-0 bx-d-sm-0 w-100">
                             <div class="row small-device row-cols-auto">
                                 <div class="col-md-3 pl-3 pl-lg-2">
-                                    <label class="nobr valign-middle"><input type="checkbox" name="bookmarked" value="1"><span>My Uploads</span></label><br>
-                                    <label class="nobr valign-middle"><input type="checkbox" name="seeds_needed" value="1"><span>Completed</span></label><br>
+                                    <label class="nobr valign-middle"><input type="checkbox" name="my_uploads" value="1"><span>My Uploads</span></label><br>
+                                    <label class="nobr valign-middle"><input type="checkbox" name="completed" value="1" {{ active == "active_torrents" ? "checked" : "" }}><span>Completed</span></label><br>
                                 </div>
                                 <div class="col-md-8 pl-3 pl-lg-5">
-                                    <label class="nobr valign-middle"><input type="checkbox" name="my_uploads" value="1"><span>Leeching</span></label><br>
-                                    <label class="nobr valign-middle"><input type="checkbox" name="completed" value="1"><span>Seeding</span></label>
+                                    <label class="nobr valign-middle"><input type="checkbox" name="leeching" value="1"><span>Leeching</span></label><br>
+                                    <label class="nobr valign-middle"><input type="checkbox" name="seeding" value="1"><span>Seeding</span></label>
                                 </div>
                             </div>
                         </div>
@@ -80,28 +80,28 @@
                         {% for peer in peers %}
                         <tr>
                             <td>
-                                <a class="no-decoration f-left" href="{{ path('torrent', {id:peer.fid.id}) }}">
-                                    {% if peer.remaining == 0 %}
+                                <a class="no-decoration f-left" href="{{ path('torrent', {id:peer.torrent.id}) }}">
+                                    {% if peer.toGo == 0 %}
                                         <img src="{{ asset('images/trans.gif') }} " class="main-arrowup valign-bottom" />
                                     {% else %}
                                         <img src="{{ asset('images/trans.gif') }}" class="main-arrowdown valign-bottom" />
                                     {% endif %}
-                                    {{ peer.fid.name }}
+                                    {{ peer.torrent.name }}
                                 </a>
                             </td>
                             <td class="text-center d-none d-sm-table-cell">
                                 <img title="" class="valign-middle" height="15" width="15" src="{{ asset('images/') }}">
                             </td>
                             <td class="text-left d-none d-sm-table-cell valign-middle">
-                                <a href="{{ path('user.profile.id', {id:peer.fid.owner.id}) }}">
-                                    {{ peer.fid.owner.username }}
+                                <a href="{{ path('user.profile.id', {id:peer.torrent.owner.id}) }}">
+                                    {{ peer.torrent.owner.username }}
                                 </a>
                             </td>
 
-                            <td class="text-center d-none d-sm-table-cell">{{  filesystem.bytesToSize(peer.fid.size) }}</td>
-                            <td class="text-center d-none d-md-table-cell">{{ peer.fid.seeders }}</td>
-                            <td class="text-center d-none d-md-table-cell">{{ peer.fid.leechers }}</td>
-                            <td class="text-right d-none d-lg-table-cell dark-gray">{{ functions.timeago_short(peer.mtime) }}</td>
+                            <td class="text-center d-none d-sm-table-cell">{{  filesystem.bytesToSize(peer.torrent.size) }}</td>
+                            <td class="text-center d-none d-md-table-cell">{{ peer.torrent.seeders }}</td>
+                            <td class="text-center d-none d-md-table-cell">{{ peer.torrent.leechers }}</td>
+                            <td class="text-right d-none d-lg-table-cell dark-gray">}}</td>
                             <td class="text-center d-none d-lg-table-cell">{{ filesystem.bytesToSize(peer.uploaded) }}</td>
                             <td class="text-center d-none d-lg-table-cell">{{ filesystem.bytesToSize(peer.downloaded) }}</td>
                             <td class="text-center d-none d-lg-table-cell">{{ peer.downloaded != 0 ? peer.uploaded/peer.downloaded : "NTD" }}</td>

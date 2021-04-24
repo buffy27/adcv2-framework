@@ -187,25 +187,25 @@
                                         </tr>
                                     {% else %}
                                        {% for peer in peers %}
-                                           {% if peer.active %}
+{#                                           {% if peer.active %}#}
                                             <tr>
                                                 <td class="text-left nobr">
-                                                    {% if peer.remaining == 0 %}
+                                                    {% if peer.toGo == 0 %}
                                                     <img src="{{ asset('images/trans.gif') }} " class="main-arrowup valign-bottom" />
                                                     {% else %}
                                                         <img src="{{ asset('images/trans.gif') }}" class="main-arrowdown valign-bottom" />
                                                     {% endif %}
-                                                    <a class="no-decoration" href="{{ path('user.profile.id', {"id":peer.uid.id}) }}"><b>{{ peer.uid.username }}</b></a>
+                                                    <a class="no-decoration" href="{{ path('user.profile.id', {"id":peer.user.id}) }}"><b>{{ peer.user.username }}</b></a>
                                                 </td>
                                                 <td class="text-center green nobr">{{ filesystem.bytesToSize(peer.uploaded) }}</td>
                                                 <!-- <td class="text-center green nobr"></td> -->
                                                 <td class="text-center r03 nobr">{{ filesystem.bytesToSize(peer.downloaded) }}</td>
                                                 {# <td class="text-center green nobr"><</td> #}
                                                 {# <td class="text-center nobr"><?php  echo $peer['timespent']; ?></td> #}
-                                                <td class="text-right nobr">{{ peer.useragent }}</td>
-                                                <td class="text-right nobr">{{ functions.timeago_short(peer.mtime) }}</td>
+                                                <td class="text-right nobr">{{ peer.agent }}</td>
+                                                <td class="text-right nobr">{{ functions.timeago_short(peer.started) }}</td>
                                             </tr>
-                                                    {% endif %}
+{#                                                    {% endif %}#}
                                         {% endfor %}
                                     {% endif %}
                                 </table>

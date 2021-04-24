@@ -216,6 +216,21 @@ class User implements UserInterface
      */
     private $xbtPeersHistories;
 
+    /**
+     * @ORM\OneToMany(targetEntity=XbtSnatched::class, mappedBy="uid")
+     */
+    private $tstamp;
+
+    /**
+     * @ORM\OneToMany(targetEntity=XbtSnatched::class, mappedBy="uid")
+     */
+    private $xbtSnatcheds;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Snatched::class, mappedBy="user")
+     */
+    private $snatcheds;
+
     public function __construct()
     {
         $this->torrents = new ArrayCollection();
@@ -227,6 +242,9 @@ class User implements UserInterface
         $this->invites = new ArrayCollection();
         $this->xbtFilesUsers = new ArrayCollection();
         $this->xbtPeersHistories = new ArrayCollection();
+        $this->tstamp = new ArrayCollection();
+        $this->xbtSnatcheds = new ArrayCollection();
+        $this->snatcheds = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -852,6 +870,96 @@ class User implements UserInterface
             // set the owning side to null (unless already changed)
             if ($xbtPeersHistory->getUid() === $this) {
                 $xbtPeersHistory->setUid(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|XbtSnatched[]
+     */
+    public function getTstamp(): Collection
+    {
+        return $this->tstamp;
+    }
+
+    public function addTstamp(XbtSnatched $tstamp): self
+    {
+        if (!$this->tstamp->contains($tstamp)) {
+            $this->tstamp[] = $tstamp;
+            $tstamp->setUid($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTstamp(XbtSnatched $tstamp): self
+    {
+        if ($this->tstamp->removeElement($tstamp)) {
+            // set the owning side to null (unless already changed)
+            if ($tstamp->getUid() === $this) {
+                $tstamp->setUid(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|XbtSnatched[]
+     */
+    public function getXbtSnatcheds(): Collection
+    {
+        return $this->xbtSnatcheds;
+    }
+
+    public function addXbtSnatched(XbtSnatched $xbtSnatched): self
+    {
+        if (!$this->xbtSnatcheds->contains($xbtSnatched)) {
+            $this->xbtSnatcheds[] = $xbtSnatched;
+            $xbtSnatched->setUid($this);
+        }
+
+        return $this;
+    }
+
+    public function removeXbtSnatched(XbtSnatched $xbtSnatched): self
+    {
+        if ($this->xbtSnatcheds->removeElement($xbtSnatched)) {
+            // set the owning side to null (unless already changed)
+            if ($xbtSnatched->getUid() === $this) {
+                $xbtSnatched->setUid(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Snatched[]
+     */
+    public function getSnatcheds(): Collection
+    {
+        return $this->snatcheds;
+    }
+
+    public function addSnatched(Snatched $snatched): self
+    {
+        if (!$this->snatcheds->contains($snatched)) {
+            $this->snatcheds[] = $snatched;
+            $snatched->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSnatched(Snatched $snatched): self
+    {
+        if ($this->snatcheds->removeElement($snatched)) {
+            // set the owning side to null (unless already changed)
+            if ($snatched->getUser() === $this) {
+                $snatched->setUser(null);
             }
         }
 

@@ -52,4 +52,35 @@ class Functions
             return $diff . " " . $strTime[$i] . "(s) ago ";
         }
     }
+    public function date_to_seconds($date)
+    {
+        if(is_string($date))
+            $t1 = new DateTime($date);
+        else
+            $t1 = $date;
+
+        $t2 = new DateTime(date("Y-m-d h:i:sa"));
+        $interval = $t1->diff($t2);
+        $types = array('%y', '%m', '%d', '%h', '%i', '%s');
+
+        $out = 0;
+
+        foreach ($types as $value) {
+            if ($interval->format($value)) {
+                switch ($value) {
+                    case '%h':
+                        $out += $interval->format($value) * 60 * 60;
+                        break;
+                    case '%i':
+                        $out += $interval->format($value) * 60;
+                        break;
+                    case '%s':
+                        $out += $interval->format($value);
+                        break;
+                }
+            }
+        }
+
+        return $out;
+    }
 }

@@ -49,7 +49,7 @@
                     <tbody>
                     <tr>
                         <td class="descriptor">Active accounts</td>
-                        <td class="figure">{{ trackerCache.trackerStatus.active_accounts }}</td>
+                        <td class="figure">{{ trackerCache.getTrackerStatus.active_accounts }}</td>
                     </tr>
                     <tr>
                         <td class="descriptor">Users Active Today</td>
@@ -83,6 +83,8 @@
                         <td class="descriptor">DVD</td>
                         <td class="figure"></td>
                     </tr>
+                    {#
+                    {% if trackerCache.trackerStatus.peers['error'] is not defined %}
                     <tr>
                         <td class="descriptor">Total Peers</td>
                         <td class="figure">{{ trackerCache.trackerStatus.peers['seeders tracked'] + trackerCache.trackerStatus.peers['leechers tracked'] }}</td>
@@ -105,6 +107,12 @@
                             {% endif %}
                         </td>
                     </tr>
+                    {% else %}
+                    <tr>
+                        <td class="descriptor">Error</td>
+                        <td class="figure red">Announce offline</td>
+                    </tr>
+                    {% endif %}#}
                     </tbody>
                 </table>
                 <p class="mb-0 small center">Stats are updated every 15 minutes</p>

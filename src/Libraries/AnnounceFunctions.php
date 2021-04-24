@@ -70,8 +70,8 @@ class AnnounceFunctions extends AbstractController
             return false;
         }
         $Response = $this->send($Get);
-        if ($Response === false) {
-            return false;
+        if (isset($Response['error'])) {
+            return $Response;
         }
         $Stats = (array)json_decode($Response['response']->getContent(), true);
         /* $Stats = array();

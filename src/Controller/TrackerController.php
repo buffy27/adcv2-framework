@@ -61,7 +61,7 @@ class TrackerController extends AbstractController
         if(!$torrent)
             return $this->render("errors/tracker_error.html.twig", ['error' => "Torrent with id " . $id . " was not found in database"]);
         $comments = $this->entityMangaer->getRepository(TorrentComments::class)->findByTorrentId($torrent);
-        $peers = $this->entityMangaer->getRepository(XbtFilesUsers::class)->findByTorrent($torrent->getId());
+        $peers = $this->entityMangaer->getRepository(Peers::class)->findByTorrent($torrent->getId());
             //TODO See radiance get user stats internal
         $stats = $this->entityMangaer->getRepository(Peers::class)->getPeersCountByUser($this->getUser());
 
@@ -130,16 +130,17 @@ class TrackerController extends AbstractController
         }else{
             $data_passkey = $sync_announce[0]->getDataPasskey();
         }
+        /*
         $error = isset($this->announce->addUser($data_passkey, $this->getUser()->getId())['error']) ? $this->announce->addUser($data_passkey, $this->getUser()->getId())['error'] : null;
 
         if(isset($error)){
             return $this->render('errors/tracker_error.html.twig', [
                 'error' => $error
             ]);
-        }
+        }*/
         $path = $this->getParameter("kernel.project_dir") . "/data/torrents/" . $torrent->getInfoHash(). ".torrent";
         $torrentFile = Bencode::load($path);
-        $torrentFile['announce'] = $this->getParameter('app.announce_url') . $data_passkey . "/announce";
+        $torrentFile['announce'] = $request->getSchemeAndHttpHost() .  "/announce/" .$data_passkey;
 
         $headers = [
             'Content-Type' => 'application/x-bittorrent; charset=UTF-8',

@@ -5,7 +5,9 @@ namespace App\Controller;
 
 use App\Entity\Logs;
 use App\Entity\Peers;
+use App\Entity\Snatched;
 use App\Entity\SyncAnnounce;
+use App\Services\Functions;
 use App\Services\TrackerMemcached;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception\TrackerException;
@@ -28,15 +30,17 @@ class AnnounceController extends AbstractController
 
     private $entityMangaer;
     private $memcached;
+    private $functions;
 
-    public function __construct(EntityManagerInterface $entityManager, TrackerMemcached $memcached)
+    public function __construct(EntityManagerInterface $entityManager, TrackerMemcached $memcached, Functions $functions)
     {
         $this->entityMangaer = $entityManager;
         $this->memcached = $memcached;
+        $this->functions = $functions;
     }
 
     /**
-     * @Route("/announce/{passkey}", name="announce", methods={"GET"})
+     * @Route("/announce/{passkey}", name="announce", methods={"GET"}, requirements={"passkey"="^[a-z0-9]{128,128}$"})
      * @throws TrackerException
      */
     public function announce($passkey, Request $request) : Response
@@ -45,7 +49,7 @@ class AnnounceController extends AbstractController
          * When a torrent is removed it won't remove the peers from the sync_announce table
          * this is because the peers needs to be informed that torrent was removed in the client.
          */
-        return new Response($this->error(103), 200, $this->headers);
+
         $agent = $request->server->get('HTTP_USER_AGENT');
         $allHeaders = $request->server->getHeaders();
         if (preg_match("/^Mozilla/", $agent) || preg_match("/^Opera/", $agent) || preg_match("/^Links/", $agent) || preg_match("/^Lynx/", $agent) )
@@ -111,14 +115,22 @@ class AnnounceController extends AbstractController
             return new Response($this->error(104, [":port" => $queries['port']]), 200, $this->headers);
         }
         //TODO Recheck proxies
-        Request::setTrustedProxies(['127.0.0.1'],Request::HEADER_X_FORWARDED_HOST);
-        $queries['ip'] = $request->getClientIp();
+        //Request::setTrustedProxies(['127.0.0.1', 'REMOTE_ADDR'],Request::HEADER_X_FORWARDED_HOST);
+        $queries['ip'] = $request->server->get('REMOTE_ADDR');//$request->getClientIp();
         $queries['user-agent'] = $request->headers->get('user-agent');
         $queries['seeder'] = $queries['left'] == 0;
 
         $self = $this->entityMangaer->getRepository(Peers::class)->findByAnnounce($sync->getUser(), $sync->getTorrent(), $queries['peer_id']);
+
         $torrent = $sync->getTorrent();
         $user = $sync->getUser();
+        /** @var Snatched $snatched */
+        $snatched = $this->entityMangaer->getRepository(Snatched::class)->findBy([
+            'user' => $user,
+            'torrent' => $torrent
+        ]);
+        if($snatched)
+            $snatched = $snatched[0];
 
         $trueUploaded = $trueDownloaded = 0;
         $thisUploaded = $thisDownloaded = 0;
@@ -144,6 +156,23 @@ class AnnounceController extends AbstractController
                 $torrent->setSeeders($torrent->getSeeders() + 1);
             else
                 $torrent->setLeechers($torrent->getLeechers() + 1);
+
+            if(!$snatched){
+                $snatched = new Snatched();
+                $snatched->setTorrent($torrent);
+                $snatched->setUser($user);
+                $snatched->setDownloaded($trueDownloaded);
+                $snatched->setUploaded($trueUploaded);
+                $snatched->setIp($queries['ip']);
+                $snatched->setPort($queries['port']);
+                $snatched->setLastAction();
+                $snatched->setCompletedat();
+                $snatched->setStartdat();
+                $snatched->setSeedtime(0);
+                $snatched->setLeechtime(0);
+                $snatched->setToGo($queries['left']);
+                $this->entityMangaer->persist($snatched);
+            }
         }else{
             $thisUploaded = $trueUploaded = max(0, $queries['uploaded'] - $self->getUploaded());
             $thisDownloaded = $trueDownloaded = max(0, $queries['downloaded'] - $self->getDownloaded());
@@ -162,12 +191,21 @@ class AnnounceController extends AbstractController
                      ->setPort($queries['port'])
                      ->setSeeder($queries['seeder'])
                      ->setLastAction(new \DateTime('now'));
+                $snatched->setUploaded($snatched->getUploaded() + $trueUploaded);
+                $snatched->setDownloaded($snatched->getDownloaded() + $trueDownloaded);
+                $snatched->setToGo($queries['left']);
+                $snatched->setLastAction();
+                if($queries['left'] === 0)
+                    $snatched->setSeedtime($snatched->getSeedtime() + $this->functions->date_to_seconds($snatched->getLastAction()));
+                else
+                    $snatched->setLeechtime($snatched->getLeechtime() + $this->functions->date_to_seconds($snatched->getLastAction()));
             }
         }
 
         if($queries['event'] === "completed"){
             $torrent->setSeeders($torrent->getSeeders() + 1);
             $torrent->setLeechers($torrent->getLeechers() - 1);
+            $snatched->setCompletedat();
         }
 
         $user->setUploaded($user->getUploaded() + $thisUploaded);

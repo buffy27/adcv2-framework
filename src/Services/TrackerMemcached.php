@@ -78,16 +78,18 @@ class TrackerMemcached
         $this->trackerCache->delete(md5($this->security->getUser()->getUsername()));
     }
     public function getTrackerStatus() : array {
+        $this->trackerCache->delete('trackerStatus');
         return $this->trackerCache->get('trackerStatus', function (ItemInterface $item){
            $item->expiresAt(date_create('+15 minutes'));
+
            $active_accounts = $this->entityManager->getRepository(User::class)->findAll();
            $torrents = $this->entityManager->getRepository(Torrents::class)->findAll();
-           $peers = $this->announce->getStats(0);
+           //$peers = $this->entityManager->getRepository(Peers::class)->getAllPeers();
 
            return [
                'active_accounts' => count($active_accounts),
                'torrents' => count($torrents),
-               'peers' => $peers
+               //'peers' => 0
            ];
         });
     }

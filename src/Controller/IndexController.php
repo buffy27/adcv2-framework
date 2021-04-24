@@ -31,10 +31,10 @@ class IndexController extends AbstractController
      * @Route("/", name="index")
      * @Route("/index", name="index.index")
      */
-    public function index(TrackerMemcached $trackerMemcached): Response
+    public function index(TrackerMemcached $trackerMemcached, Request $request): Response
     {
-
         $news = $this->entityMangaer->getRepository(News::class)->findAll();
+
         return $this->render('index/index.html.twig', [
             'news' => $news
         ]);

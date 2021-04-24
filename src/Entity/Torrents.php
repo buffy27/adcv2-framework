@@ -147,6 +147,16 @@ class Torrents
      */
     private $xbtPeersHistories;
 
+    /**
+     * @ORM\OneToMany(targetEntity=XbtSnatched::class, mappedBy="fid")
+     */
+    private $xbtSnatcheds;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Snatched::class, mappedBy="torrent")
+     */
+    private $snatcheds;
+
     public function __construct()
     {
         $this->idComment = new ArrayCollection();
@@ -154,6 +164,8 @@ class Torrents
         $this->peers = new ArrayCollection();
         $this->xbtFilesUsers = new ArrayCollection();
         $this->xbtPeersHistories = new ArrayCollection();
+        $this->xbtSnatcheds = new ArrayCollection();
+        $this->snatcheds = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -558,6 +570,66 @@ class Torrents
             // set the owning side to null (unless already changed)
             if ($xbtPeersHistory->getFid() === $this) {
                 $xbtPeersHistory->setFid(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|XbtSnatched[]
+     */
+    public function getXbtSnatcheds(): Collection
+    {
+        return $this->xbtSnatcheds;
+    }
+
+    public function addXbtSnatched(XbtSnatched $xbtSnatched): self
+    {
+        if (!$this->xbtSnatcheds->contains($xbtSnatched)) {
+            $this->xbtSnatcheds[] = $xbtSnatched;
+            $xbtSnatched->setFid($this);
+        }
+
+        return $this;
+    }
+
+    public function removeXbtSnatched(XbtSnatched $xbtSnatched): self
+    {
+        if ($this->xbtSnatcheds->removeElement($xbtSnatched)) {
+            // set the owning side to null (unless already changed)
+            if ($xbtSnatched->getFid() === $this) {
+                $xbtSnatched->setFid(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Snatched[]
+     */
+    public function getSnatcheds(): Collection
+    {
+        return $this->snatcheds;
+    }
+
+    public function addSnatched(Snatched $snatched): self
+    {
+        if (!$this->snatcheds->contains($snatched)) {
+            $this->snatcheds[] = $snatched;
+            $snatched->setTorrent($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSnatched(Snatched $snatched): self
+    {
+        if ($this->snatcheds->removeElement($snatched)) {
+            // set the owning side to null (unless already changed)
+            if ($snatched->getTorrent() === $this) {
+                $snatched->setTorrent(null);
             }
         }
 
