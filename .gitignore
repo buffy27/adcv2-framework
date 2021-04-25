@@ -15,7 +15,6 @@ style-loader@1
 /var/
 /vendor/
 /node_modules/
-/.idea
 ###< symfony/framework-bundle ###
 
 ###> symfony/phpunit-bridge ###

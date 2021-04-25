@@ -34,7 +34,8 @@ class UploadFormType extends AbstractType
                 'constraints' => [
                     new File([
                         'mimeTypes' => [
-                            'application/x-bittorrent'
+                            'application/x-bittorrent',
+                            'application/octet-stream'
                         ],
                         'mimeTypesMessage' => 'Please upload a valid torrent file',
                     ]),
@@ -62,13 +63,15 @@ class UploadFormType extends AbstractType
             ->add("content_poster", TextType::class, [
                 "attr" => [
                     'style' => 'width: 300px'
-                ]
+                ],
+                'required'=> false,
             ])
             ->add('content_url', TextType::class, [
                 'label' => "Scrapper Url",
                 'attr' => [
                     'class' => "mr-2 flex-fill"
-                ]
+                ],
+                'required'=> false,
             ])
         ;
     }

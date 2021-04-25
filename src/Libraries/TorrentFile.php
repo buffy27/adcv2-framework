@@ -17,6 +17,7 @@ class TorrentFile
         if($file) {
             $this->file = Bencode::load($file->getRealPath());
             unset($this->file['announce-list']);
+            $this->file['announce'] = "";
             $this->file['info']['private'] = 1;
             $this->file['comment'] = "Torrent created for ADC";
             $this->file['created by'] = "ADC Team";

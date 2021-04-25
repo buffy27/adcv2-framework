@@ -374,9 +374,12 @@ class Torrents
         return $this->contentPoster;
     }
 
-    public function setContentPoster(string $contentPoster): self
+    public function setContentPoster(string $contentPoster = null): self
     {
-        $this->contentPoster = $contentPoster;
+        if(!$contentPoster)
+            $this->contentPoster = "";
+        else
+            $this->contentPoster = $contentPoster;
 
         return $this;
     }
@@ -398,9 +401,12 @@ class Torrents
         return $this->contentUrl;
     }
 
-    public function setContentUrl(string $contentUrl): self
+    public function setContentUrl(string $contentUrl = null): self
     {
-        $this->contentUrl = $contentUrl;
+        if(!$contentUrl)
+            $this->contentUrl = "";
+        else
+            $this->contentUrl = $contentUrl;
 
         return $this;
     }

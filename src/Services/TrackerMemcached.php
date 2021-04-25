@@ -84,17 +84,16 @@ class TrackerMemcached
 
            $active_accounts = $this->entityManager->getRepository(User::class)->findAll();
            $torrents = $this->entityManager->getRepository(Torrents::class)->findAll();
-           //$peers = $this->entityManager->getRepository(Peers::class)->getAllPeers();
+           $peers = $this->entityManager->getRepository(Peers::class)->getAllPeersCount();
 
            return [
                'active_accounts' => count($active_accounts),
                'torrents' => count($torrents),
-               //'peers' => 0
+               'peers' => $peers //TODO S/L is wrong in twig
            ];
         });
     }
     public function getPeer(){
-
         return $this->entityManager->getRepository(XbtFilesUsers::class)->getPeersCountByUser($this->security->getUser());
     }
     public function cleanPeers(){

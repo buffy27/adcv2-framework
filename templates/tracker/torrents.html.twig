@@ -12,11 +12,11 @@
                         <div class="searchtable-container bt-0 br-md-0 bx-d-sm-0 w-100">
                             <h4></h4>
                             <div class="p-2">
-                                <input class="mb-2 w-100" type="text" name="searchbox" value="" />
+                                <input class="mb-2 w-100" type="text" name="searchbox" value="{{ search_session.searchbox is defined ? search_session.searchbox }}" />
                                 <p class="m-0 p-0 text-right">
                                     <label class="valign-middle" for="check_desc">
-                                        <span></span>
-                                        <input type="checkbox" id="check_desc" name="search_desc" value="1" >
+                                        <span>Also check synopsis & descriptions?</span>
+                                        <input type="checkbox" id="check_desc" name="search_desc" value="1" {{ search_session.search_desc is defined ? "checked" }}>
                                     </label>
                                 </p>
                                 <p class="m-0 p-0 mt-2 text-right">
@@ -34,16 +34,16 @@
                             <div class="p-2">
                                 <div class="row small-device">
                                     <div class="col-6 pl-3 pl-lg-2">
-                                        <label class="nobr valign-middle"><input type="checkbox" name="bookmarked" value="1"  /><span>Bookmarked</span></label><br />
-                                        <label class="nobr valign-middle"><input type="checkbox" name="completed" value="1"  /><span>Completed</span></label><br />
-                                        <label class="nobr valign-middle"><input type="checkbox" name="my_uploads" value="1"  /><span>My Uploads</span></label><br />
-                                        <label class="nobr valign-middle"><input type="checkbox" name="seeds_needed" value="1"  /><span>Seeds Needed</span></label><br />
+                                        <label class="nobr valign-middle"><input type="checkbox" name="my_uploads" value="1" {{ search_session.my_uploads is defined ? "checked" }}  /><span>My Uploads</span></label><br />
+                                        <label class="nobr valign-middle"><input type="checkbox" name="seeds_needed" value="1"  {{ search_session.seeds_needed is defined ? "checked" }}/><span>Seeds Needed</span></label><br />
+                                        <label class="nobr valign-middle"><input type="checkbox" name="golden" value="1"  {{ search_session.golden is defined ? "checked" }}/><span>Golden Torrents</span></label><br />
+                                        <label class="nobr valign-middle"><input type="checkbox" name="silver" value="1"  {{ search_session.silver is defined ? "checked" }}/><span>Silver Torrents</span></label><br />
                                     </div>
                                     <div class="col-6 pr-3 pr-lg-2">
-                                        <label class="nobr valign-middle"><input type="checkbox" name="bdmw" value="1"  /><span>Blu-ray Torrents</span></label><br />
-                                        <label class="nobr valign-middle"><input type="checkbox" name="uhd" value="1"  /><span>Ultra HD Torrents</span></label><br />
-                                        <label class="nobr valign-middle"><input type="checkbox" name="golden" value="1"  /><span>Golden Torrents</span></label><br />
-                                        <label class="nobr valign-middle"><input type="checkbox" name="silver" value="1"  /><span>Silver Torrents</span></label><br />
+                                        <label class="nobr valign-middle"><input type="checkbox" name="bookmarked" value="1"  {{ search_session.bookmarked is defined ? "checked" }}/><span>Bookmarked</span></label><br />
+                                        <label class="nobr valign-middle"><input type="checkbox" name="dvd" value="1"  {{ search_session.dvd is defined ? "checked" }}/><span>DVD Torrents</span></label><br />
+                                        <label class="nobr valign-middle"><input type="checkbox" name="bdmv" value="1"  {{ search_session.bdmv is defined ? "checked" }}/><span>Blu-ray Torrents</span></label><br />
+                                        <label class="nobr valign-middle"><input type="checkbox" name="uhd" value="1"  {{ search_session.uhd is defined ? "checked" }}/><span>Ultra HD Torrents</span></label><br />
                                     </div>
                                 </div>
                             </div>
@@ -57,22 +57,22 @@
                             <div class="p-2">
                                 <div class="row small-device">
                                     <div class="col-sm-3 col-6 pl-3 pl-lg-2">
-                                        <label class="nobr valign-middle"><input type="checkbox" name="countries[]" value="1"  /><span>Anime</span></label><br />
-                                        <label class="nobr valign-middle"><input type="checkbox" name="countries[]" value="2"  /><span>Hong Kong</span></label><br />
-                                        <label class="nobr valign-middle"><input type="checkbox" name="countries[]" value="3"  /><span>Japan</span></label><br />
-                                        <label class="nobr valign-middle"><input type="checkbox" name="countries[]" value="4"  /><span>South Korea</span></label><br />
+                                        <label class="nobr valign-middle"><input type="checkbox" name="categories[]" value="1" {{ search_session.categories is defined and 1 in search_session.categories  ? "checked" }}  /><span>Anime</span></label><br />
+                                        <label class="nobr valign-middle"><input type="checkbox" name="categories[]" value="2" {{ search_session.categories is defined and 2 in search_session.categories  ? "checked" }} /><span>Hong Kong</span></label><br />
+                                        <label class="nobr valign-middle"><input type="checkbox" name="categories[]" value="3" {{ search_session.categories is defined and 3 in search_session.categories  ? "checked" }} /><span>Japan</span></label><br />
+                                        <label class="nobr valign-middle"><input type="checkbox" name="categories[]" value="4" {{ search_session.categories is defined and 4 in search_session.categories  ? "checked" }} /><span>South Korea</span></label><br />
                                     </div>
                                     <div class="col-sm-3 col-6 pr-3 mr-sm-0">
-                                        <label class="nobr valign-middle"><input type="checkbox" name="countries[]" value="5"  /><span>China</span></label><br />
-                                        <label class="nobr valign-middle"><input type="checkbox" name="countries[]" value="6"  /><span>Philippines</span></label><br />
-                                        <label class="nobr valign-middle"><input type="checkbox" name="countries[]" value="7"  /><span>Taiwan</span></label><br />
-                                        <label class="nobr valign-middle"><input type="checkbox" name="countries[]" value="8"  /><span>Thailand</span></label><br />
+                                        <label class="nobr valign-middle"><input type="checkbox" name="categories[]" value="5" {{ search_session.categories is defined and 5 in search_session.categories  ? "checked" }}/><span>China</span></label><br />
+                                        <label class="nobr valign-middle"><input type="checkbox" name="categories[]" value="6" {{ search_session.categories is defined and 6 in search_session.categories  ? "checked" }}/><span>Philippines</span></label><br />
+                                        <label class="nobr valign-middle"><input type="checkbox" name="categories[]" value="7" {{ search_session.categories is defined and 7 in search_session.categories  ? "checked" }}/><span>Taiwan</span></label><br />
+                                        <label class="nobr valign-middle"><input type="checkbox" name="categories[]" value="8" {{ search_session.categories is defined and 8 in search_session.categories  ? "checked" }}/><span>Thailand</span></label><br />
                                     </div>
                                     <div class="col-sm-3 col-6 pr-3 pr-lg-2">
-                                        <label class="nobr valign-middle"><input type="checkbox" name="countries[]" value="9"  /><span>Vietnam</span></label><br />
-                                        <label class="nobr valign-middle"><input type="checkbox" name="countries[]" value="10"  /><span>Malaysia</span></label><br />
-                                        <label class="nobr valign-middle"><input type="checkbox" name="countries[]" value="11"  /><span>Other Asian</span></label><br />
-                                        <label class="nobr valign-middle"><input type="checkbox" name="countries[]" value="12"  /><span>Miscellaneous</span></label><br />
+                                        <label class="nobr valign-middle"><input type="checkbox" name="categories[]" value="9" {{ search_session.categories is defined and 9 in search_session.categories  ? "checked" : ""}}/><span>Vietnam</span></label><br />
+                                        <label class="nobr valign-middle"><input type="checkbox" name="categories[]" value="10" {{ search_session.categories is defined and 10 in search_session.categories  ? "checked" }}/><span>Malaysia</span></label><br />
+                                        <label class="nobr valign-middle"><input type="checkbox" name="categories[]" value="11" {{ search_session.categories is defined and 11 in search_session.categories  ? "checked" }}/><span>Other Asian</span></label><br />
+                                        <label class="nobr valign-middle"><input type="checkbox" name="categories[]" value="12" {{ search_session.categories is defined and 12 in search_session.categories  ? "checked" }}/><span>Miscellaneous</span></label><br />
                                     </div>
                                 </div>
                             </div>

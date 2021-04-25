@@ -71,9 +71,8 @@ class ProfileSettingsFormType extends AbstractType
                             'image/jpeg',
                             'image/gif',
                             'image/png',
-
                         ],
-                        'mimeTypesMessage' => 'Please upload a valid torrent file (jpeg, gif, png)',
+                        'mimeTypesMessage' => 'Please upload a valid image file (jpeg, gif, png)',
                     ]),
                 ],
 

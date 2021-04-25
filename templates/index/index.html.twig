@@ -83,6 +83,28 @@
                         <td class="descriptor">DVD</td>
                         <td class="figure"></td>
                     </tr>
+                    <tr>
+                        <td class="descriptor">Total Peers</td>
+                        <td class="figure">{{ trackerCache.trackerStatus.peers['seeders'] + trackerCache.trackerStatus.peers['leechers'] }}</td>
+                    </tr>
+                    <tr>
+                        <td class="descriptor">Seeders</td>
+                        <td class="figure">{{ trackerCache.trackerStatus.peers['seeders'] }}</td>
+                    </tr>
+                    <tr>
+                        <td class="descriptor">Leechers</td>
+                        <td class="figure">{{ trackerCache.trackerStatus.peers['leechers'] }}</td>
+                    </tr>
+                    <tr>
+                        <td class="descriptor">Ratio S/L</td>
+                        <td class="figure">
+                            {% if trackerCache.trackerStatus.peers['leechers'] != 0  %}
+                                {{ trackerCache.trackerStatus.peers['seeders']/trackerCache.trackerStatus.peers['leechers'] }}
+                            {% else %}
+                                {{ "---" }}
+                            {% endif %}
+                        </td>
+                    </tr>
                     {#
                     {% if trackerCache.trackerStatus.peers['error'] is not defined %}
                     <tr>

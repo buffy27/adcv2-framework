@@ -15,6 +15,7 @@ use App\Services\TrackerMemcached;
 use Doctrine\ORM\EntityManagerInterface;
 
 use App\Form\ProfileSettingsFormType;
+use finfo;
 use phpDocumentor\Reflection\Types\This;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
@@ -128,7 +129,7 @@ class UserProfileController extends AbstractController
         ]);
 
         $userSettings->handleRequest($request);
-        if($userSettings->isSubmitted()){
+        if($userSettings->isSubmitted() && $userSettings->isValid()){
             $formData = $userSettings->getData();
 
             $user->setIdCountry($this->entityManager->getRepository(Countries::class)->find($formData['id_country']));
@@ -137,6 +138,13 @@ class UserProfileController extends AbstractController
                 'accept_pms' => $formData['accept_pms'],
                 'pm_details' => $formData['pm_details'],
             ]);
+
+            if($userSettings['avatar']->getData()){
+                $ext = substr($userSettings['avatar']->getData()->getMimeType(), -3);
+                file_put_contents($this->getParameter('kernel.project_dir') . "/data/avatar/" . $this->getUser()->getId() . "." . $ext, file_get_contents($userSettings['avatar']->getData()->getRealPath()));
+                $user->setAvatar($this->getUser()->getId() . "." . $ext);
+            }
+
             $this->entityManager->flush();
             unset($user);
             $this->memcached->removeUserStats();
@@ -275,9 +283,14 @@ class UserProfileController extends AbstractController
      */
     public function avatar($id): Response
     {
-        $user = $this->entityManager->getRepository(User::class)->find($id);
+        if($this->getUser()->getId() != $id)
+            $user = $this->entityManager->getRepository(User::class)->find($id);
+        else
+            $user = $this->getUser();
         $avatar = $this->getParameter('kernel.project_dir') . "/data/avatar/" . $user->getAvatar();
+        unset($user);
         $file = file_get_contents($avatar);
-        return new Response($file, 200, ['Content-Type' => 'image/png']) ;
+
+        return new Response($file, 200, ['Content-Type' => mime_content_type($avatar)]) ;
     }
 }
