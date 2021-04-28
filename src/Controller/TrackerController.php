@@ -7,14 +7,15 @@ use App\Entity\SyncAnnounce;
 use App\Entity\TorrentComments;
 use App\Entity\Torrents;
 use App\Entity\TorrentsCategory;
-use App\Entity\XbtFilesUsers;
 use App\Form\UploadFormType;
 use App\Form\UploadPreviewFormType;
 use App\Libraries\AnnounceFunctions;
 use App\Libraries\TorrentFile;
+use App\Services\TrackerMemcached;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use phpDocumentor\Reflection\Types\This;
 use Rhilip\Bencode\Bencode;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -45,9 +46,9 @@ class TrackerController extends AbstractController
     }
 
     /**
-     * @Route("/torrents", name="torrents", methods={"GET"} )
+     * @Route("/torrents/{page}", name="torrents", methods={"GET"}, requirements={"page"="\d+"} )
      */
-    public function torrents(Request $request, SessionInterface $session): Response
+    public function torrents(int $page = 1, Request $request, SessionInterface $session, TrackerMemcached $memcached): Response
     {
         /*
          * Search mapping
@@ -142,12 +143,27 @@ class TrackerController extends AbstractController
                 $torrents->orWhere('JSON_EXTRACT(t.specs, \'$.format\') = \'uhd\'');
             }
         }
+        $torrents->orderBy('t.added', 'DESC');
 
-        dump($session->get('search'));
-        $torrents = $torrents->getQuery()->getResult();
+        $paginator = new Paginator($torrents);
+        $totalItems = count($paginator);
+        $curentPage = ($page) ?: 1;
+        $totalPageCount = ceil($totalItems / $memcached->getUserStats()['tracker_settings']['torrents_page']);
+        $nextPage = (($curentPage < $totalPageCount) ? $curentPage + 1 : $totalPageCount);
+        $previousPage = (($curentPage > 1) ? $curentPage - 1 : 1);
+
+        $torrents = $paginator->getQuery()
+            ->setFirstResult($memcached->getUserStats()['tracker_settings']['torrents_page'] * ($curentPage-1))
+            ->setMaxResults($memcached->getUserStats()['tracker_settings']['torrents_page'] )
+            ->getResult();
+
         return $this->render('tracker/torrents.html.twig', [
             'torrents' => $torrents,
-            'search_session' => $session->get('search')
+            'search_session' => $session->get('search'),
+            'next_page' => $nextPage,
+            'previous_page' => $previousPage,
+            'total_pages' => $totalPageCount,
+            'current_page' => $curentPage
         ]);
     }
 
@@ -350,6 +366,7 @@ class TrackerController extends AbstractController
             'announce' => $request->getSchemeAndHttpHost(),
         ]);
     }
+
     private function getSize($size){
         $units = array( 'B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB');
         $power = $size > 0 ? floor(log($size, 1024)) : 0;

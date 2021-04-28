@@ -138,21 +138,6 @@ class Torrents
     private $LastAction;
 
     /**
-     * @ORM\OneToMany(targetEntity=XbtFilesUsers::class, mappedBy="fid")
-     */
-    private $xbtFilesUsers;
-
-    /**
-     * @ORM\OneToMany(targetEntity=XbtPeersHistory::class, mappedBy="fid")
-     */
-    private $xbtPeersHistories;
-
-    /**
-     * @ORM\OneToMany(targetEntity=XbtSnatched::class, mappedBy="fid")
-     */
-    private $xbtSnatcheds;
-
-    /**
      * @ORM\OneToMany(targetEntity=Snatched::class, mappedBy="torrent")
      */
     private $snatcheds;
@@ -162,9 +147,6 @@ class Torrents
         $this->idComment = new ArrayCollection();
         $this->syncAnnounces = new ArrayCollection();
         $this->peers = new ArrayCollection();
-        $this->xbtFilesUsers = new ArrayCollection();
-        $this->xbtPeersHistories = new ArrayCollection();
-        $this->xbtSnatcheds = new ArrayCollection();
         $this->snatcheds = new ArrayCollection();
     }
 
@@ -518,96 +500,6 @@ class Torrents
             $this->LastAction = new \DateTime('now');
         else
             $this->LastAction = $LastAction;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|XbtFilesUsers[]
-     */
-    public function getXbtFilesUsers(): Collection
-    {
-        return $this->xbtFilesUsers;
-    }
-
-    public function addXbtFilesUser(XbtFilesUsers $xbtFilesUser): self
-    {
-        if (!$this->xbtFilesUsers->contains($xbtFilesUser)) {
-            $this->xbtFilesUsers[] = $xbtFilesUser;
-            $xbtFilesUser->setFid($this);
-        }
-
-        return $this;
-    }
-
-    public function removeXbtFilesUser(XbtFilesUsers $xbtFilesUser): self
-    {
-        if ($this->xbtFilesUsers->removeElement($xbtFilesUser)) {
-            // set the owning side to null (unless already changed)
-            if ($xbtFilesUser->getFid() === $this) {
-                $xbtFilesUser->setFid(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|XbtPeersHistory[]
-     */
-    public function getXbtPeersHistories(): Collection
-    {
-        return $this->xbtPeersHistories;
-    }
-
-    public function addXbtPeersHistory(XbtPeersHistory $xbtPeersHistory): self
-    {
-        if (!$this->xbtPeersHistories->contains($xbtPeersHistory)) {
-            $this->xbtPeersHistories[] = $xbtPeersHistory;
-            $xbtPeersHistory->setFid($this);
-        }
-
-        return $this;
-    }
-
-    public function removeXbtPeersHistory(XbtPeersHistory $xbtPeersHistory): self
-    {
-        if ($this->xbtPeersHistories->removeElement($xbtPeersHistory)) {
-            // set the owning side to null (unless already changed)
-            if ($xbtPeersHistory->getFid() === $this) {
-                $xbtPeersHistory->setFid(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|XbtSnatched[]
-     */
-    public function getXbtSnatcheds(): Collection
-    {
-        return $this->xbtSnatcheds;
-    }
-
-    public function addXbtSnatched(XbtSnatched $xbtSnatched): self
-    {
-        if (!$this->xbtSnatcheds->contains($xbtSnatched)) {
-            $this->xbtSnatcheds[] = $xbtSnatched;
-            $xbtSnatched->setFid($this);
-        }
-
-        return $this;
-    }
-
-    public function removeXbtSnatched(XbtSnatched $xbtSnatched): self
-    {
-        if ($this->xbtSnatcheds->removeElement($xbtSnatched)) {
-            // set the owning side to null (unless already changed)
-            if ($xbtSnatched->getFid() === $this) {
-                $xbtSnatched->setFid(null);
-            }
-        }
 
         return $this;
     }

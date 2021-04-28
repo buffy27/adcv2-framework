@@ -90,8 +90,8 @@
                 <th width="1%" class="text-center">Type</th>
                 <th class="text-left">Name</th>
                 <th class="text-right"></th>
-                <th class="text-left d-none d-sm-table-cell">Uploader</th>
-                <th width="1%" class="text-center d-none d-sm-table-cell">Size</th>
+                <th width="5%" class="text-left d-none d-sm-table-cell">Uploader</th>
+                <th width="7%" class="text-center d-none d-sm-table-cell">Size</th>
                 <th width="1%" class="text-center d-none d-md-table-cell">Dn</th>
                 <th width="1%" class="text-center d-none d-md-table-cell">Ul</th>
                 <th width="1%" class="text-right d-none d-lg-table-cell">Age</th>
@@ -146,8 +146,20 @@
             </tbody>
         </table>
     </div>
-    <div class="text-center mt-2 mb-4">
-        <a  href="/torrents/"><b></b></a>
-        <b></b>
-    </div>
+    {% if total_pages >= 2 %}
+        <div class="text-center mt-2 mb-4">
+            {% for i in 1..total_pages  %}
+                {% if current_page != i %}
+                    <a  href="{{ path('torrents', {page: i}) }}">
+                        <b>{{ i }}</b>
+                    </a>
+                {% else %}
+                    <b>{{ current_page }}</b>
+                {% endif %}
+            {% endfor %}
+            <br>
+            <a class="mr-2" href="{{ path('torrents', {page: previous_page}) }}"> << Prev</a>
+            <a class="ml-2" href="{{ path('torrents', {page: next_page}) }}">Next >></a>
+        </div>
+    {% endif %}
 {% endblock %}

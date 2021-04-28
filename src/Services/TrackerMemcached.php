@@ -7,7 +7,6 @@ use App\Entity\Invites;
 use App\Entity\Peers;
 use App\Entity\Torrents;
 use App\Entity\User;
-use App\Entity\XbtFilesUsers;
 use App\Libraries\AnnounceFunctions;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Cache\InvalidArgumentException;
@@ -53,7 +52,8 @@ class TrackerMemcached
                     'country_id' => $user->getIdCountry()->getId(),
                     'class' => $user->getUserClass(),
                     'last_action' => $user->getLastAction(),
-                    'invites' => $user->getUserInvites()
+                    'invites' => $user->getUserInvites(),
+                    'tracker_settings' => $user->getTrackerSettings()
                 ];
                 if(!is_null($user->getIdTitle())){
                     $stats['title'] =  [
@@ -94,7 +94,7 @@ class TrackerMemcached
         });
     }
     public function getPeer(){
-        return $this->entityManager->getRepository(XbtFilesUsers::class)->getPeersCountByUser($this->security->getUser());
+        return $this->entityManager->getRepository(Peers::class)->getPeersCountByUser($this->security->getUser());
     }
     public function cleanPeers(){
         //TODO check this to a no-return type

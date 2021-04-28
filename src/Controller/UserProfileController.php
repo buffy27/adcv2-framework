@@ -7,7 +7,6 @@ use App\Entity\Invites;
 use App\Entity\Peers;
 use App\Entity\Snatched;
 use App\Entity\User;
-use App\Entity\XbtFilesUsers;
 use App\Form\ActiveSearchFormType;
 use App\Form\SendInviteFormType;
 use App\Form\TrackerSettingsFormType;

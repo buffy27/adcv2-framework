@@ -182,11 +182,6 @@ class User implements UserInterface
     private $userInvites;
 
     /**
-     * @ORM\OneToMany(targetEntity=XbtFilesUsers::class, mappedBy="uid")
-     */
-    private $xbtFilesUsers;
-
-    /**
      * @ORM\Column(type="boolean", nullable=true)
      */
     private $visible;
@@ -210,21 +205,6 @@ class User implements UserInterface
      * @ORM\Column(type="bigint", options={"default":0})
      */
     private $DownloadedDaily;
-
-    /**
-     * @ORM\OneToMany(targetEntity=XbtPeersHistory::class, mappedBy="uid")
-     */
-    private $xbtPeersHistories;
-
-    /**
-     * @ORM\OneToMany(targetEntity=XbtSnatched::class, mappedBy="uid")
-     */
-    private $tstamp;
-
-    /**
-     * @ORM\OneToMany(targetEntity=XbtSnatched::class, mappedBy="uid")
-     */
-    private $xbtSnatcheds;
 
     /**
      * @ORM\OneToMany(targetEntity=Snatched::class, mappedBy="user")
@@ -842,96 +822,6 @@ class User implements UserInterface
     public function setDownloadedDaily(string $DownloadedDaily): self
     {
         $this->DownloadedDaily = $DownloadedDaily;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|XbtPeersHistory[]
-     */
-    public function getXbtPeersHistories(): Collection
-    {
-        return $this->xbtPeersHistories;
-    }
-
-    public function addXbtPeersHistory(XbtPeersHistory $xbtPeersHistory): self
-    {
-        if (!$this->xbtPeersHistories->contains($xbtPeersHistory)) {
-            $this->xbtPeersHistories[] = $xbtPeersHistory;
-            $xbtPeersHistory->setUid($this);
-        }
-
-        return $this;
-    }
-
-    public function removeXbtPeersHistory(XbtPeersHistory $xbtPeersHistory): self
-    {
-        if ($this->xbtPeersHistories->removeElement($xbtPeersHistory)) {
-            // set the owning side to null (unless already changed)
-            if ($xbtPeersHistory->getUid() === $this) {
-                $xbtPeersHistory->setUid(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|XbtSnatched[]
-     */
-    public function getTstamp(): Collection
-    {
-        return $this->tstamp;
-    }
-
-    public function addTstamp(XbtSnatched $tstamp): self
-    {
-        if (!$this->tstamp->contains($tstamp)) {
-            $this->tstamp[] = $tstamp;
-            $tstamp->setUid($this);
-        }
-
-        return $this;
-    }
-
-    public function removeTstamp(XbtSnatched $tstamp): self
-    {
-        if ($this->tstamp->removeElement($tstamp)) {
-            // set the owning side to null (unless already changed)
-            if ($tstamp->getUid() === $this) {
-                $tstamp->setUid(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|XbtSnatched[]
-     */
-    public function getXbtSnatcheds(): Collection
-    {
-        return $this->xbtSnatcheds;
-    }
-
-    public function addXbtSnatched(XbtSnatched $xbtSnatched): self
-    {
-        if (!$this->xbtSnatcheds->contains($xbtSnatched)) {
-            $this->xbtSnatcheds[] = $xbtSnatched;
-            $xbtSnatched->setUid($this);
-        }
-
-        return $this;
-    }
-
-    public function removeXbtSnatched(XbtSnatched $xbtSnatched): self
-    {
-        if ($this->xbtSnatcheds->removeElement($xbtSnatched)) {
-            // set the owning side to null (unless already changed)
-            if ($xbtSnatched->getUid() === $this) {
-                $xbtSnatched->setUid(null);
-            }
-        }
 
         return $this;
     }
