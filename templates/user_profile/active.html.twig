@@ -5,7 +5,7 @@
 
 {% block body %}
     <div class="row small-device mt-4 mb-5">
-        <div class="col-xl-8 col-lg-10 col-12 mx-auto">
+        <div class="col-xl-10 col-lg-10 col-12 mx-auto">
             <h1 class="text-center">
                 <span class="valign-middle">{{ trackerCache.userStats.username }}</span> &nbsp;
                 <img class="valign-middle" src="{{ asset('images/flag/' ~ trackerCache.userStats.flagpic) }}" alt="{{ trackerCache.userStats.country }}">
@@ -30,24 +30,12 @@
                     <div class=" bt-0 br-md-0 bx-d-sm-0 w-100">
                         <div class="p-2">
                             {{ form_widget(searchForm.search_text) }}
+                            {{ form_label(searchForm.active_toggle) }}
+                            {{ form_widget(searchForm.active_toggle) }}
                             <p class="m-0 p-0 mt-2 text-right">
                                {{ form_widget(searchForm.search) }}
                                 <input class="btn" type="submit" name="reset" value="Reset">
                             </p>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6 d-flex order-2 order-md-3 order-lg-2 mb-1 mt-1 ml-2">
-                        <div class="bt-0 bb-d-md-0 br-lg-0 bx-d-sm-0 w-100">
-                            <div class="row small-device row-cols-auto">
-                                <div class="col-md-3 pl-3 pl-lg-2">
-                                    <label class="nobr valign-middle"><input type="checkbox" name="my_uploads" value="1"><span>My Uploads</span></label><br>
-                                    <label class="nobr valign-middle"><input type="checkbox" name="completed" value="1" {{ active == "active_torrents" ? "checked" : "" }}><span>Completed</span></label><br>
-                                </div>
-                                <div class="col-md-8 pl-3 pl-lg-5">
-                                    <label class="nobr valign-middle"><input type="checkbox" name="leeching" value="1"><span>Leeching</span></label><br>
-                                    <label class="nobr valign-middle"><input type="checkbox" name="seeding" value="1"><span>Seeding</span></label>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>

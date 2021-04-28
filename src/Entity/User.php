@@ -220,10 +220,6 @@ class User implements UserInterface
         $this->syncAnnounces = new ArrayCollection();
         $this->peers = new ArrayCollection();
         $this->invites = new ArrayCollection();
-        $this->xbtFilesUsers = new ArrayCollection();
-        $this->xbtPeersHistories = new ArrayCollection();
-        $this->tstamp = new ArrayCollection();
-        $this->xbtSnatcheds = new ArrayCollection();
         $this->snatcheds = new ArrayCollection();
     }
 
@@ -734,36 +730,6 @@ class User implements UserInterface
     public function getUserInvites()
     {
         return $this->userInvites;
-    }
-
-    /**
-     * @return Collection|XbtFilesUsers[]
-     */
-    public function getXbtFilesUsers(): Collection
-    {
-        return $this->xbtFilesUsers;
-    }
-
-    public function addXbtFilesUser(XbtFilesUsers $xbtFilesUser): self
-    {
-        if (!$this->xbtFilesUsers->contains($xbtFilesUser)) {
-            $this->xbtFilesUsers[] = $xbtFilesUser;
-            $xbtFilesUser->setUid($this);
-        }
-
-        return $this;
-    }
-
-    public function removeXbtFilesUser(XbtFilesUsers $xbtFilesUser): self
-    {
-        if ($this->xbtFilesUsers->removeElement($xbtFilesUser)) {
-            // set the owning side to null (unless already changed)
-            if ($xbtFilesUser->getUid() === $this) {
-                $xbtFilesUser->setUid(null);
-            }
-        }
-
-        return $this;
     }
 
     public function getVisible(): ?bool

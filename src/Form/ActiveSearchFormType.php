@@ -13,6 +13,7 @@ class ActiveSearchFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+
         $builder->setMethod('GET')
             ->add('search_text', TextType::class, [
                 'attr' => [
@@ -20,11 +21,23 @@ class ActiveSearchFormType extends AbstractType
                 ],
                 'required' => false
             ])
-        ->add('search', SubmitType::class, [
-            'attr' => [
-                'class' => 'btn'
-            ]
-        ]);
+            ->add('active_toggle', ChoiceType::class,[
+                'label' => "Status",
+                'choices' => [
+                    'My Uploads' => 'my_uploads',
+                    'Seeding' => 'seeding',
+                    'Leeching' => 'leeching',
+                    'Completed' => 'completed' ,
+                    'Incomplete' => 'incomplete' ,
+                ],
+               'data' => $options['data']['active_toggle'] ?? "my_uploads",
+               'required' => false
+            ])
+            ->add('search', SubmitType::class, [
+                'attr' => [
+                    'class' => 'btn'
+                ]
+            ]);
     }
     public function configureOptions(OptionsResolver $resolver)
     {

@@ -6,6 +6,7 @@ use App\Entity\Countries;
 use App\Entity\Invites;
 use App\Entity\Peers;
 use App\Entity\Snatched;
+use App\Entity\Torrents;
 use App\Entity\User;
 use App\Form\ActiveSearchFormType;
 use App\Form\SendInviteFormType;
@@ -14,6 +15,8 @@ use App\Services\TrackerMemcached;
 use Doctrine\ORM\EntityManagerInterface;
 
 use App\Form\ProfileSettingsFormType;
+use Doctrine\ORM\Query\Expr\Join;
+use Doctrine\ORM\QueryBuilder;
 use finfo;
 use phpDocumentor\Reflection\Types\This;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -259,17 +262,63 @@ class UserProfileController extends AbstractController
      */
     public function active(SessionInterface $session, Request $request): Response
     {
-        if(!$session->has('active') || $session->get('active') == "active_torrents") {
-            $session->set('active', 'active_torrents');
-            $peers = $this->entityManager->getRepository(Snatched::class)->findBy(['user' => $this->getUser()]);
-        }else{
-            $peers = $this->entityManager->getRepository(Peers::class)->findBy(['user' => $this->getUser()]);
+        if($request->query->get('reset') || strpos($request->headers->get('referer'), $this->generateUrl('user.active')) === false){
+            $session->remove('active');
         }
 
-        $searchForm = $this->createForm(ActiveSearchFormType::class);
-       // dump($request->query->get(''));
+        if(!$session->has('active')) {
+            $query =  $request->query->all();
+            $session->set('active', $query);
+        }elseif($session->has('active') && isset($request->query->all()['active_search_form'])){
+            $session->set('active', $request->query->all()['active_search_form']);
+            $query = $session->get('active');
+        }else{
+            $query = $session->get('active');
+        }
+
+        if(!$query || $query['active_toggle'] == 'my_uploads'){
+            $data = $this->entityManager->getRepository(Torrents::class)->createQueryBuilder('t')
+            ->select('t as torrent, p.toGo, p.uploaded, p.downloaded')
+            ->join(Peers::class, 'p', Join::WITH, 'p.torrent = t OR p.torrent != t');
+        }
+
+        if(isset($query['active_toggle']) && $query['active_toggle'] == 'seeding'){
+            $data = $this->entityManager->getRepository(Peers::class)->createQueryBuilder('p')
+                ->where('p.user = :user')
+                ->andWhere('p.toGo = 0')
+                ->setParameter('user', $this->getUser()->getId());
+        }
+        if(isset($query['active_toggle']) && $query['active_toggle'] == 'leeching'){
+            $data = $this->entityManager->getRepository(Peers::class)->createQueryBuilder('p')
+                ->where('p.user = :user')
+                ->andWhere('p.toGo > 0')
+                ->setParameter('user', $this->getUser()->getId());
+        }
+        if(isset($query['active_toggle']) && $query['active_toggle'] == 'completed'){
+            $data = $this->entityManager->getRepository(Snatched::class)->createQueryBuilder('s')
+                ->where('s.user = :user')
+                ->andWhere('s.to_go = 0')
+                ->setParameter('user', $this->getUser()->getId());
+        }
+        if(isset($query['active_toggle']) && $query['active_toggle'] == 'incomplete'){
+            $data = $this->entityManager->getRepository(Snatched::class)->createQueryBuilder('s')
+                ->where('s.user = :user')
+                ->andWhere('s.to_go > 0')
+                ->setParameter('user', $this->getUser()->getId());
+        }
+
+        if(!empty($query['search_text'])){
+            $search = explode(' ', $query['search_text']);
+            for ($i = 0; $i < count($search); $i++) {
+                $data->andWhere(' LOWER(t.name) LIKE LOWER(CONCAT(\'%\', :word_' . $i . ',\'%\'))');
+                $data->setParameter('word_' . $i, $search[$i]);
+            }
+        }
+
+        $searchForm = $this->createForm(ActiveSearchFormType::class, $query);
+        dump($query);
         return $this->render('user_profile/active.html.twig', [
-            'peers' => $peers,
+            'peers' => $data->getQuery()->getResult() ?? null,
             'searchForm' => $searchForm->createView(),
             'active' => $session->get('active')
         ]);
