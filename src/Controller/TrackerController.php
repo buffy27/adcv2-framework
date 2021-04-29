@@ -36,12 +36,12 @@ use function Webmozart\Assert\Tests\StaticAnalysis\nullOrIsEmpty;
 
 class TrackerController extends AbstractController
 {
-    private $entityMangaer;
+    private $entityManager;
     private $announce;
 
     public function __construct(EntityManagerInterface $entityManager, AnnounceFunctions $announce)
     {
-        $this->entityMangaer = $entityManager;
+        $this->entityManager = $entityManager;
         $this->announce = $announce;
     }
 
@@ -54,9 +54,9 @@ class TrackerController extends AbstractController
          * Search mapping
          * searchbox, search_desc, bookmarked, completed, my_uploads, seeds_needed, bdmv, uhd, golden, silver
          */
-        //$torrents = $this->entityMangaer->getRepository(Torrents::class)->findAll();
+        //$torrents = $this->entityManager->getRepository(Torrents::class)->findAll();
         /** @var QueryBuilder $torrents */
-        $torrents = $this->entityMangaer->getRepository(Torrents::class)->createQueryBuilder('t');
+        $torrents = $this->entityManager->getRepository(Torrents::class)->createQueryBuilder('t');
         if($request->query->get('search')){
             $session->set('search', $request->query->all());
         }
@@ -117,7 +117,7 @@ class TrackerController extends AbstractController
             }
         }
 
-        $expr = $this->entityMangaer->getExpressionBuilder();
+        $expr = $this->entityManager->getExpressionBuilder();
         // AND opperator between search box and the left boxes
         if(isset($session->get('search')['search_desc'])){
             $sql = "";
@@ -172,13 +172,13 @@ class TrackerController extends AbstractController
      */
     public function torrent($id, Request $request): Response
     {
-        $torrent = $this->entityMangaer->getRepository(Torrents::class)->find($id);
+        $torrent = $this->entityManager->getRepository(Torrents::class)->find($id);
         if(!$torrent)
             return $this->render("errors/tracker_error.html.twig", ['error' => "Torrent with id " . $id . " was not found in database"]);
-        $comments = $this->entityMangaer->getRepository(TorrentComments::class)->findByTorrentId($torrent);
-        $peers = $this->entityMangaer->getRepository(Peers::class)->findByTorrent($torrent->getId());
+        $comments = $this->entityManager->getRepository(TorrentComments::class)->findByTorrentId($torrent);
+        $peers = $this->entityManager->getRepository(Peers::class)->findByTorrent($torrent->getId());
 
-        $stats = $this->entityMangaer->getRepository(Peers::class)->getPeersCountByUser($this->getUser());
+        $stats = $this->entityManager->getRepository(Peers::class)->getPeersCountByUser($this->getUser());
 
         if($request->getMethod() == "POST"){
             $comment = new TorrentComments();
@@ -186,8 +186,8 @@ class TrackerController extends AbstractController
             $comment->setAdded(new \DateTime("now"));
             $comment->setTorrents($torrent);
             $comment->setUser($this->getUser());
-            $this->entityMangaer->persist($comment);
-            $this->entityMangaer->flush();
+            $this->entityManager->persist($comment);
+            $this->entityManager->flush();
             return new RedirectResponse($this->generateUrl('torrent', ['id' => $id]));
         }
         
@@ -207,7 +207,7 @@ class TrackerController extends AbstractController
      */
     public function torrent_remove($id): Response
     {
-        $torrent = $this->entityMangaer->getRepository(Torrents::class)->find($id);
+        $torrent = $this->entityManager->getRepository(Torrents::class)->find($id);
         if(!$torrent)
             return $this->render("errors/tracker_error.html.twig", ['error' => "Torrent with id " . $id . " was not found in database"]);
         /*
@@ -219,8 +219,8 @@ class TrackerController extends AbstractController
         }*/
 
         unlink($this->getParameter("kernel.project_dir") . "/data/torrents/" . $torrent->getInfoHash(). ".torrent");
-        $this->entityMangaer->remove($torrent);
-        $this->entityMangaer->flush();
+        $this->entityManager->remove($torrent);
+        $this->entityManager->flush();
         return $this->render("tracker/info.html.twig", ["info" => "Torrent has been removed"]);
     }
 
@@ -229,10 +229,10 @@ class TrackerController extends AbstractController
      * @Route ("/torrent/download/{id}", name="torrent.download", requirements={"id"="\d+"})
      */
     public function torrent_download($id, Request $request){
-        $torrent = $this->entityMangaer->getRepository(Torrents::class)->find($id);
+        $torrent = $this->entityManager->getRepository(Torrents::class)->find($id);
         if(!$torrent)
             return $this->render("errors/tracker_error.html.twig", ['error' => "Torrent with id " . $id . " was not found in database"]);
-        $sync_announce = $this->entityMangaer->getRepository(SyncAnnounce::class)->getSyncAnnounce($this->getUser(), $torrent);
+        $sync_announce = $this->entityManager->getRepository(SyncAnnounce::class)->getSyncAnnounce($this->getUser(), $torrent);
         if(!$sync_announce) {
             $data_passkey = hash("SHA3-512", $this->getUser()->getSecret() . random_bytes(8) . $this->getUser()->getPasskey() . random_bytes(16));
             $sync = new SyncAnnounce();
@@ -240,8 +240,8 @@ class TrackerController extends AbstractController
             $sync->setTorrent($torrent);
             $sync->setDataPasskey($data_passkey);
             $sync->setAdded();
-            $this->entityMangaer->persist($sync);
-            $this->entityMangaer->flush();
+            $this->entityManager->persist($sync);
+            $this->entityManager->flush();
         }else{
             $data_passkey = $sync_announce[0]->getDataPasskey();
         }
@@ -277,7 +277,7 @@ class TrackerController extends AbstractController
     public function upload(Request $request): Response
     {
         $uploader = $this->getUser();
-        $categories = $this->entityMangaer->getRepository(TorrentsCategory::class)->findAllNames();
+        $categories = $this->entityManager->getRepository(TorrentsCategory::class)->findAllNames();
         $form = $this->createForm(UploadFormType::class, ['categories' => $categories]);
         $form->handleRequest($request);
 
@@ -315,7 +315,7 @@ class TrackerController extends AbstractController
             if(file_exists($checkFile)){
                 $form->get('torrent_file')->addError(new FormError("Torrent already exists in database"));
             }else{
-                $category = $this->entityMangaer->getRepository(TorrentsCategory::class)->find($formData['tCategory']);
+                $category = $this->entityManager->getRepository(TorrentsCategory::class)->find($formData['tCategory']);
                 $torrent = new Torrents();
                 $torrent->setOwner($uploader);
                 $torrent->setInfoHash($torrent_file->getTorrentFiles()['info_hash']);

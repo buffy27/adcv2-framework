@@ -6,6 +6,7 @@ use App\Entity\Countries;
 use App\Entity\Invites;
 use App\Entity\Peers;
 use App\Entity\Snatched;
+use App\Entity\SyncAnnounce;
 use App\Entity\Torrents;
 use App\Entity\User;
 use App\Form\ActiveSearchFormType;
@@ -19,9 +20,11 @@ use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
 use finfo;
 use phpDocumentor\Reflection\Types\This;
+use Rhilip\Bencode\Bencode;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -31,6 +34,7 @@ use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\Json;
+use ZipArchive;
 use function Webmozart\Assert\Tests\StaticAnalysis\nullOrCount;
 
 
@@ -268,6 +272,7 @@ class UserProfileController extends AbstractController
 
         if(!$session->has('active')) {
             $query =  $request->query->all();
+            $query['active_toggle'] = 'my_uploads';
             $session->set('active', $query);
         }elseif($session->has('active') && isset($request->query->all()['active_search_form'])){
             $session->set('active', $request->query->all()['active_search_form']);
@@ -277,37 +282,52 @@ class UserProfileController extends AbstractController
         }
 
         if(!$query || $query['active_toggle'] == 'my_uploads'){
-            $data = $this->entityManager->getRepository(Torrents::class)->createQueryBuilder('t')
-            ->select('t as torrent, p.toGo, p.uploaded, p.downloaded')
-            ->join(Peers::class, 'p', Join::WITH, 'p.torrent = t OR p.torrent != t');
+            /** @var QueryBuilder $data */
+            $my_uploads = $this->entityManager->getRepository(Torrents::class)->createQueryBuilder('t')
+            ->where('t.owner = :user')
+            ->setParameter('user', $this->getUser());
         }
-
         if(isset($query['active_toggle']) && $query['active_toggle'] == 'seeding'){
-            $data = $this->entityManager->getRepository(Peers::class)->createQueryBuilder('p')
-                ->where('p.user = :user')
-                ->andWhere('p.toGo = 0')
+            $data = $this->entityManager->getRepository(Peers::class)->createQueryBuilder('ps')
+                ->select('t as torrent, ps.toGo, ps.downloaded, ps.uploaded')
+                ->join(Torrents::class, 't', Join::WITH, 'ps.torrent = t')
+                ->where('ps.user = :user')
+                ->andWhere('ps.toGo = 0')
                 ->setParameter('user', $this->getUser()->getId());
         }
         if(isset($query['active_toggle']) && $query['active_toggle'] == 'leeching'){
-            $data = $this->entityManager->getRepository(Peers::class)->createQueryBuilder('p')
-                ->where('p.user = :user')
-                ->andWhere('p.toGo > 0')
+            $data = $this->entityManager->getRepository(Peers::class)->createQueryBuilder('ps')
+                ->select('t as torrent, ps.toGo, ps.downloaded, ps.uploaded')
+                ->join(Torrents::class, 't', Join::WITH, 'ps.torrent = t')
+                ->where('ps.user = :user')
+                ->andWhere('ps.toGo > 0')
                 ->setParameter('user', $this->getUser()->getId());
         }
         if(isset($query['active_toggle']) && $query['active_toggle'] == 'completed'){
-            $data = $this->entityManager->getRepository(Snatched::class)->createQueryBuilder('s')
-                ->where('s.user = :user')
-                ->andWhere('s.to_go = 0')
+            $data = $this->entityManager->getRepository(Snatched::class)->createQueryBuilder('ps')
+                ->select('t as torrent, ps.toGo, ps.downloaded, ps.uploaded')
+                ->join(Torrents::class, 't', Join::WITH, 'ps.torrent = t')
+                ->where('ps.user = :user')
+                ->andWhere('ps.toGo = 0')
                 ->setParameter('user', $this->getUser()->getId());
         }
         if(isset($query['active_toggle']) && $query['active_toggle'] == 'incomplete'){
-            $data = $this->entityManager->getRepository(Snatched::class)->createQueryBuilder('s')
-                ->where('s.user = :user')
-                ->andWhere('s.to_go > 0')
+            $data = $this->entityManager->getRepository(Snatched::class)->createQueryBuilder('ps')
+                ->select('t as torrent, ps.toGo, ps.downloaded, ps.uploaded')
+                ->join(Torrents::class, 't', Join::WITH, 'ps.torrent = t')
+                ->where('ps.user = :user')
+                ->andWhere('ps.toGo > 0')
                 ->setParameter('user', $this->getUser()->getId());
         }
+        if(!empty($query['search_text']) && isset($my_uploads)){
+            $search = explode(' ', $query['search_text']);
+            for ($i = 0; $i < count($search); $i++) {
+                $my_uploads->andWhere(' LOWER(t.name) LIKE LOWER(CONCAT(\'%\', :word_' . $i . ',\'%\'))');
+                $my_uploads->setParameter('word_' . $i, $search[$i]);
+            }
+        }
 
-        if(!empty($query['search_text'])){
+        if(!empty($query['search_text']) && !isset($my_uploads)){
             $search = explode(' ', $query['search_text']);
             for ($i = 0; $i < count($search); $i++) {
                 $data->andWhere(' LOWER(t.name) LIKE LOWER(CONCAT(\'%\', :word_' . $i . ',\'%\'))');
@@ -315,10 +335,55 @@ class UserProfileController extends AbstractController
             }
         }
 
+        $data = isset($data) ? $data->getQuery()->getResult() : null;
+        $my_uploads = isset($my_uploads) ? $my_uploads->getQuery()->getResult() : null;
+
+        if($request->query->get('dl_torrents') && (isset($data) || isset($my_uploads))){
+            $filesystem = new Filesystem();
+
+            $active = $data ?? $my_uploads;
+            $file = $filesystem->tempnam("/tmp", "zip");
+            $zip = new ZipArchive();
+            $zip->open($file, ZipArchive::OVERWRITE);
+            foreach ($active as $value){
+                $temp = (isset($my_uploads) ? $value : $value['torrent']);
+                $sync_announce = $this->entityManager->getRepository(SyncAnnounce::class)->getSyncAnnounce($this->getUser(), $temp);
+
+                if(!$sync_announce) {
+                    $data_passkey = hash("SHA3-512", $this->getUser()->getSecret() . random_bytes(8) . $this->getUser()->getPasskey() . random_bytes(16));
+                    $sync = new SyncAnnounce();
+                    $sync->setUser($this->getUser());
+                    $sync->setTorrent($temp);
+                    $sync->setDataPasskey($data_passkey);
+                    $sync->setAdded();
+                    $this->entityManager->persist($sync);
+                    $this->entityManager->flush();
+                }else{
+                    $data_passkey = $sync_announce[0]->getDataPasskey();
+                }
+
+                $path = $this->getParameter("kernel.project_dir") . "/data/torrents/" . $value->getInfoHash(). ".torrent";
+                $torrentFile = Bencode::load($path);
+                $torrentFile['announce'] = $request->getSchemeAndHttpHost() .  "/announce/" . $data_passkey;
+                $zip->addFromString($temp->getName() . ".torrent", Bencode::encode($torrentFile));
+            }
+            $zip->close();
+            $headers = [
+                'Content-Type' => 'application/zip',
+                'Content-Description' => 'File Transfer',
+                'Pragma' => 'public',
+                'Content-Length' => filesize($file),
+                'Content-Disposition' => 'attachment; filename="torrents.zip"',
+                'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            ];
+            return new Response(file_get_contents($file),200, $headers);
+        }
+
+
         $searchForm = $this->createForm(ActiveSearchFormType::class, $query);
-        dump($query);
         return $this->render('user_profile/active.html.twig', [
-            'peers' => $data->getQuery()->getResult() ?? null,
+            'peers' => $data,
+            'my_uploads' => $my_uploads,
             'searchForm' => $searchForm->createView(),
             'active' => $session->get('active')
         ]);

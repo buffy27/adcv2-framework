@@ -24,8 +24,8 @@
                     <span class="btn active mb-1">Active</span>
                 </div>
             </div>
+            {{ form_start(searchForm) }}
             <div class="fancy-container mt-3 bx-d-lg-0">
-                {{ form_start(searchForm) }}
                 <div class="col-lg-6 col-md-6 d-flex order-3 order-md-2 order-lg-1 mt-1 table-center">
                     <div class=" bt-0 br-md-0 bx-d-sm-0 w-100">
                         <div class="p-2">
@@ -39,66 +39,112 @@
                         </div>
                     </div>
                 </div>
-                {{ form_end(searchForm) }}
             </div>
-
-            <div class="torrenttable table-responsive mt-3 mb-4 text-right">
-                <input class="btn mb-2" type="submit" name="zip_torrents" value="Download Torrents">
-                <table class="torrenttable_helper bx-d-sm-0 w-100">
-                    <thead>
-                    <tr>
-                        <th class="text-left">Name</th>
-                        <th class="text-right"></th>
-                        <th class="text-left d-none d-sm-table-cell">Uploader</th>
-                        <th width="10%" class="text-center d-none d-sm-table-cell">Size</th>
-                        <th width="1%" class="text-center d-none d-md-table-cell">Up</th>
-                        <th width="1%" class="text-center d-none d-md-table-cell">Dn</th>
-                        <th width="10%" class="text-right d-none d-lg-table-cell">Age</th>
-                        <th width="1%" class="text-center d-none d-lg-table-cell">Uploaded</th>
-                        <th width="1%" class="text-center d-none d-lg-table-cell">Downloaded</th>
-                        <th width="1%" class="text-center d-none d-lg-table-cell">Ratio</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% if peers is  empty %}
+            {% if my_uploads is not null %}
+                <div class="torrenttable table-responsive mt-3 mb-4 text-right">
+                    <input class="btn mb-2" type="submit" name="dl_torrents" value="Download Torrents">
+                    <table class="torrenttable_helper bx-d-sm-2 w-100">
+                        <thead>
                         <tr>
-                            <td colspan="10" class="center">You don't have any torrents on seed/leech</td>
+                            <th class="text-left">Name</th>
+                            <th width="10%" class="text-left d-none d-sm-table-cell">Uploader</th>
+                            <th width="10%" class="text-center d-none d-sm-table-cell">Size</th>
+                            <th width="1%" class="text-center d-none d-md-table-cell">Up</th>
+                            <th width="1%" class="text-center d-none d-md-table-cell">Dn</th>
+                            <th width="10%" class="text-right d-none d-lg-table-cell">Age</th>
                         </tr>
-                    {% else %}
-                        {% for peer in peers %}
-                        <tr>
-                            <td>
-                                <a class="no-decoration f-left" href="{{ path('torrent', {id:peer.torrent.id}) }}">
-                                    {% if peer.toGo == 0 %}
-                                        <img src="{{ asset('images/trans.gif') }} " class="main-arrowup valign-bottom" />
-                                    {% else %}
-                                        <img src="{{ asset('images/trans.gif') }}" class="main-arrowdown valign-bottom" />
-                                    {% endif %}
-                                    {{ peer.torrent.name }}
-                                </a>
-                            </td>
-                            <td class="text-center d-none d-sm-table-cell">
-                                <img title="" class="valign-middle" height="15" width="15" src="{{ asset('images/') }}">
-                            </td>
-                            <td class="text-left d-none d-sm-table-cell valign-middle">
-                                <a href="{{ path('user.profile.id', {id:peer.torrent.owner.id}) }}">
-                                    {{ peer.torrent.owner.username }}
-                                </a>
-                            </td>
+                        </thead>
+                        <tbody>
+                        {% if my_uploads is  empty %}
+                            <tr>
+                                <td colspan="6" class="center">You don't have any uploaded torrents</td>
+                            </tr>
+                        {% else %}
+                            {% for torrent in my_uploads %}
+                            <tr>
+                                <td>
+                                    <a class="no-decoration f-left" href="{{ path('torrent', {id:torrent.id}) }}">
+                                        {{ torrent.name }}
+                                    </a>
+                                </td>
 
-                            <td class="text-center d-none d-sm-table-cell">{{  filesystem.bytesToSize(peer.torrent.size) }}</td>
-                            <td class="text-center d-none d-md-table-cell">{{ peer.torrent.seeders }}</td>
-                            <td class="text-center d-none d-md-table-cell">{{ peer.torrent.leechers }}</td>
-                            <td class="text-right d-none d-lg-table-cell dark-gray"></td>
-                            <td class="text-center d-none d-lg-table-cell">{{ filesystem.bytesToSize(peer.uploaded) }}</td>
-                            <td class="text-center d-none d-lg-table-cell">{{ filesystem.bytesToSize(peer.downloaded) }}</td>
-                            <td class="text-center d-none d-lg-table-cell">{{ peer.downloaded != 0 ? peer.uploaded/peer.downloaded : "NTD" }}</td>
+                                <td class="text-left d-none d-sm-table-cell valign-middle">
+                                    <a href="{{ path('user.profile.id', {id:torrent.owner.id}) }}">
+                                        {{ torrent.owner.username }}
+                                    </a>
+                                </td>
+                                <td class="text-center d-none d-sm-table-cell">{{  filesystem.bytesToSize(torrent.size) }}</td>
+                                <td class="text-center d-none d-md-table-cell">{{ torrent.seeders }}</td>
+                                <td class="text-center d-none d-md-table-cell">{{ torrent.leechers }}</td>
+                                <td class="text-right d-none d-lg-table-cell dark-gray">{{ functions.timeago_short(torrent.added) }}</td>
+                            </tr>
+                            {% endfor %}
+                        {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="torrenttable table-responsive mt-3 mb-4 text-right">
+                    <input class="btn mb-2" type="submit" name="dl_torrents" value="Download Torrents">
+                    <table class="torrenttable_helper bx-d-sm-0 w-100">
+                        <thead>
+                        <tr>
+                            <th class="text-left">Name</th>
+                            <th class="text-right"></th>
+                            <th class="text-left d-none d-sm-table-cell">Uploader</th>
+                            <th width="10%" class="text-center d-none d-sm-table-cell">Size</th>
+                            <th width="1%" class="text-center d-none d-md-table-cell">Up</th>
+                            <th width="1%" class="text-center d-none d-md-table-cell">Dn</th>
+                            <th width="10%" class="text-right d-none d-lg-table-cell">Age</th>
+
+                            <th width="1%" class="text-center d-none d-lg-table-cell">Uploaded</th>
+                            <th width="1%" class="text-center d-none d-lg-table-cell">Downloaded</th>
+                            <th width="1%" class="text-center d-none d-lg-table-cell">Ratio</th>
+
                         </tr>
-                        {% endfor %}
-                    {% endif %}
-                    </tbody>
-                </table>
-            </div>
+                        </thead>
+                        <tbody>
+                        {% if peers is  empty %}
+                            <tr>
+                                <td colspan="10" class="center">You don't have any torrents on seed/leech</td>
+                            </tr>
+                        {% else %}
+                            {% for peer in peers %}
+                                <tr>
+                                    <td>
+                                        <a class="no-decoration f-left" href="{{ path('torrent', {id:peer.torrent.id}) }}">
+                                            {% if peer.toGo == 0 %}
+                                                <img src="{{ asset('images/trans.gif') }} " class="main-arrowup valign-bottom" />
+                                            {% else %}
+                                                <img src="{{ asset('images/trans.gif') }}" class="main-arrowdown valign-bottom" />
+                                            {% endif %}
+                                            {{ peer.torrent.name }}
+                                        </a>
+                                    </td>
+                                    <td class="text-center d-none d-sm-table-cell">
+                                        <img title="" class="valign-middle" height="15" width="15" src="{{ asset('images/') }}">
+                                    </td>
+                                    <td class="text-left d-none d-sm-table-cell valign-middle">
+                                        <a href="{{ path('user.profile.id', {id:peer.torrent.owner.id}) }}">
+                                            {{ peer.torrent.owner.username }}
+                                        </a>
+                                    </td>
+
+                                    <td class="text-center d-none d-sm-table-cell">{{  filesystem.bytesToSize(peer.torrent.size) }}</td>
+                                    <td class="text-center d-none d-md-table-cell">{{ peer.torrent.seeders }}</td>
+                                    <td class="text-center d-none d-md-table-cell">{{ peer.torrent.leechers }}</td>
+                                    <td class="text-right d-none d-lg-table-cell dark-gray"></td>
+                                    <td class="text-center d-none d-lg-table-cell">{{ filesystem.bytesToSize(peer.uploaded) }}</td>
+                                    <td class="text-center d-none d-lg-table-cell">{{ filesystem.bytesToSize(peer.downloaded) }}</td>
+                                    <td class="text-center d-none d-lg-table-cell">{{ peer.downloaded != 0 ? peer.uploaded/peer.downloaded : "NTD" }}</td>
+                                </tr>
+                            {% endfor %}
+                        {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+            {{ form_end(searchForm) }}
         </div>
     </div>
 {% endblock %}

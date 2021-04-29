@@ -20,11 +20,11 @@ use Psr\Cache\CacheItemPoolInterface;
 
 class IndexController extends AbstractController
 {
-    private $entityMangaer;
+    private $entityManager;
 
     public function __construct(EntityManagerInterface $entityManager)
     {
-        $this->entityMangaer = $entityManager;
+        $this->entityManager = $entityManager;
     }
 
     /**
@@ -33,7 +33,7 @@ class IndexController extends AbstractController
      */
     public function index(TrackerMemcached $trackerMemcached, Request $request): Response
     {
-        $news = $this->entityMangaer->getRepository(News::class)->findAll();
+        $news = $this->entityManager->getRepository(News::class)->findAll();
 
         return $this->render('index/index.html.twig', [
             'news' => $news
@@ -65,9 +65,9 @@ class IndexController extends AbstractController
      * @Route("/delete_news/{id}", name="news.delete")
      */
     public function deleteNews($id, Request $request){
-        $news = $this->entityMangaer->getRepository(News::class)->find($id);
-        $this->entityMangaer->remove($news);
-        $this->entityMangaer->flush();
+        $news = $this->entityManager->getRepository(News::class)->find($id);
+        $this->entityManager->remove($news);
+        $this->entityManager->flush();
         return new RedirectResponse($this->generateUrl('index'));
     }
 

@@ -28,13 +28,13 @@ class AnnounceController extends AbstractController
         'Pragma' => 'no-cache'
     ];
 
-    private $entityMangaer;
+    private $entityManager;
     private $memcached;
     private $functions;
 
     public function __construct(EntityManagerInterface $entityManager, TrackerMemcached $memcached, Functions $functions)
     {
-        $this->entityMangaer = $entityManager;
+        $this->entityManager = $entityManager;
         $this->memcached = $memcached;
         $this->functions = $functions;
     }
@@ -67,7 +67,7 @@ class AnnounceController extends AbstractController
             'timestamp' => $request->server->get('REQUEST_TIME_FLOAT')
         ];
 
-        $sync = $this->entityMangaer->getRepository(SyncAnnounce::class)->findByDataPasskey($passkey)[0];
+        $sync = $this->entityManager->getRepository(SyncAnnounce::class)->findByDataPasskey($passkey)[0];
 
         if(empty($sync)){
             return new Response($this->error(103), 200, $this->headers);
@@ -120,12 +120,12 @@ class AnnounceController extends AbstractController
         $queries['user-agent'] = $request->headers->get('user-agent');
         $queries['seeder'] = $queries['left'] == 0;
 
-        $self = $this->entityMangaer->getRepository(Peers::class)->findByAnnounce($sync->getUser(), $sync->getTorrent(), $queries['peer_id']);
+        $self = $this->entityManager->getRepository(Peers::class)->findByAnnounce($sync->getUser(), $sync->getTorrent(), $queries['peer_id']);
 
         $torrent = $sync->getTorrent();
         $user = $sync->getUser();
         /** @var Snatched $snatched */
-        $snatched = $this->entityMangaer->getRepository(Snatched::class)->findBy([
+        $snatched = $this->entityManager->getRepository(Snatched::class)->findBy([
             'user' => $user,
             'torrent' => $torrent
         ]);
@@ -150,7 +150,7 @@ class AnnounceController extends AbstractController
             $peer->setTorrent($sync->getTorrent())->setUser($sync->getUser())->setUploaded($trueUploaded)->setDownloaded($trueDownloaded)->setToGo($queries['left'])
                 ->setIp($queries['ip'])->setPort($queries['port'])->setPeerId($queries['peer_id'])->setAgent($queries['user-agent'])
                 ->setStarted()->setLastAction()->setSeeder($queries['seeder'])->setConnectable($connectable);
-            $this->entityMangaer->persist($peer);
+            $this->entityManager->persist($peer);
 
             if($queries['seeder'])
                 $torrent->setSeeders($torrent->getSeeders() + 1);
@@ -171,14 +171,14 @@ class AnnounceController extends AbstractController
                 $snatched->setSeedtime(0);
                 $snatched->setLeechtime(0);
                 $snatched->setToGo($queries['left']);
-                $this->entityMangaer->persist($snatched);
+                $this->entityManager->persist($snatched);
             }
         }else{
             $thisUploaded = $trueUploaded = max(0, $queries['uploaded'] - $self->getUploaded());
             $thisDownloaded = $trueDownloaded = max(0, $queries['downloaded'] - $self->getDownloaded());
 
             if($queries['event'] === "stopped"){
-                $this->entityMangaer->remove($self);
+                $this->entityManager->remove($self);
                 if($queries['seeder'])
                     $torrent->setSeeders($torrent->getSeeders() - 1);
                 else
@@ -213,7 +213,7 @@ class AnnounceController extends AbstractController
         if($this->memcached->cleanPeers()){
             $this->log_announce("Stats d= ". $trueDownloaded);
         }
-        $this->entityMangaer->flush();
+        $this->entityManager->flush();
         return new Response($this->generateAnnounceResponse($queries, $torrent), 200, $this->headers);
     }
 
@@ -227,7 +227,7 @@ class AnnounceController extends AbstractController
             'peers' => ''
         ];
 
-        $peers = $this->entityMangaer->getRepository(Peers::class)->getAllPeers($queries, $torrent);
+        $peers = $this->entityManager->getRepository(Peers::class)->getAllPeers($queries, $torrent);
 
         foreach ($peers as $peer){
             if($queries['compact']){
@@ -262,7 +262,7 @@ class AnnounceController extends AbstractController
         $logs = new Logs();
         $logs->setLog($log);
         $logs->setAdded();
-        $this->entityMangaer->persist($logs);
+        $this->entityManager->persist($logs);
     }
     private function error($code, $replace = null): string
     {
