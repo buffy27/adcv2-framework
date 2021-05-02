@@ -177,6 +177,8 @@ class AnnounceController extends AbstractController
             $thisUploaded = $trueUploaded = max(0, $queries['uploaded'] - $self->getUploaded());
             $thisDownloaded = $trueDownloaded = max(0, $queries['downloaded'] - $self->getDownloaded());
 
+            $this->calculateTorrentBonus($torrent, $user, $trueUploaded, $trueDownloaded, $thisUploaded, $thisDownloaded);
+
             if($queries['event'] === "stopped"){
                 $this->entityManager->remove($self);
                 if($queries['seeder'])
@@ -210,9 +212,19 @@ class AnnounceController extends AbstractController
 
         $user->setUploaded($user->getUploaded() + $thisUploaded);
         $user->setDownloaded($user->getDownloaded() + $thisDownloaded);
-        if($this->memcached->cleanPeers()){
-            $this->log_announce("Stats d= ". $trueDownloaded);
+
+        $this->memcached->cleanPeers();
+
+        $this->entityManager->flush();
+        $calc_peers = $this->entityManager->getRepository(Peers::class)->getPeersCountByTorrent($torrent);
+
+        if($torrent->getSeeders() != $calc_peers['seeders']){
+            $torrent->setSeeders($calc_peers['seeders']);
         }
+        if($torrent->getSeeders() != $calc_peers['leechers']){
+            $torrent->setLeechers($calc_peers['leechers']);
+        }
+
         $this->entityManager->flush();
         return new Response($this->generateAnnounceResponse($queries, $torrent), 200, $this->headers);
     }
@@ -238,18 +250,32 @@ class AnnounceController extends AbstractController
         return Bencode::encode($rep_dict);
     }
 
+    /**
+     * @param $torrent
+     * @param $user
+     * @param $trueUploaded
+     * @param $trueDownloaded
+     * @param $thisUploaded
+     * @param $thisDownloaded
+     */
     private function calculateTorrentBonus($torrent, $user, $trueUploaded, $trueDownloaded, &$thisUploaded, &$thisDownloaded){
+        $now = new \DateTime('now');
+        dump($user->getUsername());
+        dump($torrent->getBonus() === "freeleech");
+        dump($torrent->getBonusExpire() > $now);
         if($torrent->getOwner() === $user) {
             $thisUploaded = $trueUploaded;
-        }elseif($torrent['bonus'] === "freeleech" && timeDiff($torrent['bonus_expire']) < 0) {
+            $thisDownloaded = 0;
+        }elseif($torrent->getBonus() === "freeleech" && $torrent->getBonusExpire() > $now) {
             $thisUploaded = $trueUploaded;
-        }elseif (json_decode($torrent['specs'], true)['format'] === "dvd" && $torrent['bonus'] === "silver") {
+            $thisDownloaded = 0;
+        }elseif ($torrent->getSpecs()['format'] === "dvd" && $torrent->getBonus() === "silver") {
             $thisUploaded = $trueUploaded;
             $thisDownloaded = (int)(0.5 * $trueDownloaded);
-        }elseif (json_decode($torrent['specs'], true)['format'] === "bdmv" && $torrent['bonus'] === "silver") {
+        }elseif ($torrent->getSpecs()['format'] === "bdmv" && $torrent->getBonus() === "silver") {
             $thisUploaded = $trueUploaded;
             $thisDownloaded = (int)(0.25 * $trueDownloaded);
-        }elseif (json_decode($torrent['specs'], true)['format'] === "bdmv"){
+        }elseif ($torrent->getSpecs()['format'] === "bdmv"){
             $thisUploaded = $trueUploaded;
             $thisDownloaded = (int)(0.5 * $trueDownloaded);
         }else{

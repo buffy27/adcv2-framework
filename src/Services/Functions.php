@@ -29,7 +29,7 @@ class Functions
             }
 
             $diff = round($diff);
-            return $diff . " " . $strTime[$i] . "(s) ago ";
+            return $diff . " " . $strTime[$i] . "(s) ago";
         }
     }
     public function timeago_short($date) {
@@ -49,7 +49,7 @@ class Functions
             }
 
             $diff = round($diff);
-            return $diff . " " . $strTime[$i] . "(s) ago ";
+            return $diff . " " . $strTime[$i] . "(s) ago";
         }
     }
     public function date_to_seconds($date)

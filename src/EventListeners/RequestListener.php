@@ -54,5 +54,9 @@ class RequestListener
             return;
         }
         $response = $event->getResponse();
+        $response->setMaxAge(0);
+        $response->headers->addCacheControlDirective('must-revalidate');
+        $response->headers->addCacheControlDirective('no-store');
+        $response->headers->addCacheControlDirective('no-cache');
     }
 }

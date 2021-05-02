@@ -2,6 +2,10 @@
 
 {% block title %}Upload{% endblock %}
 
+{% block  javascripts %}
+    {{ encore_entry_script_tags('upload_torrent') }}
+{% endblock %}
+
 {% block body %}
     <div class="row small-device mt-4 mb-5" id="upload-content">
         <div class="col-12 col-xl-8 col-lg-10 mx-auto">
@@ -12,7 +16,7 @@
                     <!-- annouce -->
                     <div class="fancy-row">
                         <div class="row small-device center">
-                            <b class="black">Check our upload <a href="{{ path('rules') }}#upload_rules">rules</a> and make of no dupe before Uploading</b>
+                            <b class="black">Check our upload <a href="{{ path('rules') }}#upload_rules">rules</a> and make sure there are no dupe before uploading</b>
                         </div>
                     </div>
                     <!-- annouce -->
@@ -20,7 +24,7 @@
                         <div class="row small-device">
                             <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Announce URL</div>
                             <div class="col-12 col-sm-10">
-                                <b class="black">Leave the announce empty</b>
+                                <b class="black">{{ announce }}</b>
                             </div>
                         </div>
                     </div>
@@ -40,7 +44,7 @@
                     <div class="fancy-row">
                         <div class="row small-device">
                             <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">{{ form_label(uploadForm.tCategory) }}</div>
-                            <div class="col-12 col-sm-10">{{ form_widget(uploadForm.tCategory)}} &nbsp;&nbsp;Japanese animation for 'Anime' category. Other countries are for live TV, non-Japanese animation and Drama CD/OST.
+                            <div class="col-12 col-sm-10">{{ form_widget(uploadForm.tCategory)}}
                             </div>
                         </div>
                     </div>

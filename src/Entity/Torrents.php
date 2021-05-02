@@ -122,16 +122,6 @@ class Torrents
      */
     private $Snatched;
 
-    /** 
-     * @ORM\Column(type="boolean", options={"default":0})
-     */
-    private $DoubleTorrent;
-
-    /**
-     * @ORM\Column(type="bigint", options={"default":0})
-     */
-    private $Balance;
-
     /**
      * @ORM\Column(type="datetime", options={"default":"CURRENT_TIMESTAMP"})
      */
@@ -141,6 +131,11 @@ class Torrents
      * @ORM\OneToMany(targetEntity=Snatched::class, mappedBy="torrent")
      */
     private $snatcheds;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $BonusExpire;
 
     public function __construct()
     {
@@ -465,30 +460,6 @@ class Torrents
         return $this;
     }
 
-    public function getDoubleTorrent(): ?bool
-    {
-        return $this->DoubleTorrent;
-    }
-
-    public function setDoubleTorrent(bool $DoubleTorrent): self
-    {
-        $this->DoubleTorrent = $DoubleTorrent;
-
-        return $this;
-    }
-
-    public function getBalance(): ?string
-    {
-        return $this->Balance;
-    }
-
-    public function setBalance(string $Balance): self
-    {
-        $this->Balance = $Balance;
-
-        return $this;
-    }
-
     public function getLastAction(): ?\DateTimeInterface
     {
         return $this->LastAction;
@@ -530,6 +501,18 @@ class Torrents
                 $snatched->setTorrent(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getBonusExpire(): ?\DateTimeInterface
+    {
+        return $this->BonusExpire;
+    }
+
+    public function setBonusExpire(?\DateTimeInterface $BonusExpire): self
+    {
+        $this->BonusExpire = $BonusExpire;
 
         return $this;
     }

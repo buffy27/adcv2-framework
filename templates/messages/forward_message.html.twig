@@ -1,0 +1,60 @@
+{% extends 'layout/tracker.html.twig' %}
+
+{% block title %}Message{% endblock %}
+
+{% block body %}
+    <div class="row small-device">
+        <div class="col-12 col-xl-8 offset-xl-2 col-lg-10 offset-lg-1 mt-4 mb-5">
+            <?php echo isset($data['request_msg']) ? $data['request_msg'] : ""; ?>
+
+            <h1 class="text-center">Send Private Message</h1>
+
+            {{ form_start(form) }}
+            <div class="fancy-container bx-d-sm-0">
+                <!-- recipient -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Recipient</div>
+                        <div class="col-12 col-sm-10">
+                            {{ form_widget(form.receiver) }}
+                            {{ form_errors(form.receiver) }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- subject -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">{{ form_label(form.subject) }}</div>
+                        <div class="col-12 col-sm-10">
+                            {{ form_widget(form.subject) }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- message -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 pt-1"> {{ form_label(form.message) }}</div>
+                        <div class="col-12 col-sm-10">
+                            <span> {{ form_errors(form.message) }}</span>
+                            {{ form_widget(form.message) }}
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- send pm button -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="col-12 col-sm-2"></div>
+                        <div class="col-12 col-sm-10">
+                            {{ form_widget(form.send) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+{% endblock %}

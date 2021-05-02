@@ -34,14 +34,13 @@ class IndexController extends AbstractController
     public function index(TrackerMemcached $trackerMemcached, Request $request): Response
     {
         $news = $this->entityManager->getRepository(News::class)->findAll();
-
         return $this->render('index/index.html.twig', [
             'news' => $news
         ]);
     }
 
     /**
-     * @Security ("is_granted('ROLE_ADMIN')")
+     * @IsGranted ("ROLE_ADMIN")
      * @Route("/create_news", name="news.create")
      */
     public function createNews(Request $request): Response

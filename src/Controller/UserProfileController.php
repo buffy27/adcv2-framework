@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Countries;
+use App\Entity\Friends;
 use App\Entity\Invites;
 use App\Entity\Peers;
 use App\Entity\Snatched;
@@ -27,6 +28,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -79,14 +81,20 @@ class UserProfileController extends AbstractController
                 'titlepic' => $user->getIdTitle()->getTitlepic()
             ];
         }
+        $invited_by = $this->entityManager->getRepository(Invites::class)->findOneBy(['invitee' => $user]);
 
         if(!empty($user)) {
             $country = $this->entityManager->getRepository(Countries::class)->find($user->getIdCountry());
+
+            $friends = $this->entityManager->getRepository(Friends::class)->findFriendRelation($this->getUser(), $user);
+            dump($friends);
             return $this->render('user_profile/user_profile.html.twig', [
                 'user' => $user,
                 'country' => $country,
                 'class' => $user->getUserClass(),
-                'title' => isset($title) ? $title : null
+                'title' => isset($title) ? $title : null,
+                'invited_by' => $invited_by ?? null,
+                'friends' => $friends
             ]);
         }
 
@@ -154,7 +162,7 @@ class UserProfileController extends AbstractController
             $this->entityManager->flush();
             unset($user);
             $this->memcached->removeUserStats();
-            return $this->render('user_profile/profile_settings.html.twig', ['userSettings' => $userSettings->createView()]);
+            return new RedirectResponse($this->generateUrl('user.settings'));
         }
         unset($user);
         return $this->render('user_profile/profile_settings.html.twig',  ['userSettings' => $userSettings->createView()]);
@@ -182,9 +190,7 @@ class UserProfileController extends AbstractController
             ]);
             $this->entityManager->flush();
 
-            return $this->render('user_profile/tracker_settings.html.twig', array_merge($this->memcached->getUserStats(), [
-                'trackerSettings' => $trackerSettings->createView()
-            ]));
+            return new RedirectResponse($this->generateUrl('user.tracker'));
         }
         return $this->render('user_profile/tracker_settings.html.twig', array_merge($this->memcached->getUserStats(), [
             'trackerSettings' => $trackerSettings->createView()

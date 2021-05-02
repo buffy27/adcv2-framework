@@ -1,0 +1,37 @@
+{% extends 'layout/tracker.html.twig' %}
+{% import'macros/filesystem.html.twig' as filesystem %}
+
+{% block title %}Torrent{% endblock %}
+
+{% block body %}
+    <div class="row small-device">
+        <div class="col-12 col-xl-8 col-lg-10 mx-auto mt-4 mb-5">
+            <h1 class="text-center">Edit Comment</h1>
+
+            <form enctype="multipart/form-data" method="POST" action="" role="form">
+                <div class="fancy-container bx-d-sm-0">
+
+                    <!-- Body -->
+                    <div class="fancy-row">
+                        <div class="row small-device">
+                            <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 pt-1">Message</div>
+                            <div class="col-12 col-sm-10">
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- create news button -->
+                    <div class="fancy-row">
+                        <div class="row small-device">
+                            <div class="col-12 col-sm-2"></div>
+                            <div class="col-12 col-sm-10">
+                                <input id="qr" type="submit" class="btn" value="Save">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

@@ -20,7 +20,11 @@
                     <a href="{{ path('user.active.id', {"id": user.id} ) }}" class="no-decoration btn mb-1 no-hover-color">Active</a>
                 </div>
             </div>
-
+            {% for message in app.flashes('friend_request') %}
+                <div class="fancy-container mt-3 text-center justify-content-center">
+                    <h2 class="mt-1"> {{ message }} </h2>
+                </div>
+            {% endfor %}
             <div class="fancy-container mt-3 bx-d-sm-0">
                 <!-- join date -->
                 <div class="fancy-row">
@@ -37,7 +41,7 @@
                     <div class="row small-device">
                         <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Last seen</div>
                         <div class="col-12 col-sm-10">
-                            <?php echo $data['last_seen']; ?>
+                            {{ functions.timeago(user.LastAction) }}
                         </div>
                     </div>
                 </div>
@@ -47,7 +51,11 @@
                     <div class="row small-device">
                         <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Invited by</div>
                         <div class="col-12 col-sm-10">
-                            <?php echo $data['userStats']['invitedby']?>
+                            {% if invited_by is not null %}
+                            <a href="{{ path('user.profile.id', {id:invited_by.inviter.id}) }}"> {{ invited_by.inviter.username }} </a>
+                            {% else %}
+                                System
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -124,7 +132,14 @@
                     </div>
                 </div>
             </div>
-            </div>
+        </div>
+        <div class="col-xl-8 col-lg-10 col-12 mx-auto mt-2 text-center">
+            <a class="btn no-decoration" href="{{ path('message.send', {id:user.id}) }}">Send PM</a>
+            {% if friends is not null and friends.status == true %}
+                <a class="btn no-decoration" href="{{ path('friend.remove', {id:user.id}) }}">Remove friend</a>
+            {% else %}
+                <a class="btn no-decoration" href="{{ path('friend.add', {id:user.id}) }}">Add to friends</a>
+            {% endif %}
         </div>
     </div>
 {% endblock %}

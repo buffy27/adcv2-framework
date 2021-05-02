@@ -303,19 +303,20 @@
                     <th>Details and requirements</th>
                 </tr>
                 <tr class="rowA">
-                    <td class="bold">Probationary</td>
-                    <td>Three months trial during which a person's character, ability to meet requirements and fitness for membership in a social group is tested.
-                        By the end of the time period member must meet 'Power User' requirements, if met the 'User' requirements trial extended for additional 2 months.</td>
+                    <td class="bold">Newbie</td>
+                    <td>Members who joined using an application start here.
+                        Limited to downloading 3 torrents at once.</td>
                 </tr>
                 <tr class="rowB">
                     <td class="bold">Rookie</td>
-                    <td>Members who were invited by another member starts here.<br>
+                    <td>Members who were invited by another member start here.
+                        Must have been a member for at least 2 weeks, unless invited.<br>
                     </td>
                 </tr>
                 <tr class="rowA">
                     <td><span class="bold blue">User</span></td>
-                    <td>Lowest user class. Must have been a member for at least 4 weeks, have downloaded at least 300 GB, and have a ratio of at least 0.60.<br>
-                        Download privileges suspended (except golden) if your ratio drops below 0.55.</td>
+                    <td>Must have been a member for at least 4 weeks, have downloaded at least 100 GB, and have a ratio of at least 0.60.
+                        You will be automatically demoted from this class if your ratio drops below 0.55.</td>
                 </tr>
                 <tr class="rowB">
                     <td><span class="bold blue">Power User</span></td>
@@ -325,20 +326,12 @@
                 <tr class="rowA">
                     <td><span class="bold blue">Elite User</span></td>
                     <td>Must have been a member for at least one year, have downloaded at least 1 TB, and have a ratio of at least 1.10.<br>
-                        You will be automatically demoted from this class if your ratio drops below 1.05. Can give one invitation monthly.</td>
+                        You will be automatically demoted from this class if your ratio drops below 1.05.</td>
                 </tr>
                 <tr class="rowB">
                     <td><span class="bold blue">Monster User</span></td>
                     <td>Must have been a member for at least 3 years, have downloaded at least 10 TB, and have a ratio of at least 1.20.<br>
                         You will be automatically demoted from this class if your ratio drops below 1.15. Can give two invitation monthly.</td>
-                </tr>
-                <tr class="rowA">
-                    <td><span class="bold r05">Staff</span></td>
-                    <td>Helps with the communications on the site and forum.</td>
-                </tr>
-                <tr class="rowB">
-                    <td><span class="bold r05">Assistant Moderator</span></td>
-                    <td>Assists moderators of different class.</td>
                 </tr>
                 <tr class="rowA">
                     <td class="bold r05">Torrent Moderator</td>
@@ -347,10 +340,6 @@
                 <tr class="rowB">
                     <td class="bold r05">Forum Moderator</td>
                     <td>Can moderate comments and forum posts.</td>
-                </tr>
-                <tr class="rowA">
-                    <td class="bold r05">IRC Moderator</td>
-                    <td>Can moderate IRC.</td>
                 </tr>
                 <tr class="rowB">
                     <td class="bold r05">Moderator</td>
@@ -361,12 +350,12 @@
                     <td>Can do everything Moderators can do and more.</td>
                 </tr>
                 <tr class="rowB">
-                    <td class="bold r05">Programmer</td>
-                    <td>God-like humans with an uncanny knowledge of UNIX arcana. Do not feed.</td>
-                </tr>
-                <tr class="rowA">
                     <td class="bold r05">Administrator</td>
                     <td>Can do just about anything.</td>
+                </tr>
+                <tr class="rowA">
+                    <td class="bold r05">SysOp</td>
+                    <td>God-like humans with an uncanny knowledge of UNIX arcana. Do not feed.</td>
                 </tr>
                 </tbody>
             </table>
@@ -399,7 +388,7 @@
             <br />
 
             <strong id="69">I'm going to be away from my computer for a long period of time, what will happen to my account?</strong>
-            <p>If your account is not parked, then it will be automatically deleted from the database after 120 days of inactivity. If your account is parked, then it will be automatically deleted from the database after 240 days of inactivity. If you return or visit the site with your account before that amount of time passes, then the inactivity timer will reset and your account will be fine for another 120 or 240 days (depending on its parked/not-parked status). You can find the account park option near the top of your <a class="altlink" href="<?php echo URL_ROOT . "/profile/ps"; ?>">personal settings page</a>.</p>
+            <p>If your account is not parked, then it will be automatically deleted from the database after 120 days of inactivity. If your account is parked, then it will be automatically deleted from the database after 240 days of inactivity. If you return or visit the site with your account before that amount of time passes, then the inactivity timer will reset and your account will be fine for another 120 or 240 days (depending on its parked/not-parked status). You can find the account park option near the top of your <a class="altlink" href="{{ path('user.settings') }}">personal settings page</a>.</p>
             <p>Keep in mind that 'activity' is considered a visit to any page and that torrent traffic is not counted as account activity. In order to reset the inactivity timer all you have to do is visit a single page while logged in with your account. If your account is deleted for inactivity, please do not ask the site staff to un-delete it for you. The deletion is performed automatically by the server and, as such, your account cannot be recovered after it has been deleted.</p>
             <br />
 

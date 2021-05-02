@@ -211,6 +211,11 @@ class User implements UserInterface
      */
     private $snatcheds;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Friends::class, mappedBy="user")
+     */
+    private $friends;
+
     public function __construct()
     {
         $this->torrents = new ArrayCollection();
@@ -221,6 +226,7 @@ class User implements UserInterface
         $this->peers = new ArrayCollection();
         $this->invites = new ArrayCollection();
         $this->snatcheds = new ArrayCollection();
+        $this->friends = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -816,6 +822,36 @@ class User implements UserInterface
             // set the owning side to null (unless already changed)
             if ($snatched->getUser() === $this) {
                 $snatched->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Friends[]
+     */
+    public function getFriends(): Collection
+    {
+        return $this->friends;
+    }
+
+    public function addFriend(Friends $friend): self
+    {
+        if (!$this->friends->contains($friend)) {
+            $this->friends[] = $friend;
+            $friend->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFriend(Friends $friend): self
+    {
+        if ($this->friends->removeElement($friend)) {
+            // set the owning side to null (unless already changed)
+            if ($friend->getUser() === $this) {
+                $friend->setUser(null);
             }
         }
 

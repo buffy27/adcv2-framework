@@ -7,6 +7,7 @@ use App\Entity\SyncAnnounce;
 use App\Entity\TorrentComments;
 use App\Entity\Torrents;
 use App\Entity\TorrentsCategory;
+use App\Form\EditTorrentFormType;
 use App\Form\UploadFormType;
 use App\Form\UploadPreviewFormType;
 use App\Libraries\AnnounceFunctions;
@@ -19,6 +20,7 @@ use Doctrine\ORM\Tools\Pagination\Paginator;
 use phpDocumentor\Reflection\Types\This;
 use Rhilip\Bencode\Bencode;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -50,11 +52,6 @@ class TrackerController extends AbstractController
      */
     public function torrents(int $page = 1, Request $request, SessionInterface $session, TrackerMemcached $memcached): Response
     {
-        /*
-         * Search mapping
-         * searchbox, search_desc, bookmarked, completed, my_uploads, seeds_needed, bdmv, uhd, golden, silver
-         */
-        //$torrents = $this->entityManager->getRepository(Torrents::class)->findAll();
         /** @var QueryBuilder $torrents */
         $torrents = $this->entityManager->getRepository(Torrents::class)->createQueryBuilder('t');
         if($request->query->get('search')){
@@ -208,20 +205,38 @@ class TrackerController extends AbstractController
     public function torrent_remove($id): Response
     {
         $torrent = $this->entityManager->getRepository(Torrents::class)->find($id);
+
         if(!$torrent)
             return $this->render("errors/tracker_error.html.twig", ['error' => "Torrent with id " . $id . " was not found in database"]);
-        /*
-        $error = isset($this->announce->deleteTorrent($torrent->getInfoHash())['error']) ? $this->announce->deleteTorrent($torrent->getInfoHash())['error'] : null;
-        if(isset($error)){
-            return $this->render('errors/tracker_error.html.twig', [
-                'error' => $error
-            ]);
-        }*/
 
         unlink($this->getParameter("kernel.project_dir") . "/data/torrents/" . $torrent->getInfoHash(). ".torrent");
+        unlink($this->getParameter("kernel.project_dir") . "/data/torrent_posters/" . $id . $torrent->getContentPoster());
         $this->entityManager->remove($torrent);
         $this->entityManager->flush();
         return $this->render("tracker/info.html.twig", ["info" => "Torrent has been removed"]);
+    }
+
+    /**
+     * @param $id
+     * @Route ("/torrent/edit/{id}", name="torrent.edit", requirements={"id"="\d+"}, methods={"GET", "POST"})
+     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_TORRENT_MODERATOR') or is_granted('ROLE_MODERATOR') or is_granted('ROLE_SENIOR_MODERATOR')")
+     */
+    public function torrent_edit($id){
+        $torrent = $this->entityManager->getRepository(Torrents::class)->findOneBy(['id'=>$id]);
+
+        $form = $this->createForm(EditTorrentFormType::class, $torrent);
+
+        return $this->render('tracker/edit_torrent.html.twig', [
+            'torrent' => $torrent,
+            'edit_form' => $form->createView()
+        ]);
+    }
+
+    /**
+     * @Route ("/comment/edit/{id}", name="comment.edit", requirements={"id"="\d+"}, methods={"GET", "POST"})
+     */
+    public function edit_torrent_comment($id){
+        return $this->render('tracker/edit_comment.html.twig');
     }
 
     /**
@@ -314,6 +329,10 @@ class TrackerController extends AbstractController
             $checkFile = $this->getParameter('kernel.project_dir') . "/data/torrents/" . $torrent_file->getTorrentFiles()['info_hash'] . ".torrent";
             if(file_exists($checkFile)){
                 $form->get('torrent_file')->addError(new FormError("Torrent already exists in database"));
+            }elseif ($torrent_file->getTorrentFile()['announce'] != $request->getSchemeAndHttpHost() . "/announce") {
+                dump($torrent_file->getTorrentFile()['announce']);
+                dump($request->getSchemeAndHttpHost() . "/announce");
+                $form->get('torrent_file')->addError(new FormError("Wrong announce"));
             }else{
                 $category = $this->entityManager->getRepository(TorrentsCategory::class)->find($formData['tCategory']);
                 $torrent = new Torrents();
@@ -339,32 +358,45 @@ class TrackerController extends AbstractController
                     $torrent->setName($formData['torrent_name']);
                 else
                     $torrent->setName($torrent_file->getTorrentFile()['info']['name']);
-                $torrent->setContentPoster($formData['content_poster']);
+                $torrent->setContentPoster(substr($formData['content_poster'], -4));
                 if(isset($formData['mediainfo']))
                     $torrent->setMediaInfo($formData['mediainfo']);
                 $torrent->setContentUrl($formData['content_url']);
-                unset($formData);
+
                 $entityManager = $this->getDoctrine()->getManager();
                 $entityManager->persist($torrent);
                 $entityManager->flush();
                 $torrentFile->makeTorrentFile($this->getParameter('kernel.project_dir'));
-                /*
-                $error = isset($this->announce->addTorrent($torrent->getId(), $torrent->getInfoHash())['error']) ? $this->announce->addUser($torrent->getId(), $torrent->getInfoHash())['error'] : null;
 
-                if(isset($error)){
-                    return $this->render('errors/tracker_error.html.twig', [
-                        'error' => $error
-                    ]);
-                }*/
-
+                file_put_contents($this->getParameter('kernel.project_dir') . "/data/torrent_posters/" . $torrent->getId() . $torrent->getContentPoster()  , file_get_contents($formData['content_poster']));
+                unset($formData);
                 return new RedirectResponse($this->generateUrl('torrent', ['id' => $torrent->getId()]));
             }
         }
         return $this->render('tracker/upload.html.twig', [
             'uploadForm' => $form->createView(),
             'user' => $uploader,
-            'announce' => $request->getSchemeAndHttpHost(),
+            'announce' => $request->getSchemeAndHttpHost() . "/announce",
         ]);
+    }
+
+    /**
+     * @Route("/torrent/poster/{id}", name="torrent.poster", requirements={"id"="\d+"})
+     * @param $id
+     * @return Response
+     */
+    public function torrent_poster($id): Response
+    {
+        $torrent = $this->entityManager->getRepository(Torrents::class)->findOneBy(['id'=>$id]);
+        if(!$torrent)
+            return $this->render('errors/tracker_error.html.twig', [
+                'error' => 'Poster doesn\'t exist'
+            ]);
+        $poster = $this->getParameter('kernel.project_dir') . "/data/torrent_posters/" . $id . $torrent->getContentPoster();
+        unset($torrent);
+        $file = file_get_contents($poster);
+
+        return new Response($file, 200, ['Content-Type' => mime_content_type($poster)]) ;
     }
 
     private function getSize($size){

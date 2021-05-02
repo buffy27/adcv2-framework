@@ -51,6 +51,19 @@ class PeersRepository extends ServiceEntityRepository
             'seeders' => $seeder[1]
         ];
     }
+
+    public function getPeersCountByTorrent($torrent): array
+    {
+        $qb = $this->createQueryBuilder('p');
+        $seeder  = $qb->select('COUNT(p.seeder)')->where('p.torrent = :torrent')->setParameter('torrent', $torrent)->andWhere('p.seeder = 1')->getQuery()->getOneOrNullResult();
+        $leecher  = $qb->select('COUNT(p.seeder)')->where('p.torrent = :torrent')->setParameter('torrent', $torrent)->andWhere('p.seeder = 0')->getQuery()->getOneOrNullResult();
+
+        return [
+            'leechers' => $leecher[1],
+            'seeders' => $seeder[1]
+        ];
+    }
+
     public function getAllPeersCount(){
         $qb = $this->createQueryBuilder('p');
         $seeder  = $qb->select('COUNT(p.seeder)')->andWhere('p.seeder = 1')->getQuery()->getOneOrNullResult();

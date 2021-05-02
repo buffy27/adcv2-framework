@@ -1,0 +1,66 @@
+{% extends 'layout/tracker.html.twig' %}
+
+{% block title %}Messages{% endblock %}
+
+{% block body %}
+    <div class="row small-device my-5">
+        <div class="col-xl-8 col-lg-10 mx-auto col-12">
+
+            <div class="text-center">
+                <div class="flex w-100">
+                    <a href="{{ path('messages') }}" class="no-decoration btn mb-1 no-hover-color">Inbox</a>
+                    <span class="btn active mb-1">Sentbox</span>
+                </div>
+            </div>
+
+            <div class="requesttable table-responsive smalltable bx-d-sm-0 mt-0">
+                <table class="w-100">
+                    <thead>
+                    <tr>
+                        <th width="1%" class="text-center d-none d-sm-table-cell nobr"></th>
+                        <th class="text-left nobr">Subject</th>
+                        <th width="1%" class="text-center nobr">Sender</th>
+                        <th width="1%" class="text-center d-none d-md-table-cell nobr">Age</th>
+                        <th width="1%" class="text-center">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% if sentbox is empty %}
+                        <tr>
+                            <td colspan="5" class="text-center">There are no messages in your inbox yet...</td>
+                        </tr>
+                    {% else %}
+                        {% for box in sentbox %}
+                            <tr>
+                                <td class="nobr text-center d-none d-sm-table-cell">
+                                    {% if box.pmread%}
+                                        <img src="../images/trans.gif" class="main-inbox mb-1" />
+                                    {% else %}
+                                        <img src="../images/trans.gif" class="main-inboxnew mb-1" />
+                                    {% endif %}
+                                    {#                                <img src="../images/trans.gif" class="main-sentbox mb-1" />#}
+                                </td>
+                                <td><a class="no-decoration" href="{{ path('message', {id:box.message.id}) }}">{{ box.message.subject }}</a></td>
+                                <td class="nobr text-center">
+                                    {% if box.sender is null %}
+                                        <b>System</b>
+                                    {% else %}
+                                        <a href="{{ path('user.profile.id', {id:box.sender.id}) }}"><b>{{ box.sender.username }}</b></a>
+                                    {% endif %}
+                                </td>
+                                <td class="nobr text-center d-none d-md-table-cell dark-gray">{{ functions.timeago_short(box.message.added) }}</td> {# time ago column #}
+                                <td class="nobr text-center"><input type="checkbox" name="rm_msg[]" value=""></td>
+                            </tr>
+                        {% endfor %}
+                    {% endif %}
+                    </tbody>
+                </table>
+            </div>
+            {% if sentbox is not null %}
+                <br>
+                <input type="submit" name="delete_msgs" value="Delete" class="btn">
+            {% endif %}
+            <?php endif; ?>
+        </div>
+    </div>
+{% endblock %}

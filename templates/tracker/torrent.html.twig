@@ -3,6 +3,10 @@
 
 {% block title %}Torrent{% endblock %}
 
+{% block  javascripts %}
+    {{ encore_entry_script_tags('torrent') }}
+{% endblock %}
+
 {% block body %}
 
     <div id="simple-adc-modal" class="modal">
@@ -52,9 +56,9 @@
                                     <!-- <a class="no-decoration" href="/report/{{ torrent.id }}">
                                         <b>Report</b>
                                     </a> -->
-                                    {% if is_granted("ROLE_ADMIN") %}
+                                    {% if is_granted("ROLE_ADMIN") or is_granted("ROLE_SENIOR_MODERATOR") or is_granted("ROLE_MODERATOR") or is_granted("ROLE_TORRENT_MODERATOR") %}
                                     <!-- edit action -->
-                                    <a class="no-decoration ml-2" href="/edit_torrent/{{ torrent.id }}"><b>Edit</b></a>
+                                    <a class="no-decoration ml-2" href="{{ path('torrent.edit', {id:torrent.id}) }}"><b>Edit</b></a>
                                     {% endif %}
                                     {% if is_granted("ROLE_ADMIN") %}
                                     <!-- remove action -->
@@ -111,7 +115,7 @@
                         <div class="col-12 col-sm-10">
                             <div class="row small-device">
                                 <div class="col-xl-5 mb-2 mb-xl-0 col-12">
-                                    <img src="{{ torrent.contentPoster }}" class="valign-top torrent-cover">
+                                    <img src="{{ path('torrent.poster', {id:torrent.id}) }}" class="valign-top torrent-cover">
                                 </div>
                                 <div class="col-xl-7 col-12">
                                     {% apply markdown_to_html %}
@@ -223,8 +227,7 @@
                             <div class="col-2 pr-0">
                                 <div class="w-100 avatar-container">
                                     <img title="" class="title-icon-avatar" src="../images/">
-
-                                    <img src="/avatar/{{ comment.user.id }}" class="w-100" />
+                                    <img src="{{ path('avatar', {id:comment.user.id}) }}" class="w-100" />
                                 </div>
                             </div>
                             <div class="col-10">
@@ -233,14 +236,18 @@
                                         <a class="mr-2 comment-author" href="{{ path("user.profile.id", {"id":comment.user.id}) }}"><b>{{  comment.user.username }}</b></a>
                                         <span>({{ functions.timeago(comment.added) }})</span>
                                         <span class="d-none comment-created-at"></span>
+                                        <div class="ml-auto">
+                                            <a class="no-decoration ml-2" href="{{ path('comment.edit', {id:comment.id}) }}"><b>Edit</b></a>
+                                        </div>
                                     </div>
                                     <hr class="mt-2 mb-1" />
                                     {% apply markdown_to_html %}
                                         {{ comment.comment }}
                                     {% endapply %}
                                     {%  if comment.editedAt %}
-                                    <p class="mt-1 mb-0 smaller">(Last edited at {{ functions.timeago(comment.editedAt)}})</p>
+                                        <p class="mt-1 mb-0 smaller">(Last edited at {{ functions.timeago(comment.editedAt)}})</p>
                                     {% endif %}
+
                                 </div>
                             </div>
                         </div>
@@ -262,7 +269,7 @@
             <?php endif; ?>
             #}
 
-            <form class="mt-5" enctype="multipart/form-data" method="POST" action="/torrent/{{ torrent.id }}" role="form">
+            <form class="mt-5" enctype="multipart/form-data" method="POST" action="{{ path('torrent', {id:torrent.id}) }}" role="form">
                 <div class="fancy-container bx-d-sm-0 px-2 pt-2">
                     <h2>Comment this torrent</h2>
                     <textarea name="comment_desc" id="markdown-editor"></textarea>
