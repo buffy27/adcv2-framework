@@ -53,7 +53,9 @@ class TrackerMemcached
                     'class' => $user->getUserClass(),
                     'last_action' => $user->getLastAction(),
                     'invites' => $user->getUserInvites(),
-                    'tracker_settings' => $user->getTrackerSettings()
+                    'tracker_settings' => $user->getTrackerSettings(),
+                    'personal_settings' => $user->getPersonalSettings(),
+                    'forum_settings' => $user->getForumSettings()
                 ];
                 if(!is_null($user->getIdTitle())){
                     $stats['title'] =  [
@@ -104,8 +106,6 @@ class TrackerMemcached
             $peers = $this->entityManager->getRepository(Peers::class)->findAll();
             foreach ($peers as $peer) {
                 $interval  = date_diff($peer->getLastAction(), new \DateTime('now'));
-                dump($interval);
-                dump($interval->h);
                 if ($interval->h > 0) {
                     $this->entityManager->remove($peer);
                 }

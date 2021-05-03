@@ -47,7 +47,7 @@
                     <div class="row small-device">
                         <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Message</div>
                         <div class="col-12 col-sm-10">
-                            {% if system is not defined %}
+                            {% if system is not empty %}
                                 {% apply markdown_to_html %}
                                     {{ pmto.message.message }}
                                 {% endapply %}

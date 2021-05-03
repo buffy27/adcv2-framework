@@ -26,6 +26,7 @@ class RequestListener
     public function onKernelRequest(RequestEvent $event)
     {
         $request = $event->getRequest();
+
         $tracker_status = $this->entityManager->getRepository(Tracker::class)->find(1);
 
         if (!$event->isMasterRequest()) {

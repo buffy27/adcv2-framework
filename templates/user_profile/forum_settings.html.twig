@@ -2,6 +2,10 @@
 
 {% block title %}Forum Settings{% endblock %}
 
+{% block  javascripts %}
+    {{ encore_entry_script_tags('markdown_editor') }}
+{% endblock %}
+
 {% block body %}
     <div class="row small-device mt-4 mb-5">
         <div class="col-xl-8 col-lg-10 col-12 mx-auto">
@@ -25,14 +29,15 @@
             </div>
 
             <div class="fancy-container mt-3 bx-d-sm-0">
+                {{ form_start(forumSettings) }}
                 <!-- details -->
                 <div class="fancy-row">
                     <div class="row small-device">
-                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 lh-20">Topics per page</div>
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 lh-20">{{ form_label(forumSettings.topics_page) }}</div>
                         <div class="col-12 col-sm-10">
-                            <input type="number" name="topics_per_page" value="<?php echo $data['fs']['topics_per_page']; ?>" min="0" max="100" />
+                            {{ form_widget(forumSettings.topics_page) }} {{ form_errors(forumSettings.topics_page) }}
                             <br />
-                            <p class="small mt-1 mb-0">(max = 100, 0 = default)</p>
+                            <p class="small mt-1 mb-0">(min = 5, max = 50)</p>
                         </div>
                     </div>
                 </div>
@@ -40,11 +45,11 @@
                 <!-- torrents per page -->
                 <div class="fancy-row">
                     <div class="row small-device">
-                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 lh-20">Posts per page</div>
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 lh-20">{{ form_label(forumSettings.posts_page) }}</div>
                         <div class="col-12 col-sm-10">
-                            <input type="number" name="posts_per_page" value="<?php echo $data['fs']['posts_per_page']; ?>" min="0" max="100"/>
+                            {{ form_widget(forumSettings.posts_page) }} {{ form_errors(forumSettings.posts_page) }}
                             <br />
-                            <p class="small mt-1 mb-0">(max = 100, 0 = default)</p>
+                            <p class="small mt-1 mb-0">(min = 15, max = 100)</p>
                         </div>
                     </div>
                 </div>
@@ -52,9 +57,9 @@
                 <!-- forum signature -->
                 <div class="fancy-row">
                     <div class="row small-device">
-                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 lh-20">Forum signature</div>
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 lh-20">{{ form_label(forumSettings.forum_signature) }}</div>
                         <div class="col-12 col-sm-10">
-                            <textarea autocomplete="off" name="text_area" id="markdown-editor"></textarea>
+                            {{ form_widget(forumSettings.forum_signature) }} {{ form_errors(forumSettings.forum_signature) }}
                         </div>
                     </div>
                 </div>
@@ -64,11 +69,11 @@
                     <div class="row small-device">
                         <div class="col-12 col-sm-2"></div>
                         <div class="col-12 col-sm-10">
-                            <input type="submit" class="btn" name="submit" value="Save settings" />
+                            {{ form_widget(forumSettings.save) }}
                         </div>
                     </div>
                 </div>
-            </div>
+                {{ form_end(forumSettings) }}
             </div>
         </div>
     </div>

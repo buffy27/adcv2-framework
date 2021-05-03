@@ -24,6 +24,7 @@ Encore
     .addEntry('edit_torrent', './assets/controllers/edit_torrent.js')
     .addEntry('upload_torrent', './assets/controllers/upload_torrent.js')
     .addEntry('torrent', './assets/controllers/torrent.js')
+    .addEntry('markdown_editor', './assets/controllers/markdown_editor.js')
 
     // enables the Symfony UX Stimulus bridge (used in assets/bootstrap.js)
     .enableStimulusBridge('./assets/controllers.json')

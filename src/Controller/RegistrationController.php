@@ -96,10 +96,10 @@ class RegistrationController extends AbstractController
                 "show_mediainfo" => "on",
                 "show_nfo" => "on",
                 "torrents_page" => 50,
-                "comments_torrent_page" => 15
+                "comments_torrent_page" => 10
             ]);
             $user->setForumSettings([
-                "topics_per_page" => 3,
+                "topics_per_page" => 5,
                 "posts_per_page" => 10,
                 "signature" => "",
             ]);

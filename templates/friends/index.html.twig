@@ -39,7 +39,7 @@
                                 </p>
                                 <div class="ml-auto">
                                     <a href="{{ path('message.send', {id:f.friend.id}) }}" class="btn no-decoration">Send PM</a>
-                                    <a href="/remove_friend/" class="d-none d-sm-inline-block btn no-decoration">Remove</a>
+                                    <a href="{{ path('friend.remove', {id:f.friend.id}) }}" class="d-none d-sm-inline-block btn no-decoration">Remove</a>
                                 </div>
                             </div>
                         {% endif %}

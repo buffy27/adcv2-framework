@@ -24,14 +24,23 @@
                 </div>
             </div>
 
+
+            {% for message in app.flashes('security_settings') %}
+                    <div class="fancy-container mt-3 text-center justify-content-center">
+                        <h2 class="mt-1"> {{ message }} </h2>
+                    </div>
+            {% endfor %}
+
+
             <div class="fancy-container mt-3 bx-d-sm-0">
+                {{ form_start(security_form) }}
                 <!-- reset passkey -->
                 <div class="fancy-row">
                     <div class="row small-device">
                         <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 lh-20 red">Reset Passkey:</div>
                         <div class="col-12 col-sm-10">
-                            <input type="checkbox" name="reset_passkey">
-                            <p class="small mt-1 mb-0">By checking this your passkey will be reseted and you will need to redownload the .torrent files in order to seed again. </p>
+                            {{ form_widget(security_form.reset_passkey) }}
+{#                            <p class="small mt-1 mb-0">By checking this your passkey will be reseted and you will need to redownload the .torrent files in order to seed again. </p>#}
                         </div>
                     </div>
                 </div>
@@ -39,9 +48,9 @@
                 <!-- email -->
                 <div class="fancy-row">
                     <div class="row small-device">
-                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 lh-20">Change Email:</div>
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 lh-20">{{ form_label(security_form.change_email) }}</div>
                         <div class="col-12 col-sm-10">
-                            <input type="text" name="new_email" value="{{ trackerCache.userStats.email }}" />
+                            {{ form_widget(security_form.change_email) }}
                             <p class="small mt-1 mb-0">Confirmation email will be send to the old account</p>
                         </div>
                     </div>
@@ -50,13 +59,11 @@
                 <!-- old password -->
                 <div class="fancy-row">
                     <div class="row small-device">
-                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 lh-20">Old password:</div>
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 lh-20">{{ form_label(security_form.old_password) }}</div>
                         <div class="col-12 col-sm-10">
-                            <input type="password" name="old_pass" />
+                            {{ form_widget(security_form.old_password) }}
                             <p class="small mt-1 mb-0">Verify your old password</p>
-                            <?php if(!empty($data['error']['old_pass'])):?>
-                            <p class="small mt-1 mb-0"><?php echo $data['error']['old_pass']; ?></p>
-                            <?php endif; ?>
+                            <p class="small mt-1 mb-0">{{ form_errors(security_form.old_password) }}</p>
                         </div>
                     </div>
                 </div>
@@ -64,13 +71,11 @@
                 <!-- new password -->
                 <div class="fancy-row">
                     <div class="row small-device">
-                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 lh-20">New password:</div>
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 lh-20">{{ form_label(security_form.password.first) }}</div>
                         <div class="col-12 col-sm-10">
-                            <input type="password" name="new_pass" />
+                            {{ form_widget(security_form.password.first) }}
                             <p class="small mt-1 mb-0">Enter new password, must be  12-20 characters, one uppercase, number, special character, <b>do not use ? & ` ~ ' / \ ; ( ) € ‘ ´ ^ | ~ £ ¥</b></p>
-                            <?php if(!empty($data['error']['new_pass'])):?>
-                            <p class="small mt-1 mb-0"><?php echo $data['error']['new_pass']; ?></p>
-                            <?php endif; ?>
+                            <p class="small mt-1 mb-0">{{ form_errors(security_form.password.first) }}</p>
                         </div>
                     </div>
                 </div>
@@ -78,13 +83,11 @@
                 <!-- confirm password -->
                 <div class="fancy-row">
                     <div class="row small-device">
-                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 lh-20">Confirm password:</div>
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 lh-20">{{ form_label(security_form.password.second) }}</div>
                         <div class="col-12 col-sm-10">
-                            <input type="password" name="new_confirm_pass" id="new_confirm_pass"/>
+                            {{ form_widget(security_form.password.second) }}
                             <p class="small mt-1 mb-0">Re-enter your new password</p>
-                            <?php if(!empty($data['error']['new_confirm_pass'])):?>
-                            <p class="small mt-1 mb-0"><?php echo $data['error']['new_confirm_pass']; ?></p>
-                            <?php endif; ?>
+                            <p class="small mt-1 mb-0">{{ form_errors(security_form.password.second) }}</p>
                         </div>
                     </div>
                 </div>
@@ -94,10 +97,11 @@
                     <div class="row small-device">
                         <div class="col-12 col-sm-2"></div>
                         <div class="col-12 col-sm-10">
-                            <input type="submit" class="btn" name="submit" value="Save settings" />
+                            {{ form_widget(security_form.submit) }}
                         </div>
                     </div>
                 </div>
+                {{ form_end(security_form) }}
             </div>
             </div>
         </div>

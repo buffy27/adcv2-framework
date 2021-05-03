@@ -10,6 +10,9 @@ use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Validator\Constraints\Range;
+use Symfony\Component\Validator\Tests\Constraints\MinMax;
 
 class TrackerSettingsFormType extends AbstractType
 {
@@ -31,12 +34,24 @@ class TrackerSettingsFormType extends AbstractType
         ->add('torrents_page', NumberType::class, [
             'label' => "Torrents / page",
             'required' => false,
-            'data' => $options['data']['tracker_settings']['torrents_page']
+            'data' => $options['data']['tracker_settings']['torrents_page'],
+            'constraints' => [
+                new Range([
+                    'min' => 15,
+                    'max' => 150,
+                ]),
+            ]
         ])
         ->add('comments_torrent_page', NumberType::class, [
              'label' => "Comments / page",
             'required' => false,
-            'data' => $options['data']['tracker_settings']['comments_torrent_page']
+            'data' => $options['data']['tracker_settings']['comments_torrent_page'],
+            'constraints' => [
+                new Range([
+                    'min' => 5,
+                    'max' => 50,
+                ]),
+            ]
         ])
         ->add('submit', SubmitType::class,[
             'attr' => [

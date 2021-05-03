@@ -2,6 +2,10 @@
 
 {% block title %}Profile Settings{% endblock %}
 
+{% block  javascripts %}
+    {{ encore_entry_script_tags('markdown_editor') }}
+{% endblock %}
+
 {% block body %}
     <div class="row small-device mt-4 mb-5">
             <div class="col-xl-8 col-lg-10 col-12 mx-auto">
@@ -87,9 +91,9 @@
                 <!-- profile description -->
                 <div class="fancy-row">
                     <div class="row small-device">
-                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Summary</div>
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">{{ form_label(userSettings.description) }}</div>
                         <div class="col-12 col-sm-10">
-                            <textarea autocomplete="off" name="text_area" id="markdown-editor"></textarea>
+                            {{ form_widget(userSettings.description) }}
                         </div>
                     </div>
                 </div>
@@ -103,8 +107,8 @@
                         </div>
                     </div>
                 </div>
-            </div>
                 {{ form_end(userSettings) }}
+            </div>
             </div>
         </div>
     </div>

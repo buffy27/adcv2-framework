@@ -159,8 +159,19 @@
                     </div>
                 </div>
             </div>
+            {% if  trackerCache.userStats.personal_settings.description is defined and trackerCache.userStats.personal_settings.description is not empty %}
+            <!-- description -->
+            <div class="fancy-row">
+                <div class="row small-device">
+                    <div class="col-12 col-sm-11 ml-auto">
+                        {% apply markdown_to_html %}
+                             {{ trackerCache.userStats.personal_settings.description }}
+                        {% endapply %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
         </div>
-
     </div>
 </div>
 {% endblock %}

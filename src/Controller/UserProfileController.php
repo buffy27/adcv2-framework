@@ -11,8 +11,11 @@ use App\Entity\SyncAnnounce;
 use App\Entity\Torrents;
 use App\Entity\User;
 use App\Form\ActiveSearchFormType;
+use App\Form\ForumSettingsFormType;
+use App\Form\SecuritySettingsFormType;
 use App\Form\SendInviteFormType;
 use App\Form\TrackerSettingsFormType;
+use App\Services\Functions;
 use App\Services\TrackerMemcached;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -27,6 +30,7 @@ use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -36,6 +40,7 @@ use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\Json;
+use Symfony\Component\Translation\TranslatorBagInterface;
 use ZipArchive;
 use function Webmozart\Assert\Tests\StaticAnalysis\nullOrCount;
 
@@ -85,9 +90,8 @@ class UserProfileController extends AbstractController
 
         if(!empty($user)) {
             $country = $this->entityManager->getRepository(Countries::class)->find($user->getIdCountry());
-
             $friends = $this->entityManager->getRepository(Friends::class)->findFriendRelation($this->getUser(), $user);
-            dump($friends);
+
             return $this->render('user_profile/user_profile.html.twig', [
                 'user' => $user,
                 'country' => $country,
@@ -139,18 +143,21 @@ class UserProfileController extends AbstractController
         $userSettings = $this->createForm(ProfileSettingsFormType::class, [
             'countries' => $countries,
             'personal_settings' => $user->getPersonalSettings(),
-            'country' => $this->memcached->getUserStats()['country_id']
+            'country' => $this->memcached->getUserStats()['country_id'],
+            'description' => $user->getPersonalSettings()['description'] ?? ""
         ]);
 
         $userSettings->handleRequest($request);
         if($userSettings->isSubmitted() && $userSettings->isValid()){
             $formData = $userSettings->getData();
 
+
             $user->setIdCountry($this->entityManager->getRepository(Countries::class)->find($formData['id_country']));
             $user->setPersonalSettings([
                 'account_parked' => $formData['parked'],
                 'accept_pms' => $formData['accept_pms'],
                 'pm_details' => $formData['pm_details'],
+                'description' => $formData['description'] ?? ""
             ]);
 
             if($userSettings['avatar']->getData()){
@@ -180,7 +187,7 @@ class UserProfileController extends AbstractController
         ]);
 
         $trackerSettings->handleRequest($request);
-        if($trackerSettings->isSubmitted()){
+        if($trackerSettings->isSubmitted() && $trackerSettings->isValid()){
             $formData = $trackerSettings->getData();
 
             $user->setTrackerSettings([
@@ -192,25 +199,65 @@ class UserProfileController extends AbstractController
 
             return new RedirectResponse($this->generateUrl('user.tracker'));
         }
-        return $this->render('user_profile/tracker_settings.html.twig', array_merge($this->memcached->getUserStats(), [
+        return $this->render('user_profile/tracker_settings.html.twig', [
             'trackerSettings' => $trackerSettings->createView()
-        ]));
+        ]);
     }
 
     /**
      * @Route("/user/forum", name="user.forum")
      */
-    public function forum_settings(): Response
+    public function forum_settings(Request $request): Response
     {
-        return $this->render('user_profile/forum_settings.html.twig', $this->memcached->getUserStats());
+        $form = $this->createForm(ForumSettingsFormType::class, [
+            'forum_settings' => $this->getUser()->getForumSettings()
+        ]);
+
+        $form->handleRequest($request);
+
+        if($form->isSubmitted() && $form->isValid()){
+            $this->getUser()->setForumSettings([
+                "topics_per_page" => $form->get('topics_page')->getData(),
+                "posts_per_page" => $form->get('posts_page')->getData(),
+                "signature" => $form->get('forum_signature')->getData()]);
+            $this->entityManager->flush();
+            return new RedirectResponse($this->generateUrl('user.forum'));
+        }
+
+        return $this->render('user_profile/forum_settings.html.twig', [
+            'forumSettings' => $form->createView()
+        ]);
     }
 
     /**
      * @Route("/user/security", name="user.security")
      */
-    public function security_settings(): Response
+    public function security_settings(Request $request, Functions $functions): Response
     {
-        return $this->render('user_profile/security_settings.html.twig', $this->memcached->getUserStats());
+        $form = $this->createForm(SecuritySettingsFormType::class, ['email' => $this->getUser()->getEmail()]);
+        $form->handleRequest($request);
+
+        if($form->isSubmitted()){
+            if($form->get('change_email')->getData() != $this->getUser()->getEmail()){
+                dump();
+            }
+            if(!empty($form->get('old_password')->getData()) && !empty($form->get('password')->getData()) &&
+                $this->getUser()->getPassword() === hash("sha3-256",  $this->getUser()->getSecret() . $form->get('old_password')->getData() .  $this->getUser()->getSecret() . $this->getUser()->getUsername() . $this->getUser()->getSecret())){
+                $secret = $functions->mksecret();
+                $hash = hash("sha3-256",  $secret . $form->get('password')->getData() .  $secret . $this->getUser()->getUsername() . $secret);
+                $this->getUser()->setSecret($secret);
+                $this->getUser()->setPassword($hash);
+                $this->entityManager->flush();
+                $this->addFlash('security_settings', 'Password has been changed');
+                return new RedirectResponse($this->generateUrl('user.security'));
+            }else{
+                $form->get('old_password')->addError(new FormError('Invalid user password'));
+            }
+        }
+
+        return $this->render('user_profile/security_settings.html.twig', [
+           'security_form' => $form->createView()
+        ]);
     }
 
     /**
@@ -351,6 +398,7 @@ class UserProfileController extends AbstractController
             $file = $filesystem->tempnam("/tmp", "zip");
             $zip = new ZipArchive();
             $zip->open($file, ZipArchive::OVERWRITE);
+
             foreach ($active as $value){
                 $temp = (isset($my_uploads) ? $value : $value['torrent']);
                 $sync_announce = $this->entityManager->getRepository(SyncAnnounce::class)->getSyncAnnounce($this->getUser(), $temp);
@@ -368,12 +416,13 @@ class UserProfileController extends AbstractController
                     $data_passkey = $sync_announce[0]->getDataPasskey();
                 }
 
-                $path = $this->getParameter("kernel.project_dir") . "/data/torrents/" . $value->getInfoHash(). ".torrent";
+                $path = $this->getParameter("kernel.project_dir") . "/data/torrents/" . $temp->getInfoHash(). ".torrent";
                 $torrentFile = Bencode::load($path);
                 $torrentFile['announce'] = $request->getSchemeAndHttpHost() .  "/announce/" . $data_passkey;
                 $zip->addFromString($temp->getName() . ".torrent", Bencode::encode($torrentFile));
             }
             $zip->close();
+            unset($temp);
             $headers = [
                 'Content-Type' => 'application/zip',
                 'Content-Description' => 'File Transfer',

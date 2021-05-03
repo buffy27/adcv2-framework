@@ -218,6 +218,8 @@ class MessagesController extends AbstractController
 
             if(in_array('delete_after', $this->getUser()->getPersonalSettings()['pm_details'])){
                 $this->entityManager->remove($message);
+                $this->entityManager->flush();
+                return new RedirectResponse($this->generateUrl('messages'));
             }
             $this->entityManager->flush();
 

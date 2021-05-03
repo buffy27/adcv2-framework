@@ -131,6 +131,18 @@
                         </div>
                     </div>
                 </div>
+                {% if  user.personalSettings.description is defined and user.personalSettings.description is not empty %}
+                <!-- description -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="col-12 col-sm-11 ml-auto">
+                            {% apply markdown_to_html %}
+                                {{ user.personalSettings.description }}
+                            {% endapply %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
             </div>
         </div>
         <div class="col-xl-8 col-lg-10 col-12 mx-auto mt-2 text-center">

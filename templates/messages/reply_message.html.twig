@@ -2,6 +2,10 @@
 
 {% block title %}Send Messages{% endblock %}
 
+{% block  javascripts %}
+    {{ encore_entry_script_tags('markdown_editor') }}
+{% endblock %}
+
 {% block body %}
 
     {#<div class="row small-device my-5">

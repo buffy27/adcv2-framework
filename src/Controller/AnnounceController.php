@@ -260,9 +260,7 @@ class AnnounceController extends AbstractController
      */
     private function calculateTorrentBonus($torrent, $user, $trueUploaded, $trueDownloaded, &$thisUploaded, &$thisDownloaded){
         $now = new \DateTime('now');
-        dump($user->getUsername());
-        dump($torrent->getBonus() === "freeleech");
-        dump($torrent->getBonusExpire() > $now);
+
         if($torrent->getOwner() === $user) {
             $thisUploaded = $trueUploaded;
             $thisDownloaded = 0;

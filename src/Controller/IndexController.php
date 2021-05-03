@@ -103,7 +103,10 @@ class IndexController extends AbstractController
      */
     public function donation(): Response
     {
-        return $this->render('index/donation.html.twig', [
+        return $this->render('errors/tracker_error.html.twig', [
+            'error' => "Donations are closed"
         ]);
+
+        //return $this->render('index/donation.html.twig', []);
     }
 }

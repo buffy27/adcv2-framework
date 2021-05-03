@@ -83,4 +83,11 @@ class Functions
 
         return $out;
     }
+    public function mksecret($len = 20)
+    {
+        $ret = "";
+        for ($i = 0; $i < $len; $i++)
+            $ret .= chr(random_int(33, 126));
+        return $ret;
+    }
 }

@@ -2,15 +2,12 @@
 
 {% block title %}Send Messages{% endblock %}
 
+{% block  javascripts %}
+    {{ encore_entry_script_tags('markdown_editor') }}
+{% endblock %}
+
 {% block body %}
 
-    {#<div class="row small-device my-5">
-        <div class="col-xl-6 col-lg-8 col-md-10 col-12 mx-auto">
-            <div class="fancy-container bx-d-sm-0 px-2 px-sm-3 py-1">
-                <p class="text-center">You cannot send message to this user.</p>
-            </div>
-        </div>
-    </div>#}
 
     <div class="row small-device">
         <div class="col-12 col-xl-8 offset-xl-2 col-lg-10 offset-lg-1 mt-4 mb-5">
