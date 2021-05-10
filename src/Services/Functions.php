@@ -6,6 +6,7 @@ namespace App\Services;
 
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
+use function Symfony\Component\Translation\t;
 
 class Functions
 {
@@ -59,12 +60,11 @@ class Functions
         else
             $t1 = $date;
 
-        $t2 = new DateTime(date("Y-m-d h:i:sa"));
+        $t2 = new DateTime('now');
         $interval = $t1->diff($t2);
         $types = array('%y', '%m', '%d', '%h', '%i', '%s');
 
         $out = 0;
-
         foreach ($types as $value) {
             if ($interval->format($value)) {
                 switch ($value) {
@@ -80,7 +80,6 @@ class Functions
                 }
             }
         }
-
         return $out;
     }
     public function mksecret($len = 20)

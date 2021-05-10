@@ -77,9 +77,12 @@ class TorrentComments
         return $this->editedAt;
     }
 
-    public function setEditedAt(\DateTimeInterface $editedAt): self
+    public function setEditedAt(\DateTimeInterface $editedAt = null): self
     {
-        $this->editedAt = $editedAt;
+        if(!$editedAt)
+            $this->editedAt = new \DateTime('now');
+        else
+            $this->editedAt = $editedAt;
 
         return $this;
     }

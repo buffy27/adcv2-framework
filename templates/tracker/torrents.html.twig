@@ -3,7 +3,7 @@
 {% block title %}Torrents{% endblock %}
 
 {% block body %}
-    <form enctype="multipart/form-data" method="GET" action="/torrents/" role="form">
+    <form enctype="multipart/form-data" method="GET" action="{{ path('torrents', {page:current_page}) }}" role="form">
         <div class="row no-gutter small-device mt-4">
             <div class="mx-auto col-xl-10 col-12 mb-4">
                 <div class="row small-device">
@@ -108,23 +108,23 @@
                 {% for torrent in torrents %}
                     <tr>
                         <td class="text-center p-0">
-                            <img title="" src="{{ asset('images/trans.gif') }}" class=""  alt="category"/> {{ torrent.getTCategory.getName }}
+                            <img title="" src="{{ asset('images/trans.gif') }}" class=""  alt="category"/> {{ torrent[0].getTCategory.getName }}
                         </td>
                         <td>
-                            <a class="no-decoration valign-middle" href="/torrent/{{ torrent.id }}"> {{ torrent.name }}
-                                {% if torrent.added | date("H:i:s") < "-15 i" %}
+                            <a class="no-decoration valign-middle" href="/torrent/{{ torrent[0].id }}"> {{ torrent[0].name }}
+                                {% if torrent[0].added | date("H:i:s") < "-15 i" %}
                                     <span class="red"><b>(NEW)</b></span>
                                 {% endif %}
 
-                                {% if torrent.specs['format'] == "bdmv" %}
+                                {% if torrent[0].specs['format'] == "bdmv" %}
                                     <img title="Bluray" class="valign-middle" src="{{ asset('images/bd.svg') }}" width="25" height="25" />
-                                {% elseif  torrent.specs['format'] == "uhd" %}
+                                {% elseif  torrent[0].specs['format'] == "uhd" %}
                                     <img title="UHD" class="valign-middle" src="{{ asset('images/uhd.svg') }}" width="100" height="25" />
                                 {% endif %}
 
-                                {% if torrent.bonus == "freeleech" %}
+                                {% if torrent[0].bonus == "freeleech" %}
                                      <img title="golden" class="valign-middle" src="{{ asset('images/golden.gif') }}" />
-                                {% elseif torrent.bonus == "silver" %}
+                                {% elseif torrent[0].bonus == "silver" %}
                                      <img title="silver" class="valign-middle" src="{{ asset('images/silver.gif') }}" />
                                 {% endif %}
                             </a>
@@ -132,14 +132,14 @@
 
                         <td class="text-left d-none d-sm-table-cell valign-middle">
                         <td class="text-left d-none d-sm-table-cell valign-middle">
-                            <a href="{{ path('user.profile.id', {"id":torrent.owner.id}) }}">{{ torrent.owner.username }}</a>
+                            <a href="{{ path('user.profile.id', {"id":torrent[0].owner.id}) }}">{{ torrent[0].owner.username }}</a>
                         </td>
-                        <td class="text-center d-none d-md-table-cell">{{ filesystem.bytesToSize(torrent.size) }}</td>
-                        <td class="text-center d-none d-md-table-cell">{{ torrent.seeders }}</td>
-                        <td class="text-right d-none d-lg-table-cell">{{ torrent.leechers }}</td>
-                        <td class="text-center d-none d-lg-table-cell dark-gray">{{ functions.timeago(torrent.added) }}</td>
-                        <td class="text-center d-none d-lg-table-cell"></td>
-                        <td class="text-center d-none d-lg-table-cell"></td>
+                        <td class="text-center d-none d-md-table-cell">{{ filesystem.bytesToSize(torrent[0].size) }}</td>
+                        <td class="text-center d-none d-md-table-cell">{{ torrent[0].seeders }}</td>
+                        <td class="text-right d-none d-lg-table-cell">{{ torrent[0].leechers }}</td>
+                        <td class="text-center d-none d-lg-table-cell dark-gray">{{ functions.timeago(torrent[0].added) }}</td>
+                        <td class="text-center d-none d-lg-table-cell">{{ torrent.sn }}</td>
+                        <td class="text-center d-none d-lg-table-cell">{{ torrent.tcm }}</td>
                     </tr>
                 {% endfor %}
             {% endif %}

@@ -1,17 +1,21 @@
-{% extends 'layout/access.html.twig' %}
-
-{% block title %}Account confirmation{% endblock %}
-
-{% block body %}
-    <h1>Hi! Please confirm your email!</h1>
-
-    <p>
-        Please confirm your email address by clicking the following link: <br><br>
-        <a href="{{ signedUrl|raw }}">Confirm my Email</a>.
-        This link will expire in {{ expiresAtMessageKey|trans(expiresAtMessageData, 'VerifyEmailBundle') }}.
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Account confirmation</title>
+    <img src="{{ email.image('@images/email_logo_summer.png') }}" alt="Logo">
+</head>
+<body>
+    <p>You registered an account to <a href="{{ app.request.getSchemeAndHttpHost() }}">AsianDVDClub</a>, in order to login you need to confirm the following linkL
+    <br><br>
+    <a href="{{ signedUrl|raw }}">Confirm my Email</a>.
+    This link will expire in {{ expiresAtMessageKey|trans(expiresAtMessageData, 'VerifyEmailBundle') }}.
     </p>
-
     <p>
-        Cheers!
+        Cheers, ADC Team!
     </p>
-{% endblock %}
+</body>
+</html>

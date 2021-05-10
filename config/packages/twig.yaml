@@ -3,3 +3,5 @@ twig:
     globals:
         functions: '@App\Services\Functions'
         trackerCache: '@App\Services\TrackerMemcached'
+    paths:
+        '%kernel.project_dir%/assets/email': images

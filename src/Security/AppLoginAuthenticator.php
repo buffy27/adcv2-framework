@@ -84,7 +84,6 @@ class AppLoginAuthenticator extends AbstractFormLoginAuthenticator implements Pa
         $data = $this->entityManager->getRepository(User::class)->createQueryBuilder('u')
             ->where('u.username = :uid')
             ->setParameter('uid', $credentials['username'])->getQuery()->getArrayResult();
-        dump($data);
         if(empty($data))
             return false;
         if($user->getPassword() == hash("sha3-256", $data[0]['secret'] . $credentials['password'] . $data[0]['secret'] . $credentials['username'] . $data[0]['secret']))

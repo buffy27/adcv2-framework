@@ -216,6 +216,11 @@ class User implements UserInterface
      */
     private $friends;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Bookmarks::class, mappedBy="user")
+     */
+    private $bookmarks;
+
     public function __construct()
     {
         $this->torrents = new ArrayCollection();
@@ -227,6 +232,7 @@ class User implements UserInterface
         $this->invites = new ArrayCollection();
         $this->snatcheds = new ArrayCollection();
         $this->friends = new ArrayCollection();
+        $this->bookmarks = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -852,6 +858,36 @@ class User implements UserInterface
             // set the owning side to null (unless already changed)
             if ($friend->getUser() === $this) {
                 $friend->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Bookmarks[]
+     */
+    public function getBookmarks(): Collection
+    {
+        return $this->bookmarks;
+    }
+
+    public function addBookmark(Bookmarks $bookmark): self
+    {
+        if (!$this->bookmarks->contains($bookmark)) {
+            $this->bookmarks[] = $bookmark;
+            $bookmark->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeBookmark(Bookmarks $bookmark): self
+    {
+        if ($this->bookmarks->removeElement($bookmark)) {
+            // set the owning side to null (unless already changed)
+            if ($bookmark->getUser() === $this) {
+                $bookmark->setUser(null);
             }
         }
 

@@ -39,16 +39,16 @@
                         <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Actions</div>
                         <div class="col-12 col-sm-10">
                             <div class="d-flex">
-                                {# TODO Add bookmakrs, edit and remove torrents #}
+                                {# TODO Add bookmakrs,  remove torrents #}
                                 <a class="mr-2" href="{{ path('torrent.download', {id: torrent.id}) }}"><b>Download</b></a>
-                                {% if is_granted("ROLE_ADMIN") %}
+                                {% if is_bookmarked is null %}
                                 <!-- add to bookmarks -->
-                                <a title="Add bookmark" href="/add_bookmark/{{ torrent.id }}">
+                                <a title="Add bookmark" href="{{ path('bookmark.add', {id:torrent.id}) }}">
                                     <b>Bookmark</b>
                                 </a>
                                {% else %}
                                 <!-- remove from bookmarks -->
-                                <a title="Remove bookmark" href="/remove_bookmark/{{ torrent.id }}">
+                                <a title="Remove bookmark" href="{{ path('bookmark.remove', {id:torrent.id}) }}">
                                     <b>Unbookmark</b>
                                 </a>
                                 {% endif %}
@@ -191,7 +191,6 @@
                                         </tr>
                                     {% else %}
                                        {% for peer in peers %}
-{#                                           {% if peer.active %}#}
                                             <tr>
                                                 <td class="text-left nobr">
                                                     {% if peer.toGo == 0 %}
@@ -209,7 +208,6 @@
                                                 <td class="text-right nobr">{{ peer.agent }}</td>
                                                 <td class="text-right nobr">{{ functions.timeago_short(peer.started) }}</td>
                                             </tr>
-{#                                                    {% endif %}#}
                                         {% endfor %}
                                     {% endif %}
                                 </table>
@@ -222,7 +220,7 @@
            {% if comments is defined %}
             <div class="mt-5">
                 {% for comment in comments %}
-                    <div class="fancy-container bx-d-sm-0 p-2 mb-2">
+                    <div class="fancy-container bx-d-sm-0 p-2 mb-2" id="comment-{{ comment.id }}">
                         <div class="row small-device">
                             <div class="col-2 pr-0">
                                 <div class="w-100 avatar-container">
@@ -237,7 +235,13 @@
                                         <span>({{ functions.timeago(comment.added) }})</span>
                                         <span class="d-none comment-created-at"></span>
                                         <div class="ml-auto">
-                                            <a class="no-decoration ml-2" href="{{ path('comment.edit', {id:comment.id}) }}"><b>Edit</b></a>
+                                            {% if is_granted("ROLE_ADMIN") or is_granted("ROLE_SENIOR_MODERATOR") or is_granted("ROLE_MODERATOR") or is_granted("ROLE_TORRENT_MODERATOR") %}
+                                                <a class="no-decoration ml-2" href="{{ path('comment.edit', {id:comment.id}) }}"><b>Edit</b></a>
+                                            {% endif %}
+
+                                            {% if is_granted("ROLE_ADMIN") or is_granted("ROLE_SENIOR_MODERATOR") or is_granted("ROLE_MODERATOR") or is_granted("ROLE_TORRENT_MODERATOR") %}
+                                                <a class="no-decoration ml-2 red" href="{{ path('comment.remove', {id:comment.id}) }}"><b>Remove</b></a>
+                                            {% endif %}
                                         </div>
                                     </div>
                                     <hr class="mt-2 mb-1" />
@@ -247,7 +251,6 @@
                                     {%  if comment.editedAt %}
                                         <p class="mt-1 mb-0 smaller">(Last edited at {{ functions.timeago(comment.editedAt)}})</p>
                                     {% endif %}
-
                                 </div>
                             </div>
                         </div>

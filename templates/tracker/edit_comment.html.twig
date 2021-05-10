@@ -3,20 +3,24 @@
 
 {% block title %}Torrent{% endblock %}
 
+{% block  javascripts %}
+    {{ encore_entry_script_tags('markdown_editor') }}
+{% endblock %}
+
 {% block body %}
     <div class="row small-device">
         <div class="col-12 col-xl-8 col-lg-10 mx-auto mt-4 mb-5">
             <h1 class="text-center">Edit Comment</h1>
 
-            <form enctype="multipart/form-data" method="POST" action="" role="form">
+            {{ form_start(edit_comment) }}
                 <div class="fancy-container bx-d-sm-0">
 
                     <!-- Body -->
                     <div class="fancy-row">
                         <div class="row small-device">
-                            <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 pt-1">Message</div>
+                            <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 pt-1">{{ form_label(edit_comment.comment) }}</div>
                             <div class="col-12 col-sm-10">
-
+                                {{ form_widget(edit_comment.comment) }}
                             </div>
                         </div>
                     </div>
@@ -26,12 +30,12 @@
                         <div class="row small-device">
                             <div class="col-12 col-sm-2"></div>
                             <div class="col-12 col-sm-10">
-                                <input id="qr" type="submit" class="btn" value="Save">
+                                {{ form_widget(edit_comment.send) }}
                             </div>
                         </div>
                     </div>
                 </div>
-            </form>
+            {{ form_end(edit_comment) }}
         </div>
     </div>
 {% endblock %}

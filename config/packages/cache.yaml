@@ -1,11 +1,10 @@
 framework:
     cache:
-        default_memcached_provider: 'memcached://localhost'
+        default_memcached_provider: 'memcached://localhost:11211'
         pools:
             doctrine.cache_pool:
                 adapter: cache.adapter.memcached
-            tracker_cache:
-                adapter: cache.adapter.memcached
+
         # Unique name of your app: used to compute stable namespaces for cache keys.
         #prefix_seed: your_vendor_name/app_name
 

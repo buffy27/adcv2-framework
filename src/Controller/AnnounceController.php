@@ -7,18 +7,18 @@ use App\Entity\Logs;
 use App\Entity\Peers;
 use App\Entity\Snatched;
 use App\Entity\SyncAnnounce;
+use App\Exceptions\TrackerException;
 use App\Services\Functions;
 use App\Services\TrackerMemcached;
 use Doctrine\ORM\EntityManagerInterface;
-use Exception\TrackerException;
-use http\Exception\BadMessageException;
+use HttpResponseException;
 use Rhilip\Bencode\Bencode;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\IpUtils;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 class AnnounceController extends AbstractController
@@ -38,18 +38,15 @@ class AnnounceController extends AbstractController
         $this->memcached = $memcached;
         $this->functions = $functions;
     }
-
+    private function logTrackerException(\Exception $exception, Request $request){
+        return new Response(Bencode::encode(['failure reason'=>'Anti cheat ']), 200, $this->headers);
+    }
     /**
      * @Route("/announce/{passkey}", name="announce", methods={"GET"}, requirements={"passkey"="^[a-z0-9]{128,128}$"})
-     * @throws TrackerException
+     * @throws HttpResponseException
      */
     public function announce($passkey, Request $request) : Response
     {
-        /**
-         * When a torrent is removed it won't remove the peers from the sync_announce table
-         * this is because the peers needs to be informed that torrent was removed in the client.
-         */
-
         $agent = $request->server->get('HTTP_USER_AGENT');
         $allHeaders = $request->server->getHeaders();
         if (preg_match("/^Mozilla/", $agent) || preg_match("/^Opera/", $agent) || preg_match("/^Links/", $agent) || preg_match("/^Lynx/", $agent) )
@@ -63,62 +60,30 @@ class AnnounceController extends AbstractController
                     return new Response(Bencode::encode(['failure reason'=>'Anti cheat ']), 200, $this->headers);
             }
         }
-        $queries = [
-            'timestamp' => $request->server->get('REQUEST_TIME_FLOAT')
-        ];
 
-        $sync = $this->entityManager->getRepository(SyncAnnounce::class)->findByDataPasskey($passkey)[0];
+        try{
+            $sync = $this->entityManager->getRepository(SyncAnnounce::class)->findByDataPasskey($passkey)[0];
+            if(empty($sync))
+                throw new TrackerException(140);
+            if(empty($sync->getTorrent()))
+                throw new TrackerException(152);
 
-        if(empty($sync)){
-            return new Response($this->error(103), 200, $this->headers);
-        }
-        if(empty($sync->getTorrent())){
-            return new Response($this->error(106), 200, $this->headers);
-        }
-        foreach (['info_hash', 'peer_id', 'port', 'uploaded', 'downloaded', 'left'] as $value) {
-            $item_data = $request->query->get($value);
-            if (!is_null($item_data)) {
-                $queries[$value] = $item_data;
-            } else {
-                return new Response(Bencode::encode(['failure reason'=>'Client provided null data']), 200, $this->headers);
-            }
-        }
-        foreach (['info_hash', 'peer_id'] as $value){
-            if(strlen($queries[$value]) != 20){
-                return new Response($this->error(100, [":attr" => $value]), 200, $this->headers);
-            }
-        }
-        foreach (['downloaded', 'uploaded', 'left', 'port'] as $value){
-            if(!is_numeric($queries[$value]) || $queries[$value] < 0)
-                return new Response($this->error(101, [":attr" => $value]),200, $this->headers);
+            $queries = $this->getAnnounceData($passkey, $request);
+
+
+            $rep_dic = $this->generateAnnounceResponse($queries, $torrent);
+        }catch (\Throwable $e){
+            if ($e instanceof TrackerException && $e->getCode() >= 124)
+                // Record agent deny log in Table `agent_deny_log`
+                $rep_dic = $this->generateTrackerFailResponseDict($e);
+        } finally {
+            return new Response($rep_dic);
         }
 
-        foreach ([
-                     'event' => '', 'no_peer_id' => 1, 'compact' => 0,
-                     'numwant' => 75, 'corrupt' => 0, 'key' => '',
-                 ] as $key => $value) {
-            $queries[$key] = $request->query->get($key, $value);
-        }
-
-        foreach (['numwant', 'corrupt', 'no_peer_id', 'compact'] as $item) {
-            if (!is_numeric($queries[$item]) || $queries[$item] < 0) {
-                return new Response($this->error(101, [":attr" => $value]), 200, $this->headers);
-            }
-        }
-        if (!in_array(strtolower($queries['event']), ['started', 'completed', 'stopped', 'paused', ''])) {
-            return new Response($this->error(101, [":event" => strtolower($queries['event'])]), 200, $this->headers);
-        }
-        if ($queries['port'] == 0 && strtolower($queries['event']) != 'stopped') {
-            return new Response($this->error(105, [":event" => strtolower($queries['event'])]), 200, $this->headers);
-        }
-        if (!is_numeric($queries['port']) || $queries['port'] < 0 || $queries['port'] < 6881 || $queries['port'] > 0xffff || in_array($queries['port'], self::BLACK_PORTS)) {
-            return new Response($this->error(104, [":port" => $queries['port']]), 200, $this->headers);
-        }
-        //TODO Recheck proxies
-        //Request::setTrustedProxies(['127.0.0.1', 'REMOTE_ADDR'],Request::HEADER_X_FORWARDED_HOST);
-        $queries['ip'] = $request->server->get('REMOTE_ADDR');//$request->getClientIp();
-        $queries['user-agent'] = $request->headers->get('user-agent');
-        $queries['seeder'] = $queries['left'] == 0;
+        /**
+         * When a torrent is removed it won't remove the peers from the sync_announce table
+         * this is because the peers needs to be informed that torrent was removed in the client.
+         */
 
         $self = $this->entityManager->getRepository(Peers::class)->findByAnnounce($sync->getUser(), $sync->getTorrent(), $queries['peer_id']);
 
@@ -196,11 +161,13 @@ class AnnounceController extends AbstractController
                 $snatched->setUploaded($snatched->getUploaded() + $trueUploaded);
                 $snatched->setDownloaded($snatched->getDownloaded() + $trueDownloaded);
                 $snatched->setToGo($queries['left']);
-                $snatched->setLastAction();
-                if($queries['left'] === 0)
+
+                if($queries['left'] == 0)
                     $snatched->setSeedtime($snatched->getSeedtime() + $this->functions->date_to_seconds($snatched->getLastAction()));
                 else
                     $snatched->setLeechtime($snatched->getLeechtime() + $this->functions->date_to_seconds($snatched->getLastAction()));
+
+                $snatched->setLastAction();
             }
         }
 
@@ -229,6 +196,72 @@ class AnnounceController extends AbstractController
         return new Response($this->generateAnnounceResponse($queries, $torrent), 200, $this->headers);
     }
 
+    private function getAnnounceData($passkey, Request $request){
+        $queries = [
+            'timestamp' => $request->server->get('REQUEST_TIME_FLOAT')
+        ];
+
+        foreach (['info_hash', 'peer_id', 'port', 'uploaded', 'downloaded', 'left'] as $value) {
+            $item_data = $request->query->get($value);
+            if (!is_null($item_data)) {
+                $queries[$value] = $item_data;
+            } else {
+               throw new TrackerException(130, [':attribute' => $value]);
+            }
+        }
+        foreach (['info_hash', 'peer_id'] as $value){
+            if(strlen($queries[$value]) != 20){
+                throw new TrackerException(132, [':attribute' => $value, ':rule' => 1]);
+            }
+        }
+        foreach (['downloaded', 'uploaded', 'left', 'port'] as $value){
+            if(!is_numeric($queries[$value]) || $queries[$value] < 0)
+                throw new TrackerException(134, [':attribute' => $value]);
+        }
+
+        foreach ([
+                     'event' => '', 'no_peer_id' => 1, 'compact' => 0,
+                     'numwant' => 75, 'corrupt' => 0, 'key' => '',
+                 ] as $key => $value) {
+            $queries[$key] = $request->query->get($key, $value);
+        }
+
+        foreach (['numwant', 'corrupt', 'no_peer_id', 'compact'] as $value) {
+            if (!is_numeric($queries[$value]) || $queries[$value] < 0) {
+                throw new TrackerException(134, [':attribute' => $value]);
+            }
+        }
+        if (!in_array(strtolower($queries['event']), ['started', 'completed', 'stopped', 'paused', ''])) {
+            throw new TrackerException(136, [':event' => $queries['event']]);
+        }
+        if ($queries['port'] == 0 && strtolower($queries['event']) != 'stopped') {
+            throw new TrackerException(137, [':event' => $queries['event']]);
+        }
+        if (!is_numeric($queries['port']) || $queries['port'] < 0 || $queries['port'] < 6881 || $queries['port'] > 0xffff || in_array($queries['port'], self::BLACK_PORTS)) {
+            throw new TrackerException(135, [':port' => $queries['port']]);
+        }
+        //Request::setTrustedProxies(['127.0.0.1', 'REMOTE_ADDR'],Request::HEADER_X_FORWARDED_HOST);
+        $queries['ip'] = $request->server->get('REMOTE_ADDR');
+        $queries['user-agent'] = $request->headers->get('user-agent');
+        $queries['seeder'] = $queries['left'] == 0;
+
+        return $queries;
+    }
+
+    private function isReAnnounce($queries, Request $request)
+    {
+        $query_string = urldecode($request->getQueryString());
+        $identity = md5(str_replace($queries['key'], '', $query_string));
+
+        $prev_lock_expire_at = container()->get('redis')->zScore(Constant::trackerAnnounceLockZset, $identity) ?: $queries['timestamp'];
+        if ($queries['timestamp'] >= $prev_lock_expire_at) {  // this identity is not lock
+            container()->get('redis')->zAdd(Constant::trackerAnnounceLockZset, $queries['timestamp'] + 30, $identity);
+            return false;
+        }
+
+        return true;
+    }
+
     private function generateAnnounceResponse($queries, $torrent): string
     {
         $rep_dict = [
@@ -249,6 +282,21 @@ class AnnounceController extends AbstractController
         }
         return Bencode::encode($rep_dict);
     }
+
+    protected function generateTrackerFailResponseDict(\Throwable $exception)
+    {
+        if ($exception instanceof TrackerException) {
+            $reason = $exception->getMessage();
+        } else {
+            $reason = 'Internal Error';
+        }
+
+        return Bencode::encode([
+            'failure reason' => $reason,
+            'min interval' => 5
+        ]);
+    }
+
 
     /**
      * @param $torrent
@@ -288,25 +336,7 @@ class AnnounceController extends AbstractController
         $logs->setAdded();
         $this->entityManager->persist($logs);
     }
-    private function error($code, $replace = null): string
-    {
-        $message = $this->announce_error[$code];
-        if(!$replace)
-            return Bencode::encode(['failure reason' => $message]);
-        foreach ($replace as $key => $value){
-            $message = str_replace($key, $value, $message);
-        }
-        return Bencode::encode(['failure reason' => $message]);
-    }
-    private $announce_error = [
-        100 => "Invalid :attr | :attr is not 20 bytes long",
-        101 => "Invalid :attr | :attr must be >= 0",
-        102 => 'Unsupported Event type :event .',
-        103 => "Invalid passkey",
-        104 => "Illegal port :port . Port should between 6881-64999",
-        105 => "Illegal port 0 under Event type :event .",
-        106 => "Torrent was removed" // TODO reason
-    ];
+
     private const BLACK_PORTS = [
         22,  // SSH Port
         53,  // DNS queries
@@ -321,4 +351,11 @@ class AnnounceController extends AbstractController
         6881, 6882, 6883, 6884, 6885, 6886, 6887, 6888, 6889, 6890 // BitTorrent part of full range of ports used most often (unofficial)
         //65000, 65001, 65002, 65003, 65004, 65005, 65006, 65007, 65008, 65009, 65010   // For unknown Reason 2333~
     ];
+
+    /**
+     * @throws TrackerException
+     */
+    private function testCatch(){
+        throw new TrackerException(160, [':count' => 15]);
+    }
 }

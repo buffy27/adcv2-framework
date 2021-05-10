@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Friends;
 use App\Entity\PmBox;
 use App\Entity\PmFolder;
 use App\Entity\PmTo;
@@ -33,10 +34,23 @@ class MessagesController extends AbstractController
      */
     public function index(Request $request): Response
     {
+        $folder = $this->entityManager->getRepository(PmFolder::class)->findOneBy(['name'=>'Inbox']);
         $inbox = $this->entityManager->getRepository(PmTo::class)->findByReceiver([
             'receiver' => $this->getUser(),
-            'folder' => $this->entityManager->getRepository(PmFolder::class)->findOneBy(['name'=>'Inbox'])
+            'folder' => $folder
         ]);
+        if($request->get('delete_msgs')){
+            $qb = $this->entityManager->createQueryBuilder()->delete(PmTo::class, 'to')
+                ->where('to.id in (:dids)')
+                ->andWhere('to.receiver = :user')
+                ->andWhere('to.folder = :folder')
+                ->setParameter('dids', $request->get('rm_msg'))
+                ->setParameter('user', $this->getUser())
+                ->setParameter('folder', $folder);
+            $query = $qb->getQuery();
+            $query->execute();
+            return new RedirectResponse($this->generateUrl('messages'));
+        }
         return $this->render('messages/index.html.twig', [
             'inbox' => $inbox,
         ]);
@@ -45,11 +59,25 @@ class MessagesController extends AbstractController
     /**
      * @Route ("/messages/sentbox", name="messages.sentbox")
      */
-    public function sentbox(){
+    public function sentbox(Request $request){
+        $folder = $this->entityManager->getRepository(PmFolder::class)->findOneBy(['name'=>'Sentbox']);
         $sentbox = $this->entityManager->getRepository(PmTo::class)->findBy([
             'receiver' => $this->getUser(),
-            'folder' => $this->entityManager->getRepository(PmFolder::class)->findOneBy(['name'=>'Sentbox'])
+            'folder' => $folder
         ]);
+
+        if($request->get('delete_msgs')){
+            $qb = $this->entityManager->createQueryBuilder()->delete(PmTo::class, 'to')
+                ->where('to.id in (:dids)')
+                ->andWhere('to.receiver = :user')
+                ->andWhere('to.folder = :folder')
+                ->setParameter('dids', $request->get('rm_msg'))
+                ->setParameter('user', $this->getUser())
+                ->setParameter('folder', $folder);
+            $query = $qb->getQuery();
+            $query->execute();
+            return new RedirectResponse($this->generateUrl('messages.sentbox'));
+        }
 
         return $this->render('messages/sentbox.html.twig', [
             'sentbox' => $sentbox
@@ -102,7 +130,9 @@ class MessagesController extends AbstractController
             ]);
         }
         $user = $user[0];
-        if($user->getPersonalSettings()['accept_pms'] != 'all'){
+        $friend = $this->entityManager->getRepository(Friends::class)->findFriendRelation($this->getUser(), $user);
+
+        if(($user->getPersonalSettings()['accept_pms'] != 'all' && is_null($friend)) || !in_array($user->getPersonalSettings()['accept_pms'], ['all', 'friends'])){
             return $this->render('errors/tracker_error.html.twig', [
                 'error' => 'User doesn\'t accept PMs'
             ]);

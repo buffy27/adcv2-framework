@@ -15,6 +15,16 @@ services:
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
+    app.memcached_client:
+        class: Memcached
+        factory: 'Symfony\Component\Cache\Adapter\MemcachedAdapter::createConnection'
+        arguments: [  ['memcached://localhost:11211']]
+
+    app.memcached_adapter:
+        class: Symfony\Component\Cache\Adapter\MemcachedAdapter
+        arguments:
+            - '@app.memcached_client'
+
     App\:
         resource: '../src/'
         exclude:
@@ -39,5 +49,8 @@ services:
 
     App\Services\TrackerMemcached:
         class: App\Services\TrackerMemcached
+        arguments:
+            $cachePool: '@app.memcached_adapter'
+        tags: ['controller.service_arguments']
 
 

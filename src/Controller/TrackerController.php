@@ -2,22 +2,21 @@
 
 namespace App\Controller;
 
+use App\Entity\Bookmarks;
 use App\Entity\Peers;
 use App\Entity\SyncAnnounce;
 use App\Entity\TorrentComments;
 use App\Entity\Torrents;
 use App\Entity\TorrentsCategory;
+use App\Form\EditCommentFormType;
 use App\Form\EditTorrentFormType;
 use App\Form\UploadFormType;
-use App\Form\UploadPreviewFormType;
 use App\Libraries\AnnounceFunctions;
 use App\Libraries\TorrentFile;
 use App\Services\TrackerMemcached;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Tools\Pagination\Paginator;
-use phpDocumentor\Reflection\Types\This;
 use Rhilip\Bencode\Bencode;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
@@ -29,8 +28,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Validator\Constraints\Json;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 use function Twig\Extra\Markdown\twig_html_to_markdown;
 use function Webmozart\Assert\Tests\StaticAnalysis\fileExists;
@@ -48,12 +45,17 @@ class TrackerController extends AbstractController
     }
 
     /**
-     * @Route("/torrents/{page}", name="torrents", methods={"GET"}, requirements={"page"="\d+"} )
+     * @Route("/torrents/{page}", name="torrents", methods={"GET"}, requirements={"page"="\d+"}, defaults={"page"=1} )
      */
     public function torrents(int $page = 1, Request $request, SessionInterface $session, TrackerMemcached $memcached): Response
     {
+        $expr = $this->entityManager->getExpressionBuilder();
         /** @var QueryBuilder $torrents */
         $torrents = $this->entityManager->getRepository(Torrents::class)->createQueryBuilder('t');
+        $torrents->select('t')
+                 ->addSelect('(SELECT COUNT(s) FROM App\Entity\Snatched as s WHERE s.torrent = t) as sn')
+            ->addSelect('(SELECT COUNT(tc) FROM App\Entity\TorrentComments as tc WHERE tc.torrents = t) as tcm');
+
         if($request->query->get('search')){
             $session->set('search', $request->query->all());
         }
@@ -140,12 +142,12 @@ class TrackerController extends AbstractController
                 $torrents->orWhere('JSON_EXTRACT(t.specs, \'$.format\') = \'uhd\'');
             }
         }
+        $torrents->groupBy('t');
         $torrents->orderBy('t.added', 'DESC');
-
         $paginator = new Paginator($torrents);
         $totalItems = count($paginator);
         $curentPage = ($page) ?: 1;
-        $totalPageCount = ceil($totalItems / $memcached->getUserStats()['tracker_settings']['torrents_page']);
+        $totalPageCount = (int)ceil($totalItems / $memcached->getUserStats()['tracker_settings']['torrents_page']);
         $nextPage = (($curentPage < $totalPageCount) ? $curentPage + 1 : $totalPageCount);
         $previousPage = (($curentPage > 1) ? $curentPage - 1 : 1);
 
@@ -187,13 +189,18 @@ class TrackerController extends AbstractController
             $this->entityManager->flush();
             return new RedirectResponse($this->generateUrl('torrent', ['id' => $id]));
         }
-        
+
+        $is_bookmark = $this->entityManager->getRepository(Bookmarks::class)->findOneBy([
+            'user' => $this->getUser(),
+            'torrent' => $torrent
+        ]);
+
         return $this->render('tracker/torrent.html.twig', [
             'torrent' => $torrent,
             'torrent_details' => array_flip($this->getUser()->getTrackerSettings()['torrent_details']),
             'comments' => $comments,
             'peers' => $peers,
-            'stats' => $stats //TODO important move this to global with https://symfony.com/doc/current/templating/global_variables.html (create service stats)
+            'is_bookmarked' => $is_bookmark
         ]);
     }
 
@@ -234,9 +241,46 @@ class TrackerController extends AbstractController
 
     /**
      * @Route ("/comment/edit/{id}", name="comment.edit", requirements={"id"="\d+"}, methods={"GET", "POST"})
+     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_TORRENT_MODERATOR') or is_granted('ROLE_MODERATOR') or is_granted('ROLE_SENIOR_MODERATOR')")
      */
-    public function edit_torrent_comment($id){
-        return $this->render('tracker/edit_comment.html.twig');
+    public function edit_torrent_comment($id, Request $request){
+        /** @var TorrentComments $comment */
+        $comment = $this->entityManager->getRepository(TorrentComments::class)->findOneBy([
+            'id' => $id
+        ]);
+        $form = $this->createForm(EditCommentFormType::class, [
+            'comment' => $comment->getComment()
+        ]);
+
+        $form->handleRequest($request);
+
+        if($form->isSubmitted()){
+            $comment->setComment($form->get('comment')->getData());
+            $comment->setEditedAt();
+            $this->entityManager->flush();
+            return new RedirectResponse($this->generateUrl('torrent', [
+                'id' => $comment->getTorrents()->getId()
+            ]) . "#comment-" . $id);
+        }
+
+        return $this->render('tracker/edit_comment.html.twig', [
+            'edit_comment' => $form->createView()
+        ]);
+    }
+
+    /**
+     * @Route ("/comment/remove/{id}", name="comment.remove", requirements={"id"="\d+"}, methods={"GET", "POST"})
+     * @Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_TORRENT_MODERATOR') or is_granted('ROLE_MODERATOR') or is_granted('ROLE_SENIOR_MODERATOR')")
+     */
+    public function remove_torrent_comment($id){
+        $comment = $this->entityManager->getRepository(TorrentComments::class)->findOneBy([
+            'id' => $id
+        ]);
+        $this->entityManager->remove($comment);
+        $this->entityManager->flush();
+        return new RedirectResponse($this->generateUrl('torrent', [
+                'id' => $comment->getTorrents()->getId()
+            ]));
     }
 
     /**
@@ -344,9 +388,7 @@ class TrackerController extends AbstractController
                 $torrent->setLeechers();
                 $torrent->setSize($torrent_file->getTorrentSize());
                 $torrent->setBonus();
-                $torrent->setBalance(0);
                 $torrent->setSnatched(0);
-                $torrent->setDoubleTorrent(0);
                 $torrent->setLastAction();
                 $torrent->setSpecs([
                     "type" => $category->getName(),

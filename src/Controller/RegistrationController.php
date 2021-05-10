@@ -161,7 +161,9 @@ class RegistrationController extends AbstractController
             ]);
         }
         if($invites[0]->getStatus() == "confirmed"){
-            return $this->redirectToRoute('app_login');
+            return $this->render("errors/404.html.twig", [
+                'error' => "Page not found"
+            ]);
         }
         $user = new User();
         $countries = $this->entityManager->getRepository(Countries::class)->findAllNames();
