@@ -15,6 +15,7 @@ use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Cache\Adapter\MemcachedAdapter;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Security;
 
 use \Datetime;
@@ -39,7 +40,7 @@ class TrackerMemcached
     }
     public function getUserStats()
     {
-        dump($this->cacheUtil->getItem($this->cachePool, md5($this->security->getUser()->getUsername())));
+        $this->removeUserStats();
         if($this->cacheUtil->getItem($this->cachePool, md5($this->security->getUser()->getUsername()))){
             return $this->cacheUtil->getItem($this->cachePool, md5($this->security->getUser()->getUsername()));
         }else{
@@ -82,7 +83,7 @@ class TrackerMemcached
         }
     }
     public function removeUserStats(){
-        //$this->trackerCache->delete(md5($this->security->getUser()->getUsername()));
+        $this->cacheUtil->deleteItem($this->cachePool, md5($this->security->getUser()->getUsername()));
     }
     public function getInboxMessages(){
         return [
@@ -134,7 +135,16 @@ class TrackerMemcached
             return date_create('now');
         });
     }
-    public function setAntiFloodAnnounce(){
-        $this->cacheUtil->saveItem($this->cachePool, 'zz', 'new');
+    public function isReAnnounce($queries, Request $request){
+        $query_string = urldecode($request->getQueryString());
+        $identity = md5(str_replace($queries['key'], '', $query_string));
+
+        $prev_lock_expire_at = $this->cacheUtil->getItem($this->cachePool, $identity) ?: $queries['timestamp'];
+        if ($queries['timestamp'] >= $prev_lock_expire_at) {  // this identity is not lock
+            $this->cacheUtil->saveItem($this->cachePool, $identity, $queries['timestamp'] + 30);
+            return false;
+        }
+        dump($this->cacheUtil->getItem($this->cachePool, $identity));
+        return true;
     }
 }

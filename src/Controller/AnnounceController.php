@@ -8,12 +8,14 @@ use App\Entity\Peers;
 use App\Entity\Snatched;
 use App\Entity\SyncAnnounce;
 use App\Exceptions\TrackerException;
+use App\Libraries\CacheInterface;
 use App\Services\Functions;
 use App\Services\TrackerMemcached;
 use Doctrine\ORM\EntityManagerInterface;
 use HttpResponseException;
 use Rhilip\Bencode\Bencode;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Cache\Adapter\MemcachedAdapter;
 use Symfony\Component\HttpFoundation\IpUtils;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -29,14 +31,14 @@ class AnnounceController extends AbstractController
     ];
 
     private $entityManager;
-    private $memcached;
     private $functions;
+    private $memcached;
 
     public function __construct(EntityManagerInterface $entityManager, TrackerMemcached $memcached, Functions $functions)
     {
         $this->entityManager = $entityManager;
-        $this->memcached = $memcached;
         $this->functions = $functions;
+        $this->memcached = $memcached;
     }
     private function logTrackerException(\Exception $exception, Request $request){
         return new Response(Bencode::encode(['failure reason'=>'Anti cheat ']), 200, $this->headers);
@@ -68,8 +70,17 @@ class AnnounceController extends AbstractController
             if(empty($sync->getTorrent()))
                 throw new TrackerException(152);
 
-            $queries = $this->getAnnounceData($passkey, $request);
+            $queries = $this->getAnnounceData($request);
+            $torrent = $sync->getTorrent();
+            $user = $sync->getUser();
 
+            /**
+             * When a torrent is removed it won't remove the peers from the sync_announce table
+             * this is because the peers needs to be informed that torrent was removed in the client.
+             */
+            if($this->memcached->isReAnnounce($queries, $request) === false){
+                $this->worker($user, $torrent, $queries);
+            }
 
             $rep_dic = $this->generateAnnounceResponse($queries, $torrent);
         }catch (\Throwable $e){
@@ -77,25 +88,36 @@ class AnnounceController extends AbstractController
                 // Record agent deny log in Table `agent_deny_log`
                 $rep_dic = $this->generateTrackerFailResponseDict($e);
         } finally {
-            return new Response($rep_dic);
+            return new Response($rep_dic, 200, $this->headers);
         }
+    }
 
-        /**
-         * When a torrent is removed it won't remove the peers from the sync_announce table
-         * this is because the peers needs to be informed that torrent was removed in the client.
-         */
+    private function worker($user, $torrent, $queries){
+        $self = $this->entityManager->getRepository(Peers::class)->findByAnnounce($user, $torrent, $queries['peer_id']);
 
-        $self = $this->entityManager->getRepository(Peers::class)->findByAnnounce($sync->getUser(), $sync->getTorrent(), $queries['peer_id']);
-
-        $torrent = $sync->getTorrent();
-        $user = $sync->getUser();
         /** @var Snatched $snatched */
-        $snatched = $this->entityManager->getRepository(Snatched::class)->findBy([
+        $snatched = $this->entityManager->getRepository(Snatched::class)->findOneBy([
             'user' => $user,
             'torrent' => $torrent
         ]);
-        if($snatched)
-            $snatched = $snatched[0];
+
+        $self_check = $this->entityManager->getRepository(Peers::class)->findSelfPeers($user, $torrent);
+        if(count($self_check) > 3 && $user->getUserClass()->getName() == "Uploader"){
+            throw new TrackerException(165, [':limit' => 3]);
+        }
+        if(count($self_check) > 1 && $user->getUserClass()->getName() != "Uploader") {
+            throw new TrackerException(165, [':limit' => 1]);
+        }
+
+        if($user->getDownloaded() > 0){
+            $this->log_announce($user->getDownloaded());
+            if($user->getUploaded()/$user->getDownloaded() < 0.50){
+                throw new TrackerException(166);
+            }
+        }
+
+        if($user->getDownloaded() > 15000000000 && $user->getUploaded() == 0 && $self->getSeeder() == '0')
+            throw new TrackerException(166);
 
         $trueUploaded = $trueDownloaded = 0;
         $thisUploaded = $thisDownloaded = 0;
@@ -112,7 +134,7 @@ class AnnounceController extends AbstractController
                 @fclose($sockres);
             }
             $peer = new Peers();
-            $peer->setTorrent($sync->getTorrent())->setUser($sync->getUser())->setUploaded($trueUploaded)->setDownloaded($trueDownloaded)->setToGo($queries['left'])
+            $peer->setTorrent($torrent)->setUser($user)->setUploaded($trueUploaded)->setDownloaded($trueDownloaded)->setToGo($queries['left'])
                 ->setIp($queries['ip'])->setPort($queries['port'])->setPeerId($queries['peer_id'])->setAgent($queries['user-agent'])
                 ->setStarted()->setLastAction()->setSeeder($queries['seeder'])->setConnectable($connectable);
             $this->entityManager->persist($peer);
@@ -152,12 +174,12 @@ class AnnounceController extends AbstractController
                     $torrent->setLeechers($torrent->getLeechers() - 1);
             }else{
                 $self->setUploaded($self->getUploaded() + $trueUploaded)
-                     ->setDownloaded($self->getDownloaded() + $trueDownloaded)
-                     ->setToGo($queries['left'])
-                     ->setIp($queries['ip'])
-                     ->setPort($queries['port'])
-                     ->setSeeder($queries['seeder'])
-                     ->setLastAction(new \DateTime('now'));
+                    ->setDownloaded($self->getDownloaded() + $trueDownloaded)
+                    ->setToGo($queries['left'])
+                    ->setIp($queries['ip'])
+                    ->setPort($queries['port'])
+                    ->setSeeder($queries['seeder'])
+                    ->setLastAction(new \DateTime('now'));
                 $snatched->setUploaded($snatched->getUploaded() + $trueUploaded);
                 $snatched->setDownloaded($snatched->getDownloaded() + $trueDownloaded);
                 $snatched->setToGo($queries['left']);
@@ -180,9 +202,10 @@ class AnnounceController extends AbstractController
         $user->setUploaded($user->getUploaded() + $thisUploaded);
         $user->setDownloaded($user->getDownloaded() + $thisDownloaded);
 
-        $this->memcached->cleanPeers();
+        //$this->memcached->cleanPeers();
 
         $this->entityManager->flush();
+
         $calc_peers = $this->entityManager->getRepository(Peers::class)->getPeersCountByTorrent($torrent);
 
         if($torrent->getSeeders() != $calc_peers['seeders']){
@@ -193,10 +216,9 @@ class AnnounceController extends AbstractController
         }
 
         $this->entityManager->flush();
-        return new Response($this->generateAnnounceResponse($queries, $torrent), 200, $this->headers);
     }
 
-    private function getAnnounceData($passkey, Request $request){
+    private function getAnnounceData(Request $request){
         $queries = [
             'timestamp' => $request->server->get('REQUEST_TIME_FLOAT')
         ];
@@ -241,25 +263,10 @@ class AnnounceController extends AbstractController
             throw new TrackerException(135, [':port' => $queries['port']]);
         }
         //Request::setTrustedProxies(['127.0.0.1', 'REMOTE_ADDR'],Request::HEADER_X_FORWARDED_HOST);
-        $queries['ip'] = $request->server->get('REMOTE_ADDR');
+        $queries['ip'] = $request->getClientIp();
         $queries['user-agent'] = $request->headers->get('user-agent');
         $queries['seeder'] = $queries['left'] == 0;
-
         return $queries;
-    }
-
-    private function isReAnnounce($queries, Request $request)
-    {
-        $query_string = urldecode($request->getQueryString());
-        $identity = md5(str_replace($queries['key'], '', $query_string));
-
-        $prev_lock_expire_at = container()->get('redis')->zScore(Constant::trackerAnnounceLockZset, $identity) ?: $queries['timestamp'];
-        if ($queries['timestamp'] >= $prev_lock_expire_at) {  // this identity is not lock
-            container()->get('redis')->zAdd(Constant::trackerAnnounceLockZset, $queries['timestamp'] + 30, $identity);
-            return false;
-        }
-
-        return true;
     }
 
     private function generateAnnounceResponse($queries, $torrent): string
@@ -297,7 +304,6 @@ class AnnounceController extends AbstractController
         ]);
     }
 
-
     /**
      * @param $torrent
      * @param $user
@@ -332,9 +338,10 @@ class AnnounceController extends AbstractController
 
     private function log_announce($log){
         $logs = new Logs();
-        $logs->setLog($log);
+        $logs->setLog(json_encode($log));
         $logs->setAdded();
         $this->entityManager->persist($logs);
+        $this->entityManager->flush();
     }
 
     private const BLACK_PORTS = [
@@ -351,11 +358,4 @@ class AnnounceController extends AbstractController
         6881, 6882, 6883, 6884, 6885, 6886, 6887, 6888, 6889, 6890 // BitTorrent part of full range of ports used most often (unofficial)
         //65000, 65001, 65002, 65003, 65004, 65005, 65006, 65007, 65008, 65009, 65010   // For unknown Reason 2333~
     ];
-
-    /**
-     * @throws TrackerException
-     */
-    private function testCatch(){
-        throw new TrackerException(160, [':count' => 15]);
-    }
 }

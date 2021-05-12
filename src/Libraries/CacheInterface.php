@@ -7,7 +7,7 @@ use Symfony\Component\Cache\Adapter\MemcachedAdapter;
 
 interface CacheInterface
 {
-    public function saveItem(MemcachedAdapter $cachePool, string $key, $value, int $expire): bool;
+    public function saveItem(MemcachedAdapter $cachePool, string $key, $value, int $expire = null): bool;
 
     public function getItem(MemcachedAdapter $cachePool, string $key);
 
