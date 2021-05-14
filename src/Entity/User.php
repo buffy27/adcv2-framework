@@ -197,16 +197,6 @@ class User implements UserInterface
     private $track_ipv6;
 
     /**
-     * @ORM\Column(type="bigint", options={"default":0})
-     */
-    private $UploadedDaily;
-
-    /**
-     * @ORM\Column(type="bigint", options={"default":0})
-     */
-    private $DownloadedDaily;
-
-    /**
      * @ORM\OneToMany(targetEntity=Snatched::class, mappedBy="user")
      */
     private $snatcheds;
@@ -776,30 +766,6 @@ class User implements UserInterface
     public function setTrackIpv6(?bool $track_ipv6): self
     {
         $this->track_ipv6 = $track_ipv6;
-
-        return $this;
-    }
-
-    public function getUploadedDaily(): ?string
-    {
-        return $this->UploadedDaily;
-    }
-
-    public function setUploadedDaily(string $UploadedDaily): self
-    {
-        $this->UploadedDaily = $UploadedDaily;
-
-        return $this;
-    }
-
-    public function getDownloadedDaily(): ?string
-    {
-        return $this->DownloadedDaily;
-    }
-
-    public function setDownloadedDaily(string $DownloadedDaily): self
-    {
-        $this->DownloadedDaily = $DownloadedDaily;
 
         return $this;
     }

@@ -89,4 +89,13 @@ class Functions
             $ret .= chr(random_int(33, 126));
         return $ret;
     }
+    public function formatBytes($size, $precision = 2)
+    {
+        if (empty($size))
+            return 0;
+        $base = log($size, 1024);
+        $suffixes = array('B', 'KB', 'MB', 'GB', 'TB', 'PB');
+        $out = round(pow(1024, $base - floor($base)), $precision) . ' ' . $suffixes[floor($base)];
+        return $out;
+    }
 }

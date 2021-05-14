@@ -62,4 +62,7 @@ security:
         - { path: ^/check-email, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/verify, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/announce, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/rss_feed, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/rss_torrent, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/torrent/poster, roles: IS_AUTHENTICATED_ANONYMOUSLY}
         - { path: ^/*, roles: ROLE_USER }

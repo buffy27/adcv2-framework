@@ -1,0 +1,140 @@
+{% extends "layout/tracker.html.twig" %}
+
+{% block title %}
+    Rss
+{% endblock %}
+
+{% block body %}
+    <form method="post">
+    <div class="row small-device mt-4 mb-5">
+        <div class="mx-auto col-xl-8 col-lg-10 col-12">
+
+            <h1 class="text-center">RSS Feeds</h1>
+
+            <div class="fancy-container mt-3 bx-d-sm-0">
+                <!-- categories -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 pt-sm-1">Categories</div>
+                        <div class="col-12 col-sm-10 d-flex flex-column">
+                            <div class="row">
+                                <div class="col-sm-3 col-6 pl-3 pl-lg-2">
+                                    <label class="nobr valign-middle"><input type="checkbox" name="categories[]"
+                                                                             value="1"/><span>Anime</span></label><br/>
+                                    <label class="nobr valign-middle"><input type="checkbox" name="categories[]"
+                                                                             value="2"/><span>Hong Kong</span></label><br/>
+                                    <label class="nobr valign-middle"><input type="checkbox" name="categories[]"
+                                                                             value="3"/><span>Japan</span></label><br/>
+                                    <label class="nobr valign-middle"><input type="checkbox" name="categories[]"
+                                                                             value="4"/><span>South Korea</span></label><br/>
+
+                                </div>
+                                <div class="col-sm-3 col-6 pr-3 mr-sm-0">
+                                    <label class="nobr valign-middle"><input type="checkbox" name="categories[]"
+                                                                             value="5"/><span>China</span></label><br/>
+                                    <label class="nobr valign-middle"><input type="checkbox" name="categories[]"
+                                                                             value="6"/><span>Philippines</span></label><br/>
+                                    <label class="nobr valign-middle"><input type="checkbox" name="categories[]"
+                                                                             value="7"/><span>Taiwan</span></label><br/>
+                                    <label class="nobr valign-middle"><input type="checkbox" name="categories[]"
+                                                                             value="8"/><span>Thailand</span></label><br/>
+                                </div>
+                                <div class="col-sm-3 col-6 pr-3 pr-lg-2">
+                                    <label class="nobr valign-middle"><input type="checkbox" name="categories[]"
+                                                                             value="9"/><span>Vietnam</span></label><br/>
+                                    <label class="nobr valign-middle"><input type="checkbox" name="categories[]"
+                                                                             value="10"/><span>Malaysia</span></label><br/>
+                                    <label class="nobr valign-middle"><input type="checkbox" name="categories[]"
+                                                                             value="11"/><span>Other Asian</span></label><br/>
+                                    <label class="nobr valign-middle"><input type="checkbox" name="categories[]"
+                                                                             value="12"/><span>Miscellaneous</span></label><br/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- rss display -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1 pt-sm-1">RSS display</div>
+                        <div class="col-12 col-sm-10 d-flex flex-column">
+                            <label class="valign-middle"><input type="checkbox" name="display[]" value="category"/>
+                                <span>Category</span></label>
+                            <label class="valign-middle"><input type="checkbox" name="display[]" value="size"/> <span>Size</span></label>
+                            <label class="valign-middle"><input type="checkbox" name="display[]" value="uploader"/>
+                                <span>Uploader</span></label>
+                            <label class="valign-middle"><input type="checkbox" name="display[]" value="description"/>
+                                <span>Description</span></label>
+                            <label class="valign-middle"><input type="checkbox" name="display[]" value="mediainfo"/>
+                                <span>Mediainfo</span></label>
+                            <label class="valign-middle"><input type="checkbox" name="display[]" value="image"/> <span>Poster Image</span></label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- rows per page -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Rows per page</div>
+                        <div class="col-12 col-sm-10">
+                            <select name="numwat">
+                                <option value="25" selected>25</option>
+                                <option value="50">50</option>
+                                <option value="75">75</option>
+                                <option value="100">100</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- keyword -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="rowhead col-12 col-sm-2 pr-sm-0 text-left-d-sm pb-d-sm-1">Keyword</div>
+                        <div class="col-12 col-sm-10">
+                            <input type="text" autocomplete="off"/>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- make rss button -->
+                <div class="fancy-row">
+                    <div class="row small-device">
+                        <div class="col-12 col-sm-2"></div>
+                        <div class="col-12 col-sm-10">
+                            <input type="submit" class="btn" name="generate" value="Generate RSS Link"/> {{ error ?? ""}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="mx-auto col-xl-8 col-lg-10 col-12">
+
+            <h1 class="text-center">RSS Generators</h1>
+            <table class="torrenttable_helper bx-d-sm-0 w-100">
+                <thead>
+                    <tr>
+                        <th width="10%">id</th>
+                        <th>Hash</th>
+                    </tr>
+                </thead>
+                {% if rss_generated is empty %}
+                    <tr>
+                        <td colspan="2" class="center">No rss feed generated</td>
+                    </tr>
+                {% else %}
+                    {% for rss in rss_generated %}
+                        <tr>
+                            <td class="center">{{ loop.index }}</td>
+                            <td class="center">
+                                <a href="{{ path('rss.feed', {rss_hash:rss.rssHash}) }}">{{ rss.rssHash }}</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% endif %}
+            </table>
+        </div>
+    </div>
+</form>
+{% endblock %}

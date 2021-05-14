@@ -17,9 +17,9 @@
         <div class="logo"></div>
         <div class="outer mx-0 mx-lg-2 bx-d-lg-0">
             <div class="navigation d-flex justify-content-center flex-wrap">
-                <a href="/login">Login</a>
-                <a href="/signup">Signup</a>
-                <a href="/reset-password">Recover</a>
+                <a href="{{ path('app_login') }}">Login</a>
+                <a href="{{ path('app_register') }}">Signup</a>
+                <a href="{{ path('app_reset_password') }}">Recover</a>
             </div>
             <div class="container px-d-sm-0">
         {% block body %}
