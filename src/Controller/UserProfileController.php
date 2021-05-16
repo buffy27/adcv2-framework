@@ -10,6 +10,7 @@ use App\Entity\Snatched;
 use App\Entity\SyncAnnounce;
 use App\Entity\Torrents;
 use App\Entity\User;
+use App\Entity\UserEmailChanges;
 use App\Form\ActiveSearchFormType;
 use App\Form\ForumSettingsFormType;
 use App\Form\SecuritySettingsFormType;
@@ -38,6 +39,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
+use Symfony\Component\Mime\Message;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\Json;
 use Symfony\Component\Translation\TranslatorBagInterface;
@@ -232,14 +234,32 @@ class UserProfileController extends AbstractController
     /**
      * @Route("/user/security", name="user.security")
      */
-    public function security_settings(Request $request, Functions $functions): Response
+    public function security_settings(Request $request, Functions $functions, MailerInterface $mailer): Response
     {
         $form = $this->createForm(SecuritySettingsFormType::class, ['email' => $this->getUser()->getEmail()]);
         $form->handleRequest($request);
 
         if($form->isSubmitted()){
             if($form->get('change_email')->getData() != $this->getUser()->getEmail()){
-                dump();
+                $hash = hash('SHA3-256', $functions->mksecret(27));
+                $user_email = new UserEmailChanges();
+                $user_email->setUser($this->getUser());
+                $user_email->setAdded();
+                $user_email->setEmail($form->get('change_email')->getData());
+                $user_email->setHash($hash);
+                $user_email->setExpiration(new \DateTime('+7 days'));
+                $this->entityManager->persist($user_email);
+                $this->entityManager->flush();
+                $email = (new TemplatedEmail())->from(new Address('system@rainandcoffee.com', 'System'))
+                    ->to($this->getUser()->getEmail())
+                    ->subject("Email change request")
+                    ->htmlTemplate("security/email_change.html.twig");
+                $context = $email->getContext();
+                $context['email_url'] = $request->getSchemeAndHttpHost() .  $this->generateUrl('change_email', ['hash' => $hash]);
+                $email->context($context);
+                $mailer->send($email);
+
+                return new RedirectResponse($this->generateUrl('user.security'));
             }
             if(!empty($form->get('old_password')->getData()) && !empty($form->get('password')->getData()) &&
                 $this->getUser()->getPassword() === hash("sha3-256",  $this->getUser()->getSecret() . $form->get('old_password')->getData() .  $this->getUser()->getSecret() . $this->getUser()->getUsername() . $this->getUser()->getSecret())){
@@ -260,6 +280,23 @@ class UserProfileController extends AbstractController
         ]);
     }
 
+    /**
+     * @param $hash
+     * @Route ("/change_email/{hash}", name="change_email")
+     */
+    public function change_email($hash){
+        $email_change = $this->entityManager->getRepository(UserEmailChanges::class)->findOneBy(['hash' => $hash]);
+        if(!$email_change)
+            return $this->render('errors/404.html.twig');
+        if($email_change->getExpiration() < new \DateTime('now'))
+             return $this->render('errors/tracker_error.html.twig', [
+                 'error' => "Email change link expired"
+             ]);
+        $this->getUser()->setEmail($email_change->getEmail());
+        $this->entityManager->remove($email_change);
+        $this->entityManager->flush();
+        return new RedirectResponse($this->generateUrl('user.security'));
+    }
     /**
      * @Route ("/user/send_invite", name="user.send_invite")
      */

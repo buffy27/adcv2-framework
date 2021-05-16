@@ -177,7 +177,6 @@ class TrackerController extends AbstractController
         $comments = $this->entityManager->getRepository(TorrentComments::class)->findByTorrentId($torrent);
         $peers = $this->entityManager->getRepository(Peers::class)->findByTorrent($torrent->getId());
 
-
         if($request->getMethod() == "POST"){
             $comment = new TorrentComments();
             $comment->setComment($request->get('comment_desc'));

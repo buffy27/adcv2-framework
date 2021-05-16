@@ -19,9 +19,8 @@ class SecuritySettingsFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-
         $builder
-            ->add('reset_passkey', ChoiceType::class, [
+            /*->add('reset_passkey', ChoiceType::class, [
                 'label' => "Reset Passkey",
                 'choices' => [
                     "By checking this your passkey will be reseted and you will need to redownload the .torrent files in order to seed again." => 'reset_key'
@@ -29,7 +28,7 @@ class SecuritySettingsFormType extends AbstractType
                 'expanded' => true,
                 'multiple' => true,
                 'required' => false
-            ])
+            ])*/
             ->add('change_email', EmailType::class, [
             'label' => "Change Email",
                 'required' => false,
